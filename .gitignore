@@ -1,2 +1,4 @@
-*/private
+*private
 *.pyc
+.idea
+.DS_Store
