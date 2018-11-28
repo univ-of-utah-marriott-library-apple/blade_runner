@@ -5,8 +5,6 @@ class EntryView(tk.Toplevel):
 
     def __init__(self, master):
         tk.Toplevel.__init__(self, master)
-        self.protocol('WM_DELETE_WINDOW', )
-
         self.title("Create New JSS Record")
         header_frame = tk.Frame(self)
         content_frame = tk.Frame(self)
@@ -15,10 +13,10 @@ class EntryView(tk.Toplevel):
         # Creating and adding components to subframes
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Text header component
-        text_lbl = tk.Label(header_frame, text="No JSS record exists for this computer.\n"
+        self.text_lbl = tk.Label(header_frame, text="No JSS record exists for this computer.\n"
                                             "Create the new record by filling in the\n"
                                             "following fields:")
-        text_lbl.grid(row=0)
+        self.text_lbl.grid(row=0)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Barcode components
         barcode_lbl = tk.Label(content_frame, text='Barcode:')

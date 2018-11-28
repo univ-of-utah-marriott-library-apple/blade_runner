@@ -1,23 +1,14 @@
-from jss_server import JssServer
 import inspect
 from management_tools import loggers
 import os
-import plistlib
-
-cf = inspect.currentframe()
-filename = inspect.getframeinfo(cf).filename
-filename = os.path.basename(filename)
-filename = os.path.splitext(filename)[0]
-logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)
+from computer import Computer
 
 
 class Model(object):
 
-    def __init__(self):
-        jss_info = plistlib.readPlist(file)
-
-        self.jss_server = JssServer(**jss_info)
-
+    def __init__(self, server):
+        self.jss_server = server
+        self.computer = Computer()
 
         self.incorrect_barcode = None
         self.incorrect_asset = None
@@ -39,3 +30,10 @@ class Model(object):
         self.asset_entry = None
         self.name = None
         self.serial = None
+
+
+cf = inspect.currentframe()
+filename = inspect.getframeinfo(cf).filename
+filename = os.path.basename(filename)
+filename = os.path.splitext(filename)[0]
+logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)

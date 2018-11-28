@@ -25,4 +25,3 @@ class View(tk.Toplevel):
         self.asset_btn = tk.Button(self, text="Enter Asset Number")
         self.asset_btn.grid(row=4, column=0, sticky='EW')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
