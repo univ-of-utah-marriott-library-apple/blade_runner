@@ -1,6 +1,4 @@
 from entry_view import EntryView
-import Tkinter as tk
-import subprocess
 import inspect
 from management_tools import loggers
 import os
