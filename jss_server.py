@@ -745,20 +745,6 @@ class JssServer(object):
         name = self.get_tugboat_fields(jss_id)['general']['computer_name']
         return name
 
-    # REMOVE THIS METHOD
-    # @staticmethod
-    # def get_serial():
-    #     """Gets and returns serial number from the computer. event=None is needed beacuse get_serial is bound to the
-    #     Return key when in the main window"""
-    #     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    #     # Gets raw data that contains the serial number
-    #     output = subprocess.check_output(["system_profiler", "SPHardwareDataType"])
-    #     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    #     # Gets serial number from the raw data
-    #     serial_number = re.findall('Serial Number .system.: (.*)', output)[0]
-    #     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    #     return serial_number
-
     def enroll_computer(self):
         # ***REMOVED***/
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
