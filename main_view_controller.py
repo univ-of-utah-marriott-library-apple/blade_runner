@@ -44,7 +44,6 @@ class MainViewController(object):
         #self.dt.search_param = self.computer.serial
         self.jss_server.search_param = self.computer.serial
         self.dt.proceed = True
-        # UNCOMMENT vvv
         self.computer.jss_id = self.jss_server.return_jss_match(self.computer.serial)
         self.process_logic()
 
