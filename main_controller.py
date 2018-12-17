@@ -1,6 +1,6 @@
 from model import Model
-from main_view import View
-from entry_view_controller import EntryViewController
+from entry_controller import EntryController
+from main_view import MainView
 import Tkinter as tk
 import subprocess
 import inspect
@@ -15,36 +15,99 @@ import socket
 from management_tools.slack import IncomingWebhooksSender as IWS
 from jss_doc import JssDoc
 
-class MainViewController(object):
+
+class MainController(object):
     def __init__(self, root, server):
 
         self.model = Model(server)
         self.jss_server = server
         self.computer = Computer()
         self.dt = DecisionTree()
+        self.inventory_status = None
+        self.root = root
 
-        self.main_view = View(root)
-        self.entry_view_controller = None
+        self.main_view = None
+        self.entry_controller = None
         self.entry_view = None
-        self.set_to_middle(self.main_view)
         self.refocus()
 
-        self.main_view.serial_btn.config(command=self.get_serial_btn)
-        self.main_view.bind('<Return>', self.get_serial_btn)
-
+        self.barcode_searched = False
+        self.asset_searched = False
+        self.serial_searched = False
 
     def run(self):
-        self.main_view.mainloop()
+        self.main_view = MainView(self.root, self)
         self.refocus()
+        self.main_view.mainloop()
 
-    def get_serial_btn(self):
+    def options_scene(self, sender):
+        self.forget_buttons()
+        self.main_view.selection_lbl.grid(row=1)
+
+        if sender is self.main_view.salvage_btn:
+            self.main_view.selection_lbl.config(text="Inventory Status: SALVAGE")
+            self.inventory_status = "Salvage"
+        elif sender is self.main_view.storage_btn:
+            self.main_view.selection_lbl.config(text="Inventory Status: STORAGE")
+            self.inventory_status = "Storage"
+
+        self.main_view.choose_lbl.config(text="Choose one of the following options:")
+
+        self.main_view.serial_btn.grid(row=2, column=0, sticky='EW')
+
+        self.main_view.barcode_btn.grid(row=3, column=0, sticky='EW')
+
+        self.main_view.asset_btn.grid(row=4, column=0, sticky='EW')
+
+    def forget_buttons(self):
+        self.main_view.salvage_btn.grid_forget()
+        self.main_view.storage_btn.grid_forget()
+
+    def serial_input(self):
         self.computer.serial = self.computer.get_serial()
         logger.debug("Serial number: {0!r}".format(self.computer.serial))
-
-        #self.dt.search_param = self.computer.serial
         self.jss_server.search_param = self.computer.serial
         self.dt.proceed = True
-        self.computer.jss_id = self.jss_server.return_jss_match(self.computer.serial)
+        self.computer.jss_id = self.jss_server.return_jss_match(self.jss_server.search_param)
+        self.serial_searched = True
+        self.next_input()
+        
+    def barcode_input(self):
+        self.entry_controller = EntryController(self.main_view, self.computer, self.dt)
+        self.entry_controller.barcode_only()
+        # Wait
+        self.main_view.wait_window(window=self.entry_controller.entry_view)
+        print(self.computer.barcode)
+        self.jss_server.search_param = self.computer.barcode
+        self.computer.jss_id = self.jss_server.return_jss_match(self.jss_server.search_param)
+        self.barcode_searched = True
+        self.dt.proceed = True
+        self.next_input()
+
+    def asset_input(self):
+        self.entry_controller = EntryController(self.main_view, self.computer, self.dt)
+        self.entry_controller.asset_only()
+        # Wait
+        self.main_view.wait_window(window=self.entry_controller.entry_view)
+        self.jss_server.search_param = self.computer.asset
+        self.computer.jss_id = self.jss_server.return_jss_match(self.jss_server.search_param)
+        self.asset_searched = True
+        self.dt.proceed = True
+        self.next_input()
+
+    def next_input(self):
+        if self.barcode_searched and self.computer.jss_id is None:
+            if not self.asset_searched:
+                self.asset_input()
+                return
+        if self.asset_searched and self.computer.jss_id is None:
+            if not self.barcode_searched:
+                self.barcode_input()
+                return
+        if self.barcode_searched and self.asset_searched and self.computer.jss_id is None:
+            if not self.serial_searched:
+                self.serial_input()
+                return
         self.process_logic()
 
     def process_logic(self):
@@ -52,13 +115,14 @@ class MainViewController(object):
 
         # If JSS ID doesn't exist
         if self.computer.jss_id is None:
-            self.entry_view_controller = EntryViewController(self.main_view, self.computer, self.dt)
-            self.entry_view_controller.entry_view.text_lbl.config(text="No JSS record exists for this computer.\n"
+            self.entry_controller = EntryController(self.main_view, self.computer, self.dt)
+            self.entry_controller.populate_entry_fields()
+            self.entry_controller.entry_view.text_lbl.config(text="No JSS record exists for this computer.\n"
                                                                        "Create the new record by filling in the\n"
                                                                        "following fields:")
             # Wait for entry view window to close. After entry view window has been closed through the "submit" button,
             # the barcode, asset, and name fields of the computer object will be updated.
-            self.main_view.wait_window(window=self.entry_view_controller.entry_view)
+            self.main_view.wait_window(window=self.entry_controller.entry_view)
 
             # Make sure the serial field for the computer object was updated/set.
             if self.computer.serial is None:
@@ -75,7 +139,7 @@ class MainViewController(object):
             logger.debug("Enrolling finished.")
 
             # Since JSS ID has now been created, retrieve it using the search parameter inputted by the user.
-            self.computer.jss_id = self.jss_server.return_jss_match(jss_server.search_param)
+            self.computer.jss_id = self.jss_server.return_jss_match(self.jss_server.search_param)
 
             # Update the JAMF record with the barcode, asset, and name of the computer
             self.jss_server.push_enroll_fields(self.computer)
@@ -95,10 +159,11 @@ class MainViewController(object):
             prev_asset = tugboat_fields['general']['asset_tag']
             prev_name = self.jss_server.get_prev_name(self.computer.jss_id)
 
-            self.computer.barcode = prev_barcode
-            self.computer.asset = prev_asset
-            self.computer.name = prev_name
-            # SHOULD THIS BE PREV NAME OR SMOETHING ELSE
+            # If neither the barcode or asset have been entered, set the fields to the returned JSS fields
+            if not self.barcode_searched and not self.asset_searched:
+                self.computer.barcode = prev_barcode
+                self.computer.asset = prev_asset
+                self.computer.name = prev_name
 
             if self.computer.serial is None:
                 self.computer.serial = self.computer.get_serial()
@@ -108,12 +173,13 @@ class MainViewController(object):
             logger.debug("Previous name: {}".format(prev_name))
 
             # Open the entry window
-            self.entry_view_controller = EntryViewController(self.main_view, self.computer, self.dt)
-            self.entry_view_controller.entry_view.text_lbl.config(text="JSS record exists. Please verify the following"
-                                                                       "fields.")
+            self.entry_controller = EntryController(self.main_view, self.computer, self.dt)
+            self.entry_controller.entry_view.text_lbl.config(text="JSS record exists. Please verify/correct the "
+                                                                  "following fields.")
+            self.entry_controller.populate_entry_fields()
             # Wait for entry view window to close. After entry view window has been closed through the "submit" button,
             # the barcode, asset, and name fields of the computer object will be updated.
-            self.main_view.wait_window(window=self.entry_view_controller.entry_view)
+            self.main_view.wait_window(window=self.entry_controller.entry_view)
 
             # If user closes out of entry view window using the x button, proceed = False, and the function exits.
             if self.dt.proceed is False:
@@ -142,10 +208,10 @@ class MainViewController(object):
                 self.computer.incorrect_serial = tugboat_fields['general']['serial_number']
                 logger.debug("JSS serial {} is incorrect.".format(self.computer.incorrect_serial))
 
-            if self.computer.name_label == prev_name:
-                self.computer.name_label = None
+            if self.computer.name == prev_name:
+                self.computer.name = None
 
-            # Check if Managed
+            # Check if ManagedA
             managed = self.jss_server.get_managed_status(self.computer.jss_id)
             logger.debug("Management status is {}".format(managed))
 
@@ -161,7 +227,7 @@ class MainViewController(object):
         fields_to_offboard = self.jss_server.get_offboard_fields(self.computer.jss_id)
         logger.debug("Fields to be offboarded: {}".format(pformat(fields_to_offboard)))
 
-        offboarded_values = self.jss_server.set_offboard_fields(fields_to_offboard, inventory_status='Salvage')
+        offboarded_values = self.jss_server.set_offboard_fields(fields_to_offboard, inventory_status=self.inventory_status)
         logger.debug("Offboarded fields to be sent: {}".format(pformat(offboarded_values)))
 
         # Push offboard fields to the JSS
@@ -205,17 +271,16 @@ class MainViewController(object):
         # bot.send_message("offboard_tool.py finished.")
 
         logger.info("Building HTML Page")
-        doc = JssDoc(self.jss_server, self.computer.jss_id)
+        doc = JssDoc(self.jss_server, self.computer.jss_id, self.computer)
         doc.create_html()
         doc.html2pdf()
-        doc.applescript_print()
+        # doc.applescript_print()
         logger.info("Building HTML Page Finished")
 
         final_tugboat_fields = self.jss_server.get_tugboat_fields(self.computer.jss_id)
         logger.debug("Final Tugboat fields: \n{}".format(pformat(final_tugboat_fields)))
         self.main_view.destroy()
         logger.info("Blade Runner successfully finished.")
-        # raise SystemExit()
 
 
     def refocus(self):
@@ -264,7 +329,7 @@ if __name__ == "__main__":
     current_ip = socket.gethostbyname(socket.gethostname())
     bot = IWS(slack_data['slack_url'], bot_name=current_ip, channel=slack_data['slack_channel'])
 
-    app = MainViewController(root, jss_server)
+    app = MainController(root, jss_server)
     app.run()
 
 
