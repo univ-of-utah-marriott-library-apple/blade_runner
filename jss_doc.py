@@ -6,10 +6,11 @@ from management_tools import loggers
 import subprocess
 import webbrowser
 
+
 class JssDoc(object):
-    def __init__(self, jss_server, jss_id):
+    def __init__(self, jss_server, jss_id, computer):
         self.jss_server = jss_server
-        self.computer = Computer()
+        self.computer = computer
         self.home = os.path.expanduser("~")
         self.blade_runner_dir = "blade-runner-data/"
         self.abs_dir = self.home + '/Desktop/' + self.blade_runner_dir
@@ -67,17 +68,19 @@ class JssDoc(object):
             if e.errno != 17:
                 raise
 
+        none_filter = lambda x : "" if x is None else x
+
         if self.computer.incorrect_barcode is not None \
                 or self.computer.incorrect_asset is not None \
                 or self.computer.incorrect_serial is not None:
             review_content = """<b>These are the previous incorrect JSS fields. They should be reviewed to fix </b>
             <b>any JSS inconsistencies.</b>
             <p>
-            <b>Previous barcode: </b> <font color="red">""" + self.computer.incorrect_barcode + """</font>
+            <b>Previous barcode: </b> <font color="red">""" + "{}".format(none_filter(self.computer.incorrect_barcode)) + """</font>
             <p>
-            <b>Previous asset tag: </b> <font color="red">""" + self.computer.incorrect_asset + """</font>
+            <b>Previous asset tag: </b> <font color="red">""" + "{}".format(none_filter(self.computer.incorrect_asset)) + """</font>
             <p>
-            <b>Previous serial number: </b> <font color="red">""" + self.computer.incorrect_serial + """</font>
+            <b>Previous serial number: </b> <font color="red">""" + "{}".format(none_filter(self.computer.incorrect_serial)) + """</font>
             </font>"""
         else:
             review_content = ""
