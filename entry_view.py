@@ -19,20 +19,20 @@ class EntryView(tk.Toplevel):
         self.text_lbl.grid(row=0)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Barcode components
-        barcode_lbl = tk.Label(content_frame, text='Barcode:')
-        barcode_lbl.grid(row=1, column=0, sticky="E")
+        self.barcode_lbl = tk.Label(content_frame, text='Barcode:')
+        self.barcode_lbl.grid(row=1, column=0, sticky="E")
         self.barcode_entry = tk.Entry(content_frame)
         self.barcode_entry.grid(row=1, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Asset components
-        asset_lbl = tk.Label(content_frame, text='Asset:')
-        asset_lbl.grid(row=2, column=0, sticky="E")
-        asset_entry = self.asset_entry = tk.Entry(content_frame)
-        asset_entry.grid(row=2, column=1)
+        self.asset_lbl = tk.Label(content_frame, text='Asset:')
+        self.asset_lbl.grid(row=2, column=0, sticky="E")
+        self.asset_entry = self.asset_entry = tk.Entry(content_frame)
+        self.asset_entry.grid(row=2, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Name components
-        name_lbl = tk.Label(content_frame, text='Name:')
-        name_lbl.grid(row=3, column=0, sticky="E")
+        self.name_lbl = tk.Label(content_frame, text='Name:')
+        self.name_lbl.grid(row=3, column=0, sticky="E")
         self.name_entry = tk.Entry(content_frame)
         self.name_entry.grid(row=3, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
