@@ -28,7 +28,7 @@ from management_tools.slack import IncomingWebhooksSender as IWS
 from jss_server import JssServer
 import inspect
 import Tkinter as tk
-from main_view_controller import MainViewController
+from main_controller import MainController
 
 class TestBladeRunner(unittest.TestCase):
 
@@ -50,7 +50,7 @@ class TestBladeRunner(unittest.TestCase):
         current_ip = socket.gethostbyname(socket.gethostname())
         bot = IWS(slack_data['slack_url'], bot_name=current_ip, channel=slack_data['slack_channel'])
 
-        cls.main_vc = MainViewController(root, cls.jss_server)
+        cls.main_vc = MainController(root, cls.jss_server)
         cls.main_vc.computer.serial = cls.main_vc.computer.get_serial()
         # cls.main_vc.run()
 
@@ -78,7 +78,8 @@ class TestBladeRunner(unittest.TestCase):
 
     # @unittest.skip("Takes a little time.")
     def test_whole_process(self):
-        self.main_vc.get_serial_btn()
+        self.main_vc.run()
+        # self.main_vc.serial_input()
 
 
 
