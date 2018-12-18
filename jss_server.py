@@ -170,8 +170,6 @@ class JssServer(object):
             logger.debug("  HTML PUT response code: %i" % response.code)
             return True
 
-        #
-        # handle HTTP errors and report
         except urllib2.HTTPError, error:
             contents = error.read()
             print("HTTP error contents: %r" % contents)
@@ -191,8 +189,8 @@ class JssServer(object):
         except urllib2.URLError, error:
             print("URL error reason: %r" % error.reason)
             print("Error contacting JSS.")
-        except:
-            print("Error submitting to JSS.")
+        except Exception as e:
+            print("Error submitting to JSS. {}".format(e))
 
     def get_tugboat_fields(self, computer_id):
         '''This method is not complete. I'd like to implement getting all Tugboat fields, but currently I'll just get
