@@ -34,6 +34,8 @@ class MainController(object):
         self.barcode_searched = False
         self.asset_searched = False
         self.serial_searched = False
+        self.print_enabled = True
+        self.slack_enabled = True
 
     def run(self):
         self.main_view = MainView(self.root, self)
@@ -268,20 +270,30 @@ class MainController(object):
         logger.debug("All offboarded values were successfully received by the JSS.")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Notify slack channel that offboard tool has finished.
-        # bot.send_message("offboard_tool.py finished.")
+        if slack_data['slack_enabled'] == "True":
+            bot.send_message("Offboarding finished.")
 
         logger.info("Building HTML Page")
         doc = JssDoc(self.jss_server, self.computer.jss_id, self.computer)
         doc.create_html()
         doc.html2pdf()
-        # doc.applescript_print()
+        if self.print_enabled:
+            doc.applescript_print()
         logger.info("Building HTML Page Finished")
 
         final_tugboat_fields = self.jss_server.get_tugboat_fields(self.computer.jss_id)
         logger.debug("Final Tugboat fields: \n{}".format(pformat(final_tugboat_fields)))
-        self.main_view.destroy()
-        logger.info("Blade Runner successfully finished.")
 
+        # Start Slackify reminder daemon
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        cmd = ['/usr/bin/python', os.path.join(script_dir, 'slackify_reminder_daemon.py')]
+        subprocess.Popen(cmd, stderr=subprocess.STDOUT)
+
+        # Destroy the main view and the root mainloop.
+        self.main_view.destroy()
+        self.root.destroy()
+
+        logger.info("Blade Runner successfully finished.")
 
     def refocus(self):
         # Python tkinter window gets selected automatically
