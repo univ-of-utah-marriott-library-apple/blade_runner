@@ -6,6 +6,7 @@ import sys
 import plistlib
 from management_tools import filelock
 
+
 def slackify_reminder():
     python_bin = '/usr/bin/python'
     script_path = os.path.join(script_dir, 'slackify.py')
@@ -21,7 +22,7 @@ def slackify_reminder():
 
 def run_daemon():
     print("Running Slackify daemon.")
-    with daemon.DaemonContext(stdout=sys.stdout, stderr=sys.stdout, pidfile=filelock.FileLock('/tmp/spam.pid', timeout=5)):
+    with daemon.DaemonContext(stdout=sys.stdout, stderr=sys.stdout, pidfile=filelock.FileLock('/tmp/spam.pid', timeout=0)):
         slackify_reminder()
 
 
