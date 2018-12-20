@@ -14,6 +14,7 @@ from pprint import pformat
 import socket
 from management_tools.slack import IncomingWebhooksSender as IWS
 from jss_doc import JssDoc
+from tuggyboat import TuggyBoat
 
 
 class MainController(object):
@@ -21,6 +22,7 @@ class MainController(object):
 
         self.model = Model(server)
         self.jss_server = server
+        self.tuggyboat = TuggyBoat(server)
         self.computer = Computer()
         self.dt = DecisionTree()
         self.inventory_status = None
@@ -70,7 +72,7 @@ class MainController(object):
         logger.debug("Serial number: {0!r}".format(self.computer.serial))
         self.jss_server.search_param = self.computer.serial
         self.dt.proceed = True
-        self.computer.jss_id = self.jss_server.return_jss_match(self.jss_server.search_param)
+        self.computer.jss_id = self.jss_server.match(self.jss_server.search_param)
         self.serial_searched = True
         self.next_input()
         
@@ -81,7 +83,7 @@ class MainController(object):
         self.main_view.wait_window(window=self.entry_controller.entry_view)
         print(self.computer.barcode)
         self.jss_server.search_param = self.computer.barcode
-        self.computer.jss_id = self.jss_server.return_jss_match(self.jss_server.search_param)
+        self.computer.jss_id = self.jss_server.match(self.jss_server.search_param)
         self.barcode_searched = True
         self.dt.proceed = True
         self.next_input()
@@ -92,7 +94,7 @@ class MainController(object):
         # Wait
         self.main_view.wait_window(window=self.entry_controller.entry_view)
         self.jss_server.search_param = self.computer.asset
-        self.computer.jss_id = self.jss_server.return_jss_match(self.jss_server.search_param)
+        self.computer.jss_id = self.jss_server.match(self.jss_server.search_param)
         self.asset_searched = True
         self.dt.proceed = True
         self.next_input()
@@ -141,19 +143,19 @@ class MainController(object):
             logger.debug("Enrolling finished.")
 
             # Since JSS ID has now been created, retrieve it using the search parameter inputted by the user.
-            self.computer.jss_id = self.jss_server.return_jss_match(self.jss_server.search_param)
+            self.computer.jss_id = self.jss_server.match(self.jss_server.search_param)
 
             # Update the JAMF record with the barcode, asset, and name of the computer
             self.jss_server.push_enroll_fields(self.computer)
 
             # Store the recently pushed fields
-            pushed_fields = self.jss_server.get_tugboat_fields(self.computer.jss_id)
+            pushed_fields = self.tuggyboat.get_tugboat_fields(self.computer.jss_id)
             logger.debug("Pushed enroll fields: {}".format(pformat(pushed_fields)))
 
         # If JSS ID exists
         elif self.computer.jss_id is not None:
             # Get tugboat fields before altering them.
-            tugboat_fields = self.jss_server.get_tugboat_fields(self.computer.jss_id)
+            tugboat_fields = self.tuggyboat.get_tugboat_fields(self.computer.jss_id)
             logger.debug("Original fields before alteration: {}".format(pformat(tugboat_fields)))
 
             # Store the unaltered barcode, asset, and name fields.
@@ -226,17 +228,17 @@ class MainController(object):
             self.jss_server.push_enroll_fields(self.computer)
 
         # Stores offboarded values for later comparison
-        fields_to_offboard = self.jss_server.get_offboard_fields(self.computer.jss_id)
+        fields_to_offboard = self.tuggyboat.get_offboard_fields(self.computer.jss_id)
         logger.debug("Fields to be offboarded: {}".format(pformat(fields_to_offboard)))
 
-        offboarded_values = self.jss_server.set_offboard_fields(fields_to_offboard, inventory_status=self.inventory_status)
+        offboarded_values = self.tuggyboat.set_offboard_fields(fields_to_offboard, inventory_status=self.inventory_status)
         logger.debug("Offboarded fields to be sent: {}".format(pformat(offboarded_values)))
 
         # Push offboard fields to the JSS
-        self.jss_server.push_offboard_fields(self.computer.jss_id, offboarded_values)
+        self.tuggyboat.push_offboard_fields(self.computer.jss_id, offboarded_values)
 
         # Retrieves new computer data after sending the offboard fields for later comparison
-        new_jss_data = self.jss_server.get_offboard_fields(self.computer.jss_id)
+        new_jss_data = self.tuggyboat1.get_offboard_fields(self.computer.jss_id)
         logger.debug("New retrieved fields: {}".format(pformat(new_jss_data)))
 
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -285,9 +287,10 @@ class MainController(object):
         logger.debug("Final Tugboat fields: \n{}".format(pformat(final_tugboat_fields)))
 
         # Start Slackify reminder daemon
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        cmd = ['/usr/bin/python', os.path.join(script_dir, 'slackify_reminder_daemon.py')]
-        subprocess.Popen(cmd, stderr=subprocess.STDOUT)
+        if slack_data['slackify_daemon_enabled'] == 'True':
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            cmd = ['/usr/bin/python', os.path.join(script_dir, 'slackify_reminder_daemon.py')]
+            subprocess.Popen(cmd, stderr=subprocess.STDOUT)
 
         # Destroy the main view and the root mainloop.
         self.main_view.destroy()
