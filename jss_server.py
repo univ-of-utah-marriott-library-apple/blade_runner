@@ -159,38 +159,7 @@ class JssServer(object):
         return ""
 
     def delete_record(self, computer_id):
-        try:
-            opener = urllib2.build_opener(urllib2.HTTPHandler)
-            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
-            request = urllib2.Request(computer_url)
-            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
-            request.get_method = lambda: 'DELETE'
-            response = opener.open(request)
-
-            logger.debug("  HTML PUT response code: %i" % response.code)
-            return True
-
-        except urllib2.HTTPError, error:
-            contents = error.read()
-            print("HTTP error contents: %r" % contents)
-            if error.code == 400:
-                print("HTTP code %i: %s " % (error.code, "Request error."))
-            elif error.code == 401:
-                print("HTTP code %i: %s " % (error.code, "Authorization error."))
-            elif error.code == 403:
-                print("HTTP code %i: %s " % (error.code, "Permissions error."))
-            elif error.code == 404:
-                print("HTTP code %i: %s " % (error.code, "Resource not found."))
-            elif error.code == 409:
-                error_message = re.findall("Error: (.*)<", contents)
-                print("HTTP code %i: %s %s" % (error.code, "Resource conflict.", error_message[0]))
-            else:
-                print("HTTP code %i: %s " % (error.code, "Misc HTTP error."))
-        except urllib2.URLError, error:
-            print("URL error reason: %r" % error.reason)
-            print("Error contacting JSS.")
-        except Exception as e:
-            print("Error submitting to JSS. {}".format(e))
+        self._delete_handler(computer_id)
 
     def get_tugboat_fields(self, computer_id):
         # get jss extenstion attributes
@@ -356,54 +325,8 @@ class JssServer(object):
         # ^ END: Create XML structure that will be sent through the api call
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-        try:
-
-            logger.debug("  Submitting XML: %r" % ET.tostring(top))
-
-            opener = urllib2.build_opener(urllib2.HTTPHandler)
-            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer.jss_id
-            request = urllib2.Request(computer_url, data=ET.tostring(top))
-            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
-            request.add_header('Content-Type', 'text/xml')
-            request.get_method = lambda: 'PUT'
-            response = opener.open(request)
-
-            logger.info("   HTML PUT response code: %i" % response.code)
-
-        #
-        # handle HTTP errors and report
-        except urllib2.HTTPError, error:
-            contents = error.read()
-            print("HTTP error contents: %r" % contents)
-            if error.code == 400:
-                print("HTTP code %i: %s " % (error.code, "Request error."))
-                return
-            elif error.code == 401:
-                print("HTTP code %i: %s " % (error.code, "Authorization error."))
-                return
-            elif error.code == 403:
-                print("HTTP code %i: %s " % (error.code, "Permissions error."))
-                return
-            elif error.code == 404:
-                print("HTTP code %i: %s " % (error.code, "Resource not found."))
-                return
-            elif error.code == 409:
-                error_message = re.findall("Error: (.*)<", contents)
-                print("HTTP code %i: %s %s" % (error.code, "Resource conflict.", error_message[0]))
-                return
-            else:
-                print("HTTP code %i: %s " % (error.code, "Misc HTTP error."))
-                return
-        except urllib2.URLError, error:
-            print("URL error reason: %r" % error.reason)
-            print("Error contacting JSS.")
-            logger.info("push_enroll_fields(): finished")
-            return
-        except:
-            print("Error submitting to JSS.")
-            return
-        finally:
-            logger.info("push_enroll_fields(): finished")
+        xml = ET.tostring(top)
+        self._push_xml_handler(xml, computer.jss_id)
 
     def push_label_fields(self, computer_id, barcode_number, yellow_asset_tag, name_label):
         '''Pushes the following to the JSS:
@@ -451,53 +374,8 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # ^ END: Create XML structure that will be sent through the api call
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
-        try:
-            logger.debug("  Submitting XML: %r" % ET.tostring(top))
-
-            opener = urllib2.build_opener(urllib2.HTTPHandler)
-            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
-            request = urllib2.Request(computer_url, data=ET.tostring(top))
-            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
-            request.add_header('Content-Type', 'text/xml')
-            request.get_method = lambda: 'PUT'
-            response = opener.open(request)
-
-            logger.info("   HTML PUT response code: %i" % response.code)
-
-        #
-        # handle HTTP errors and report
-        except urllib2.HTTPError, error:
-            contents = error.read()
-            print("HTTP error contents: %r" % contents)
-            if error.code == 400:
-                print("HTTP code %i: %s " % (error.code, "Request error."))
-                return
-            elif error.code == 401:
-                print("HTTP code %i: %s " % (error.code, "Authorization error."))
-                return
-            elif error.code == 403:
-                print("HTTP code %i: %s " % (error.code, "Permissions error."))
-                return
-            elif error.code == 404:
-                print("HTTP code %i: %s " % (error.code, "Resource not found."))
-                return
-            elif error.code == 409:
-                error_message = re.findall("Error: (.*)<", contents)
-                print("HTTP code %i: %s %s" % (error.code, "Resource conflict.", error_message[0]))
-                return
-            else:
-                print("HTTP code %i: %s " % (error.code, "Misc HTTP error."))
-                return
-        except urllib2.URLError, error:
-            print("URL error reason: %r" % error.reason)
-            print("Error contacting JSS.")
-            return
-        except:
-            print("Error submitting to JSS.")
-            return
-        finally:
-            logger.info("push_label_fields(): finished")
+        xml = ET.tostring(top)
+        self._push_xml_handler(xml, computer_id)
 
     def push_xml_fields(self, xml, computer_id):
         tree = ET.parse(xml)
@@ -505,52 +383,7 @@ class JssServer(object):
         xml = re.sub("\n", "", xml)
         xml = re.sub("(>)\s+(<)", r"\1\2", xml)
 
-        try:
-            logger.debug("  Submitting XML: %r" % xml)
-
-            opener = urllib2.build_opener(urllib2.HTTPHandler)
-            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
-            request = urllib2.Request(computer_url, data=xml)
-            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
-            request.add_header('Content-Type', 'text/xml')
-            request.get_method = lambda: 'PUT'
-            response = opener.open(request)
-
-            logger.info("   HTML PUT response code: %i" % response.code)
-
-        #
-        # handle HTTP errors and report
-        except urllib2.HTTPError, error:
-            contents = error.read()
-            print("HTTP error contents: %r" % contents)
-            if error.code == 400:
-                print("HTTP code %i: %s " % (error.code, "Request error."))
-                return
-            elif error.code == 401:
-                print("HTTP code %i: %s " % (error.code, "Authorization error."))
-                return
-            elif error.code == 403:
-                print("HTTP code %i: %s " % (error.code, "Permissions error."))
-                return
-            elif error.code == 404:
-                print("HTTP code %i: %s " % (error.code, "Resource not found."))
-                return
-            elif error.code == 409:
-                error_message = re.findall("Error: (.*)<", contents)
-                print("HTTP code %i: %s %s" % (error.code, "Resource conflict.", error_message[0]))
-                return
-            else:
-                print("HTTP code %i: %s " % (error.code, "Misc HTTP error."))
-                return
-        except urllib2.URLError, error:
-            print("URL error reason: %r" % error.reason)
-            print("Error contacting JSS.")
-            return
-        except:
-            print("Error submitting to JSS.")
-            return
-        finally:
-            logger.info("push_XML_fields(): finished")
+        self._push_xml_handler(xml, computer_id)
 
     def push_offboard_fields(self, computer_id, offboard_fields):
 
@@ -663,45 +496,12 @@ class JssServer(object):
         onboarding_ip_value = ET.SubElement(onboarding_ip_attr, 'value')
         onboarding_ip_value.text = onboarding_ip
 
-        try:
+        xml = ET.tostring(top)
 
-            logger.debug("  Submitting XML: %r" % ET.tostring(top))
-            opener = urllib2.build_opener(urllib2.HTTPHandler)
-            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
-            request = urllib2.Request(computer_url, data=ET.tostring(top))
-            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
-            request.add_header('Content-Type', 'text/xml')
-            request.get_method = lambda: 'PUT'
-            response = opener.open(request)
+        self._push_xml_handler(xml, computer_id)
 
-            logger.debug("  HTML PUT response code: %i" % response.code)
-            return True
+        return True
 
-        #
-        # handle HTTP errors and report
-        except urllib2.HTTPError, error:
-            contents = error.read()
-            print("HTTP error contents: %r" % contents)
-            if error.code == 400:
-                print("HTTP code %i: %s " % (error.code, "Request error."))
-            elif error.code == 401:
-                print("HTTP code %i: %s " % (error.code, "Authorization error."))
-            elif error.code == 403:
-                print("HTTP code %i: %s " % (error.code, "Permissions error."))
-            elif error.code == 404:
-                print("HTTP code %i: %s " % (error.code, "Resource not found."))
-            elif error.code == 409:
-                error_message = re.findall("Error: (.*)<", contents)
-                print("HTTP code %i: %s %s" % (error.code, "Resource conflict.", error_message[0]))
-            else:
-                print("HTTP code %i: %s " % (error.code, "Misc HTTP error."))
-        except urllib2.URLError, error:
-            print("URL error reason: %r" % error.reason)
-            print("Error contacting JSS.")
-        except:
-            print("Error submitting to JSS.")
-
-        return False
 
 
     def set_offboard_fields(self, offboard_fields, inventory_status=None):
@@ -838,6 +638,82 @@ class JssServer(object):
                 logger.error(e)
                 logger.info("enroll" + ": failed")
                 raise
+
+    def _push_xml_handler(self, xml, computer_id):
+        try:
+            logger.debug("  Submitting XML: %r" % xml)
+
+            opener = urllib2.build_opener(urllib2.HTTPHandler)
+            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
+            request = urllib2.Request(computer_url, data=xml)
+            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
+            request.add_header('Content-Type', 'text/xml')
+            request.get_method = lambda: 'PUT'
+            response = opener.open(request)
+
+            logger.info("   HTML PUT response code: %i" % response.code)
+
+        except urllib2.HTTPError as error:
+            contents = error.read()
+            print("HTTP error contents: %r" % contents)
+            if error.code == 400:
+                print("HTTP code %i: %s " % (error.code, "Request error."))
+            elif error.code == 401:
+                print("HTTP code %i: %s " % (error.code, "Authorization error."))
+            elif error.code == 403:
+                print("HTTP code %i: %s " % (error.code, "Permissions error."))
+            elif error.code == 404:
+                print("HTTP code %i: %s " % (error.code, "Resource not found."))
+            elif error.code == 409:
+                error_message = re.findall("Error: (.*)<", contents)
+                print("HTTP code %i: %s %s" % (error.code, "Resource conflict.", error_message[0]))
+            else:
+                print("HTTP code %i: %s " % (error.code, "Misc HTTP error."))
+            raise error
+        except urllib2.URLError as error:
+            print("URL error reason: %r" % error.reason)
+            print("Error contacting JSS.")
+            raise error
+        except Exception as error:
+            print("Error submitting to JSS. {}".format(error))
+            raise error
+
+    def _delete_handler(self, computer_id):
+        try:
+            opener = urllib2.build_opener(urllib2.HTTPHandler)
+            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
+            request = urllib2.Request(computer_url)
+            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
+            request.get_method = lambda: 'DELETE'
+            response = opener.open(request)
+
+            logger.debug("  HTML DELETE response code: %i" % response.code)
+
+        except urllib2.HTTPError as error:
+            contents = error.read()
+            print("HTTP error contents: %r" % contents)
+            if error.code == 400:
+                print("HTTP code %i: %s " % (error.code, "Request error."))
+            elif error.code == 401:
+                print("HTTP code %i: %s " % (error.code, "Authorization error."))
+            elif error.code == 403:
+                print("HTTP code %i: %s " % (error.code, "Permissions error."))
+            elif error.code == 404:
+                print("HTTP code %i: %s " % (error.code, "Resource not found."))
+            elif error.code == 409:
+                error_message = re.findall("Error: (.*)<", contents)
+                print("HTTP code %i: %s %s" % (error.code, "Resource conflict.", error_message[0]))
+            else:
+                print("HTTP code %i: %s " % (error.code, "Misc HTTP error."))
+            raise error
+        except urllib2.URLError as error:
+            print("URL error reason: %r" % error.reason)
+            print("Error contacting JSS.")
+            raise error
+        except Exception as error:
+            print("Error submitting to JSS. {}".format(error))
+            raise error
+
 
 
 cf = inspect.currentframe()
