@@ -29,7 +29,7 @@ class JssDoc(object):
 
     def create_html(self):
         '''Creates an .html file'''
-        hardware_list_main = self.jss_server.return_jss_hardware_inventory(self.computer.jss_id)
+        hardware_list_main = self.jss_server.get_hardware_inventory(self.computer.jss_id)
         hardware_list_storage = hardware_list_main['storage'][0]
         drive_capacity = str(hardware_list_storage['drive_capacity_mb'])
 
@@ -52,7 +52,7 @@ class JssDoc(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # General Tab requests
         # Builds overall list
-        general_list_main = self.jss_server.return_jss_general_inventory(self.computer.jss_id)
+        general_list_main = self.jss_server.get_general_inventory(self.computer.jss_id)
 
         # Check if Managed
         remote_mangement_list = general_list_main['remote_management']
