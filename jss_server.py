@@ -19,7 +19,7 @@ class JssServer(object):
         self.invite = invite
         self.search_param = None
 
-    def return_jss_match(self, search_param):
+    def match(self, search_param):
 
         # Using the JSS API go to the server and pull down the computer id.
         '''Potential fix. If the serial number contains a forward slash, the url request fails. Tried using %2F to fix
@@ -64,7 +64,7 @@ class JssServer(object):
         computer_id = split_computer_match['id']
         return str(computer_id)
 
-    def return_jss_hardware_inventory(self, computer_id):
+    def get_hardware_inventory(self, computer_id):
 
         # Using the JSS API go to the server and pull down the computer id.
 
@@ -80,9 +80,9 @@ class JssServer(object):
 
         hardware_list_main = response_json['computer']['hardware']
         # print hardware_list_main
-        return (hardware_list_main)
+        return hardware_list_main
 
-    def return_jss_general_inventory(self, computer_id):
+    def get_general_inventory(self, computer_id):
 
         # Using the JSS API go to the server and pull down the computer id.
 
@@ -100,7 +100,7 @@ class JssServer(object):
 
         return (general_list_main)
 
-    def return_jss_extension_attributes(self, jss_id):
+    def get_extension_attributes(self, jss_id):
         logger.debug("jss_url: {}".format(self.jss_url))
         logger.debug("jss_id: {}".format(jss_id))
         # api request url
@@ -127,7 +127,7 @@ class JssServer(object):
 
         return jss_extension_attributes
 
-    def return_jss_location_fields(self, computer_id):
+    def get_location_fields(self, computer_id):
 
         computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id + '/subset/Location'
 
@@ -147,7 +147,7 @@ class JssServer(object):
         return jss_location_fields
 
     def get_prev_name(self, jss_id):
-        jss_extension_attributes = self.return_jss_extension_attributes(jss_id)
+        jss_extension_attributes = self.get_extension_attributes(jss_id)
 
         # store tugboat extension attributes
         for attribute in jss_extension_attributes:
@@ -158,7 +158,7 @@ class JssServer(object):
 
         return ""
 
-    def delete_jss_record(self, computer_id):
+    def delete_record(self, computer_id):
         try:
             opener = urllib2.build_opener(urllib2.HTTPHandler)
             computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
@@ -193,11 +193,8 @@ class JssServer(object):
             print("Error submitting to JSS. {}".format(e))
 
     def get_tugboat_fields(self, computer_id):
-        '''This method is not complete. I'd like to implement getting all Tugboat fields, but currently I'll just get
-        the yellow asset tag and barcode. Later I'd like to have get_offboard_fields() call this function and just
-        remove/pop entries that aren't used for offboarding.'''
         # get jss extenstion attributes
-        jss_extension_attributes = self.return_jss_extension_attributes(computer_id)
+        jss_extension_attributes = self.get_extension_attributes(computer_id)
 
         # store tugboat extension attributes
         for attribute in jss_extension_attributes:
@@ -225,7 +222,7 @@ class JssServer(object):
                                                          'Budget Source'.decode('utf-8'): budget_source})
 
         # get jss location fields such as building, department, email, phone, realname, etc.
-        jss_location_fields = self.return_jss_location_fields(computer_id)
+        jss_location_fields = self.get_location_fields(computer_id)
         tugboat_loc_fields = {'location'.decode('utf-8'): {}}
 
         # store tugboat location fields and reset user
@@ -252,7 +249,7 @@ class JssServer(object):
                                                'username'.decode('utf-8'): username})
 
         # Get general inventory to get managed status and serial number
-        jss_general_inventory = self.return_jss_general_inventory(computer_id)
+        jss_general_inventory = self.get_general_inventory(computer_id)
         computer_name = jss_general_inventory['name']
         serial_number = jss_general_inventory['serial_number']
         barcode_number_jss = jss_general_inventory['barcode_1']
@@ -502,6 +499,59 @@ class JssServer(object):
         finally:
             logger.info("push_label_fields(): finished")
 
+    def push_xml_fields(self, xml, computer_id):
+        tree = ET.parse(xml)
+        xml = ET.tostring(tree.getroot(), encoding='utf-8')
+        xml = re.sub("\n", "", xml)
+        xml = re.sub("(>)\s+(<)", r"\1\2", xml)
+
+        try:
+            logger.debug("  Submitting XML: %r" % xml)
+
+            opener = urllib2.build_opener(urllib2.HTTPHandler)
+            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
+            request = urllib2.Request(computer_url, data=xml)
+            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
+            request.add_header('Content-Type', 'text/xml')
+            request.get_method = lambda: 'PUT'
+            response = opener.open(request)
+
+            logger.info("   HTML PUT response code: %i" % response.code)
+
+        #
+        # handle HTTP errors and report
+        except urllib2.HTTPError, error:
+            contents = error.read()
+            print("HTTP error contents: %r" % contents)
+            if error.code == 400:
+                print("HTTP code %i: %s " % (error.code, "Request error."))
+                return
+            elif error.code == 401:
+                print("HTTP code %i: %s " % (error.code, "Authorization error."))
+                return
+            elif error.code == 403:
+                print("HTTP code %i: %s " % (error.code, "Permissions error."))
+                return
+            elif error.code == 404:
+                print("HTTP code %i: %s " % (error.code, "Resource not found."))
+                return
+            elif error.code == 409:
+                error_message = re.findall("Error: (.*)<", contents)
+                print("HTTP code %i: %s %s" % (error.code, "Resource conflict.", error_message[0]))
+                return
+            else:
+                print("HTTP code %i: %s " % (error.code, "Misc HTTP error."))
+                return
+        except urllib2.URLError, error:
+            print("URL error reason: %r" % error.reason)
+            print("Error contacting JSS.")
+            return
+        except:
+            print("Error submitting to JSS.")
+            return
+        finally:
+            logger.info("push_XML_fields(): finished")
+
     def push_offboard_fields(self, computer_id, offboard_fields):
 
         logger.debug("push_offboard_fields(): activated")
@@ -727,7 +777,7 @@ class JssServer(object):
         return jss_serial
 
     def get_managed_status(self, jss_id):
-        general_list_main = self.return_jss_general_inventory(jss_id)
+        general_list_main = self.get_general_inventory(jss_id)
         remote_mangement_list = general_list_main['remote_management']
         return str(remote_mangement_list['managed'])
 
@@ -765,7 +815,7 @@ class JssServer(object):
         #     raise
         except (OSError, subprocess.CalledProcessError) as e:
             # if e.errno == 2:
-            logger.error("Couldn't find " + jamf + ". Enrolling failed.")
+            logger.error("Couldn't find " + jamf + ". Enrolling failed. " + str(e))
             try:
                 jamf = '/Volumes/Storage/jamf'
                 logger.info("Enrolling again. Now using " + jamf)
@@ -773,32 +823,6 @@ class JssServer(object):
                 conf_cmd = [jamf, 'createConf', '-url', self.jss_url, '-verifySSLCert', 'never']
                 conf_output = subprocess.check_output(conf_cmd, stderr=subprocess.STDOUT)
                 logger.debug(conf_output)
-
-    #             jss_url = enroll_url
-    #             jamf_plist = '''<?xml version="1.0" encoding="UTF-8"?>
-    # <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    # <plist version="1.0">
-    # <dict>
-    # 	<key>jss_url</key>
-    # 	<string>''' + jss_url + '''</string>
-    # 	<key>last_management_framework_change_id</key>
-    # 	<string>33</string>
-    # 	<key>max_clock_skew</key>
-    # 	<string>-1</string>
-    # 	<key>microsoftCAEnabled</key>
-    # 	<false/>
-    # 	<key>package_validation_level</key>
-    # 	<string>1</string>
-    # 	<key>self_service_app_path</key>
-    # 	<string>/Applications/Utilities/Self Service.app</string>
-    # 	<key>verifySSLCert</key>
-    # 	<string>never</string>
-    # </dict>
-    # </plist>'''
-    #
-    #             with open("/Library/Preferences/com.jamfsoftware.jamf.plist", "w+") as f:
-    #                 f.write(jamf_plist)
-
                 enroll_cmd = [jamf, 'enroll', '-invitation', self.invite, '-noPolicy', '-noManage', '-verbose']
                 enroll_output = subprocess.check_output(enroll_cmd, stderr=subprocess.STDOUT)
                 logger.debug(enroll_output)
