@@ -64,7 +64,7 @@ class TestBladeRunner(unittest.TestCase):
 
     @unittest.skip("Takes a little time.")
     def test_return_jss_match(self):
-        jss_ID = self.jss_server.return_jss_match(self.serial)
+        jss_ID = self.jss_server.match(self.serial)
         self.assertIsNotNone(jss_ID)
 
     @unittest.skip("Takes a little time.")
