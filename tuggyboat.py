@@ -1,16 +1,27 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 from jss_server import JssServer
+import os
+import subprocess
+from management_tools import loggers
+import urllib2
+import xml.etree.cElementTree as ET
+import base64
+import json
+import re
+import inspect
 
 
 class TuggyBoat(object):
     def __init__(self, jss_server):
-        pass
+        self.jss_server = jss_server
 
     def get_tugboat_fields(self, computer_id):
         '''This method is not complete. I'd like to implement getting all Tugboat fields, but currently I'll just get
         the yellow asset tag and barcode. Later I'd like to have get_offboard_fields() call this function and just
         remove/pop entries that aren't used for offboarding.'''
         # get jss extenstion attributes
-        jss_extension_attributes = self.return_jss_extension_attributes(computer_id)
+        jss_extension_attributes = self.jss_server.get_extension_attributes(computer_id)
 
         # store tugboat extension attributes
         for attribute in jss_extension_attributes:
@@ -38,7 +49,7 @@ class TuggyBoat(object):
                                                          'Budget Source'.decode('utf-8'): budget_source})
 
         # get jss location fields such as building, department, email, phone, realname, etc.
-        jss_location_fields = self.return_jss_location_fields(computer_id)
+        jss_location_fields = self.jss_server.get_location_fields(computer_id)
         tugboat_loc_fields = {'location'.decode('utf-8'): {}}
 
         # store tugboat location fields and reset user
@@ -65,7 +76,7 @@ class TuggyBoat(object):
                                                'username'.decode('utf-8'): username})
 
         # Get general inventory to get managed status and serial number
-        jss_general_inventory = self.return_jss_general_inventory(computer_id)
+        jss_general_inventory = self.jss_server.get_general_inventory(computer_id)
         computer_name = jss_general_inventory['name']
         serial_number = jss_general_inventory['serial_number']
         barcode_number_jss = jss_general_inventory['barcode_1']
@@ -106,6 +117,9 @@ class TuggyBoat(object):
 
         logger.debug("push_offboard_fields(): activated")
 
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Extract data from the offboard fields before building the XML
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # data entry: location
         building = offboard_fields['location']['building']
         department = offboard_fields['location']['department']
@@ -129,6 +143,9 @@ class TuggyBoat(object):
         inventory_status = offboard_fields['extension_attributes']['Inventory Status']
         onboarding_ip = offboard_fields['extension_attributes']['Onboarding IP']
 
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Start building XML object
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # build XML object
         top = ET.Element('computer')
 
@@ -217,9 +234,9 @@ class TuggyBoat(object):
 
             logger.debug("  Submitting XML: %r" % ET.tostring(top))
             opener = urllib2.build_opener(urllib2.HTTPHandler)
-            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
+            computer_url = self.jss_server.jss_url + '/JSSResource/computers/id/' + computer_id
             request = urllib2.Request(computer_url, data=ET.tostring(top))
-            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
+            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.jss_server.username + ':' + self.jss_server.password))
             request.add_header('Content-Type', 'text/xml')
             request.get_method = lambda: 'PUT'
             response = opener.open(request)
@@ -227,7 +244,6 @@ class TuggyBoat(object):
             logger.debug("  HTML PUT response code: %i" % response.code)
             return True
 
-        #
         # handle HTTP errors and report
         except urllib2.HTTPError, error:
             contents = error.read()
@@ -297,3 +313,10 @@ class TuggyBoat(object):
 
         return offboard_fields
 
+
+cf = inspect.currentframe()
+filename = inspect.getframeinfo(cf).filename
+filename = os.path.basename(filename)
+filename = os.path.splitext(filename)[0]
+logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)
+logger.debug("Name of logger: " + filename)
