@@ -48,16 +48,16 @@ class EntryController(object):
 
     def store_entry_fields(self):
         if self.entry_view.barcode_entry.get() != "":
-            self.computer.barcode = self.entry_view.barcode_entry.get()
+            self.computer.barcode_1 = self.entry_view.barcode_entry.get()
         if self.entry_view.asset_entry.get() != "":
-            self.computer.asset = self.entry_view.asset_entry.get()
+            self.computer.asset_tag = self.entry_view.asset_entry.get()
         if self.entry_view.name_entry.get() != "":
             self.computer.name = self.entry_view.name_entry.get()
 
     def populate_entry_fields(self):
         noneFilter = lambda x : "" if x is None else x
-        self.entry_view.barcode_entry.insert(0, "{}".format(noneFilter(self.computer.barcode)))
-        self.entry_view.asset_entry.insert(0, "{}".format(noneFilter(self.computer.asset)))
+        self.entry_view.barcode_entry.insert(0, "{}".format(noneFilter(self.computer.barcode_1)))
+        self.entry_view.asset_entry.insert(0, "{}".format(noneFilter(self.computer.asset_tag)))
         self.entry_view.name_entry.insert(0, "{}".format(noneFilter(self.computer.name)))
 
     def close_button_clicked(self):
