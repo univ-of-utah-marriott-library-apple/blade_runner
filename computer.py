@@ -6,12 +6,13 @@ import inspect
 
 class Computer(object):
     def __init__(self):
-        self.serial = None
+        self.serial_number = None
         self.jss_id = None
-        self.barcode = None
-        self.asset = None
+        self.barcode_1 = None
+        self.barcode_2 = None
+        self.asset_tag = None
         self.name = None
-        self.prev_name = None
+        self.prev_computer_name = None
         self.needs_enroll = None
         self.incorrect_barcode = None
         self.incorrect_asset = None
