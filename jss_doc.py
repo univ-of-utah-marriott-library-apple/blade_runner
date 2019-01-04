@@ -5,10 +5,11 @@ import inspect
 from management_tools import loggers
 import subprocess
 import webbrowser
-
+from tuggyboat import TuggyBoat
 
 class JssDoc(object):
     def __init__(self, jss_server, jss_id, computer):
+        self.tuggyboat = TuggyBoat(jss_server)
         self.jss_server = jss_server
         self.computer = computer
         self.home = os.path.expanduser("~")
@@ -16,13 +17,13 @@ class JssDoc(object):
         self.abs_dir = self.home + '/Desktop/' + self.blade_runner_dir
         self.computer.jss_id = jss_id
         self.computer.prev_name = jss_server.get_prev_name(jss_id)
-        self.computer.name = self.jss_server.get_tugboat_fields(jss_id)['general']['computer_name']
-        self.computer.name = str(re.sub(u'(\u2019|\u2018)', '', self.computer.name))
-        self.computer.barcode = self.jss_server.get_tugboat_fields(jss_id)['general']['barcode_1']
-        self.computer.asset = self.jss_server.get_tugboat_fields(jss_id)['general']['asset_tag']
+        self.computer.name = self.tuggyboat.get_tugboat_fields(jss_id)['general']['computer_name']
+        # self.computer.name = str(re.sub(u'(\u2019|\u2018)', '', self.computer.name))
+        self.computer.barcode_1 = self.tuggyboat.get_tugboat_fields(jss_id)['general']['barcode_1']
+        self.computer.asset_tag = self.tuggyboat.get_tugboat_fields(jss_id)['general']['asset_tag']
 
 
-        self.lbase = self.computer.asset + "_yellow_asset_tag"
+        self.lbase = self.computer.asset_tag + "_yellow_asset_tag"
         self.abs_lbase = self.abs_dir + self.lbase
         self.abs_html = self.abs_lbase + ".html"
         self.abs_pdf = self.abs_lbase + ".pdf"
@@ -98,9 +99,9 @@ class JssDoc(object):
             <p>
             <b>Previous Name: </b> """ + self.computer.prev_name + """
             <p>
-            <b>Barcode: </b> """ + self.computer.barcode + """
+            <b>Barcode: </b> """ + self.computer.barcode_1 + """
             <p>
-            <b>Asset: </b> """ + self.computer.asset + """
+            <b>Asset: </b> """ + self.computer.asset_tag + """
             <p>
             <b>JSS ID: </b> """ + self.computer.jss_id + """    <b>Managed: </b> """ + managed + """
             <p>
