@@ -7,6 +7,8 @@ import plistlib
 from management_tools import filelock
 
 
+# TODO Create config plist that specifies frequency and whether or not the daemon is enabled.
+
 def slackify_reminder():
     python_bin = '/usr/bin/python'
     script_path = os.path.join(script_dir, 'slackify.py')
