@@ -17,6 +17,7 @@ from jss_doc import JssDoc
 from tuggyboat import TuggyBoat
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
+# TODO Dynamically change entry_view according to a plist. Plist will contain barcode_1, barcode_2, asset_tag, name.
 
 class MainController(object):
     def __init__(self, root, server, slack_data):
