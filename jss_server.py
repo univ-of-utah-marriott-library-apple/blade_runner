@@ -4,11 +4,11 @@ import os
 import subprocess
 from management_tools import loggers
 import urllib2
-import xml.etree.cElementTree as ET
 import base64
 import json
 import re
 import inspect
+import xml.etree.cElementTree as ET
 
 
 class JssServer(object):
@@ -146,10 +146,36 @@ class JssServer(object):
 
         return jss_location_fields
 
+    def get_xml_fields(self, computer_id, xml_file):
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+
+        subsets = []
+        for subset in root.findall("./"):
+            subsets.append(subset.tag)
+        print(subsets)
+
+        subset_request = ""
+        for subset in subsets:
+            subset_request += subset + "&"
+        subset_request = subset_request[:-1]
+
+        computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id + '/subset/' + subset_request
+
+        request = urllib2.Request(computer_url)
+
+        request.add_header('Accept', 'application/xml')
+        request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
+
+        # receiving response of request
+        response = urllib2.urlopen(request)
+        xml = ET.fromstring(response.read())
+        xml_string = ET.tostring(xml, encoding='utf-8')
+        return xml_string
+
     def get_prev_name(self, jss_id):
         jss_extension_attributes = self.get_extension_attributes(jss_id)
 
-        # store tugboat extension attributes
         for attribute in jss_extension_attributes:
 
             if attribute['name'] == 'Previous Computer Names':
@@ -160,100 +186,6 @@ class JssServer(object):
 
     def delete_record(self, computer_id):
         self._delete_handler(computer_id)
-
-    def get_tugboat_fields(self, computer_id):
-        # get jss extenstion attributes
-        jss_extension_attributes = self.get_extension_attributes(computer_id)
-
-        # store tugboat extension attributes
-        for attribute in jss_extension_attributes:
-
-            if attribute['name'] == 'Onboarding IP':
-
-                onboarding_IP = attribute['value']
-
-            elif attribute['name'] == 'Inventory Status':
-
-                inventory_status = attribute['value']
-
-            elif attribute['name'] == 'Inventory Category':
-
-                inventory_category = attribute['value']
-
-            elif attribute['name'] == 'Budget Source':
-
-                budget_source = attribute['value']
-
-        tugboat_ext_attr = {'extension_attributes'.decode('utf-8'): {}}
-        tugboat_ext_attr['extension_attributes'].update({'Onboarding IP'.decode('utf-8'): onboarding_IP,
-                                                         'Inventory Status'.decode('utf-8'): inventory_status,
-                                                         'Inventory Category'.decode('utf-8'): inventory_category,
-                                                         'Budget Source'.decode('utf-8'): budget_source})
-
-        # get jss location fields such as building, department, email, phone, realname, etc.
-        jss_location_fields = self.get_location_fields(computer_id)
-        tugboat_loc_fields = {'location'.decode('utf-8'): {}}
-
-        # store tugboat location fields and reset user
-        building = jss_location_fields['building']
-        department = jss_location_fields['department']
-        email_address = jss_location_fields['email_address']
-        phone = jss_location_fields['phone']
-        phone_number = jss_location_fields['phone_number']
-        position = jss_location_fields['position']
-        real_name = jss_location_fields['real_name']
-        realname = jss_location_fields['realname']
-        room = jss_location_fields['room']
-        username = jss_location_fields['username']
-
-        tugboat_loc_fields['location'].update({'building'.decode('utf-8'): building,
-                                               'department'.decode('utf-8'): department,
-                                               'email_address'.decode('utf-8'): email_address,
-                                               'phone'.decode('utf-8'): phone,
-                                               'phone_number'.decode('utf-8'): phone_number,
-                                               'position'.decode('utf-8'): position,
-                                               'real_name'.decode('utf-8'): real_name,
-                                               'realname'.decode('utf-8'): realname,
-                                               'room'.decode('utf-8'): room,
-                                               'username'.decode('utf-8'): username})
-
-        # Get general inventory to get managed status and serial number
-        jss_general_inventory = self.get_general_inventory(computer_id)
-        computer_name = jss_general_inventory['name']
-        serial_number = jss_general_inventory['serial_number']
-        barcode_number_jss = jss_general_inventory['barcode_1']
-        yellow_asset_tag_jss = jss_general_inventory['asset_tag']
-
-        # Get managed status
-        managed = str(jss_general_inventory['remote_management']['managed'])
-
-        tugboat_gen_inventory = {'general'.decode('utf-8'): {}}
-        # Update general inventory tugboat dictionary
-        tugboat_gen_inventory['general'].update({'computer_name'.decode('utf-8'): computer_name,
-                                                 'serial_number'.decode('utf-8'): serial_number,
-                                                 'remote_management'.decode('utf-8'): {},
-                                                 'barcode_1'.decode('utf-8'): barcode_number_jss,
-                                                 'asset_tag'.decode('utf-8'): yellow_asset_tag_jss})
-
-        tugboat_gen_inventory['general']['remote_management'].update(
-            {'managed'.decode('utf-8'): managed.decode('utf-8')})
-
-        # tugboat_fields = {'computer': None}
-        tugboat_fields = {}
-        tugboat_fields.update(tugboat_loc_fields)
-        tugboat_fields.update(tugboat_gen_inventory)
-        tugboat_fields.update(tugboat_ext_attr)
-
-        return tugboat_fields
-
-    def get_offboard_fields(self, computer_id):
-
-        offboard_fields = self.get_tugboat_fields(computer_id)
-        offboard_fields['extension_attributes'].pop('Budget Source', None)
-        offboard_fields['general'].pop('barcode_1', None)
-        offboard_fields['general'].pop('asset_tag', None)
-
-        return offboard_fields
 
     def push_enroll_fields(self, computer, budget_source=None):
         '''Pushes the following to the JSS:
@@ -309,14 +241,14 @@ class JssServer(object):
         general = ET.SubElement(top, 'general')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # barcode_1 tag (white tag)
-        if computer.barcode is not None:
+        if computer.barcode_1 is not None:
             barcode_1_xml = ET.SubElement(general, 'barcode_1')
-            barcode_1_xml.text = computer.barcode.decode('utf-8')
+            barcode_1_xml.text = computer.barcode_1.decode('utf-8')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # asset_tag tag (yellow tag)
-        if computer.asset is not None:
+        if computer.asset_tag is not None:
             asset_tag_xml = ET.SubElement(general, 'asset_tag')
-            asset_tag_xml.text = computer.asset.decode('utf-8')
+            asset_tag_xml.text = computer.asset_tag.decode('utf-8')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         if computer.serial is not None:
             serial_number_xml = ET.SubElement(general, 'serial_number')
@@ -502,8 +434,6 @@ class JssServer(object):
 
         return True
 
-
-
     def set_offboard_fields(self, offboard_fields, inventory_status=None):
 
         logger.info("set_offboard_fields(): activated")
@@ -572,25 +502,33 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
     def get_serial(self, computer_id):
-        tugboat_fields = self.get_tugboat_fields(computer_id)
-        jss_serial = tugboat_fields['general']['serial_number']
+        general_set = self.get_general_inventory(computer_id)
+        jss_serial = general_set['serial_number']
         return jss_serial
 
     def get_managed_status(self, jss_id):
         general_list_main = self.get_general_inventory(jss_id)
         remote_mangement_list = general_list_main['remote_management']
-        return str(remote_mangement_list['managed'])
+        return str(remote_mangement_list['managed']).lower()
 
-    def get_barcode(self, jss_id):
-        barcode = self.get_tugboat_fields(jss_id)['general']['barcode_1']
+    def get_barcode_1(self, jss_id):
+        general_set = self.get_general_inventory(jss_id)
+        barcode = general_set['barcode_1']
         return barcode
 
-    def get_asset(self, jss_id):
-        asset = self.get_tugboat_fields(jss_id)['general']['asset_tag']
+    def get_barcode_2(self, jss_id):
+        general_set = self.get_general_inventory(jss_id)
+        barcode = general_set['barcode_2']
+        return barcode
+
+    def get_asset_tag(self, jss_id):
+        general_set = self.get_general_inventory(jss_id)
+        asset = general_set['asset_tag']
         return asset
 
-    def get_name(self, jss_id):
-        name = self.get_tugboat_fields(jss_id)['general']['computer_name']
+    def get_computer_name(self, jss_id):
+        general_set = self.get_general_inventory(jss_id)
+        name = general_set['name'].encode('utf-8')
         return name
 
     def enroll_computer(self):
