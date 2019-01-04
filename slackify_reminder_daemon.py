@@ -17,7 +17,7 @@ def slackify_reminder():
         if 9 <= hour < 18:
             cmd = [python_bin, script_path, channel, message]
             subprocess.Popen(cmd, stderr=subprocess.STDOUT)
-        time.sleep(2*3600)
+        time.sleep(24*3600)
 
 
 def run_daemon():
