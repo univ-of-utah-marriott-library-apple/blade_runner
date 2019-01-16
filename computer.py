@@ -14,9 +14,14 @@ class Computer(object):
         self.name = None
         self.prev_computer_name = None
         self.needs_enroll = None
-        self.incorrect_barcode = None
+        self.incorrect_barcode_1 = None
+        self.incorrect_barcode_2 = None
         self.incorrect_asset = None
         self.incorrect_serial = None
+        self.prev_barcode_1 = None
+        self.prev_barcode_2 = None
+        self.prev_asset_tag = None
+        self.prev_name = None
 
     def get_serial(self):
         """Gets and returns serial number from the computer"""
