@@ -9,18 +9,21 @@ import json
 import re
 import inspect
 import xml.etree.cElementTree as ET
-
+import sys
+from time import sleep
 
 class JssServer(object):
-    def __init__(self, username=None, password=None, jss_url=None, invite=None):
+    def __init__(self, username=None, password=None, jss_url=None, invite=None, jamf_binary_1=None, jamf_binary_2=None):
         self.username = username
         self.password = password
         self.jss_url = jss_url
         self.invite = invite
         self.search_param = None
+        self.jamf_binary_1 = jamf_binary_1
+        self.jamf_binary_2 = jamf_binary_2
+        self.last_search = None
 
     def match(self, search_param):
-
         # Using the JSS API go to the server and pull down the computer id.
         '''Potential fix. If the serial number contains a forward slash, the url request fails. Tried using %2F to fix
         the problem but that didn't work. This is a problem when enrolling VMs, unless you change the VM serial. ???
@@ -187,7 +190,7 @@ class JssServer(object):
     def delete_record(self, computer_id):
         self._delete_handler(computer_id)
 
-    def push_enroll_fields(self, computer, budget_source=None):
+    def push_enroll_fields(self, computer):
         '''Pushes the following to the JSS:
             barcode number
             yellow asset tag number
@@ -203,23 +206,26 @@ class JssServer(object):
         # Extension attributes tag
         ext_attrs = ET.SubElement(top, 'extension_attributes')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        if budget_source is not None:
-            budget_source.decode('utf-8')
-            # Extension attribute tag
-            budget_source_attr = ET.SubElement(ext_attrs, 'extension_attribute')
+        # TODO Delete
+        # if budget_source is not None:
+        #     budget_source.decode('utf-8')
+        #     # Extension attribute tag
+        #     budget_source_attr = ET.SubElement(ext_attrs, 'extension_attribute')
+        #
+        #     # ID tag for budget source
+        #     budget_source_id = ET.SubElement(budget_source_attr, 'id')
+        #     budget_source_id.text = '22'
+        #
+        #     # Name tag for budget source
+        #     budget_source_name = ET.SubElement(budget_source_attr, 'name')
+        #     budget_source_name.text = 'Budget Source'
+        #
+        #     # Value tag for budget source
+        #     budget_source_value = ET.SubElement(budget_source_attr, 'value')
+        #     budget_source_value.text = budget_source
+        #     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-            # ID tag for budget source
-            budget_source_id = ET.SubElement(budget_source_attr, 'id')
-            budget_source_id.text = '22'
-
-            # Name tag for budget source
-            budget_source_name = ET.SubElement(budget_source_attr, 'name')
-            budget_source_name.text = 'Budget Source'
-
-            # Value tag for budget source
-            budget_source_value = ET.SubElement(budget_source_attr, 'value')
-            budget_source_value.text = budget_source
-            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # TODO Make sure this only goes to the MacGroup
         if computer.name is not None:
             # Extension attribute tag
             previous_computer_names__attr = ET.SubElement(ext_attrs, 'extension_attribute')
@@ -240,12 +246,17 @@ class JssServer(object):
         # General tag
         general = ET.SubElement(top, 'general')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # barcode_1 tag (white tag)
+        # barcode_1 tag
         if computer.barcode_1 is not None:
             barcode_1_xml = ET.SubElement(general, 'barcode_1')
             barcode_1_xml.text = computer.barcode_1.decode('utf-8')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # asset_tag tag (yellow tag)
+        # barcode_2 tag
+        if computer.barcode_2 is not None:
+            barcode_2_xml = ET.SubElement(general, 'barcode_2')
+            barcode_2_xml.text = computer.barcode_2.decode('utf-8')
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # asset_tag tag
         if computer.asset_tag is not None:
             asset_tag_xml = ET.SubElement(general, 'asset_tag')
             asset_tag_xml.text = computer.asset_tag.decode('utf-8')
@@ -253,6 +264,10 @@ class JssServer(object):
         if computer.serial is not None:
             serial_number_xml = ET.SubElement(general, 'serial_number')
             serial_number_xml.text = computer.serial.decode('utf-8')
+
+        if computer.name is not None:
+            name_xml = ET.SubElement(general, 'name')
+            name_xml.text = computer.name.decode('utf-8')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # ^ END: Create XML structure that will be sent through the api call
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -537,31 +552,32 @@ class JssServer(object):
         logger.info("enroll" + ": activated")
         logger.info('Enrolling computer.')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        jamf = '/usr/local/bin/jamf'
-        cmd = [jamf, 'enroll', '-invitation', self.invite, '-noPolicy',
-               '-noManage', '-verbose']
+        cmd = [self.jamf_binary_1, 'enroll', '-invitation', self.invite, '-noPolicy', '-noManage', '-verbose']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Enroll computer
         try:
-            enroll_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            logger.debug(enroll_output)
+            # enroll_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            while proc.poll() is None:
+                line = proc.stdout.readline()
+                line = line.strip()
+                if line != "":
+                    ERASE_LINE = '\x1b[2K'
+                    sys.stdout.write('{}Enrolling: {}\r'.format(ERASE_LINE, line))
+                    sys.stdout.flush()
+            print("")
             logger.info('Enrolling finished.')
             return True
-        # except subprocess.CalledProcessError as e:
-        #     logger.error("  > " + str(e.output))
-        #     logger.info(func_name() + ": failed")
-        #     raise
         except (OSError, subprocess.CalledProcessError) as e:
             # if e.errno == 2:
-            logger.error("Couldn't find " + jamf + ". Enrolling failed. " + str(e))
+            logger.error("Couldn't find " + self.jamf_binary_2 + ". Enrolling failed. " + str(e))
             try:
-                jamf = '/Volumes/Storage/jamf'
-                logger.info("Enrolling again. Now using " + jamf)
+                logger.info("Enrolling again. Now using " + self.jamf_binary_2)
 
-                conf_cmd = [jamf, 'createConf', '-url', self.jss_url, '-verifySSLCert', 'never']
+                conf_cmd = [self.jamf_binary_2, 'createConf', '-url', self.jss_url, '-verifySSLCert', 'never']
                 conf_output = subprocess.check_output(conf_cmd, stderr=subprocess.STDOUT)
                 logger.debug(conf_output)
-                enroll_cmd = [jamf, 'enroll', '-invitation', self.invite, '-noPolicy', '-noManage', '-verbose']
+                enroll_cmd = [self.jamf_binary_2, 'enroll', '-invitation', self.invite, '-noPolicy', '-noManage', '-verbose']
                 enroll_output = subprocess.check_output(enroll_cmd, stderr=subprocess.STDOUT)
                 logger.debug(enroll_output)
                 logger.info('Enrolling finished.')
@@ -571,7 +587,7 @@ class JssServer(object):
                 logger.info("enroll" + ": failed")
                 raise
             except Exception as e:
-                logger.error("  > Either the path to " + jamf + " is incorrect or JAMF has not "
+                logger.error("  > Either the path to " + self.jamf_binary_2 + " is incorrect or JAMF has not "
                                                                 "been installed on this computer. ")
                 logger.error(e)
                 logger.info("enroll" + ": failed")
