@@ -9,20 +9,21 @@ import os
 from jss_server import JssServer
 import plistlib
 from computer import Computer
-from decision_tree import DecisionTree
 from pprint import pformat
 import socket
 from management_tools.slack import IncomingWebhooksSender as IWS
 from jss_doc import JssDoc
 from tuggyboat import TuggyBoat
 import user_xml_updater as user
+from params import Params
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
 # TODO Dynamically change entry_view according to a plist. Plist will contain barcode_1, barcode_2, asset_tag, name.
 # TODO If spaces are entered in the asset or barcode inputs the program quits. Formatting issue. Need to format spaces.
 
+
 class MainController(object):
-    def __init__(self, root, server, slack_data, verify_data):
+    def __init__(self, root, server, slack_data, params):
 
         self.model = Model(server)
         self.jss_server = server
@@ -31,9 +32,6 @@ class MainController(object):
         self.proceed = False
         self.inventory_status = None
         self.root = root
-
-        self.verify_data = self.config_values_to_bools(dict(verify_data))
-        self.needs_search = self.config_values_to_bools(dict(verify_data))
 
         self.main_view = None
         self.entry_controller = None
@@ -51,18 +49,13 @@ class MainController(object):
         self.slack_data = slack_data
         self.private_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "private")
 
+        self.params = Params(params)
+        self.params.search_status.pop('computer_name', None)
+
     def run(self):
         self.main_view = MainView(self.root, self)
         self.refocus()
         self.main_view.mainloop()
-
-    def config_values_to_bools(self, verify_data):
-        for field in verify_data:
-            if verify_data[field].lower() == "false":
-                verify_data[field] = False
-            elif verify_data[field].lower() == "true":
-                verify_data[field] = True
-        return verify_data
 
     def populate_config_combobox(self):
         private_files = os.listdir(self.private_dir)
@@ -85,8 +78,8 @@ class MainController(object):
         self.next_input()
 
     def determine_input_type(self, input_type):
-        self.needs_search[input_type] = False
-        self.entry_controller = EntryController(self.main_view, self.computer, self.verify_data, input_type)
+        self.params.search_status[input_type] = True
+        self.entry_controller = EntryController(self.main_view, self.computer, self.params, input_type)
         # Wait
         self.main_view.wait_window(window=self.entry_controller.entry_view)
 
@@ -108,20 +101,22 @@ class MainController(object):
         self.next_input()
 
     def next_input(self):
-        for verify_field in self.needs_search:
-            if self.needs_search[verify_field] is True:
-                self.needs_search[verify_field] = False
+        for param in self.params.search_status:
+
+            if self.params.search_status[param] is False:
+
                 if self.computer.jss_id is None:
-                    self.determine_input_type(verify_field)
+                    self.determine_input_type(param)
                     return
-        if not any(list(self.needs_search.values())):
+
+        if all(list(self.params.search_status.values())):
             if self.computer.jss_id is None:
                 self.serial_input()
                 return
             self.process_logic()
 
     def open_entry_view(self, message, wait=True):
-        self.entry_controller = EntryController(self.main_view, self.computer, self.verify_data, "config")
+        self.entry_controller = EntryController(self.main_view, self.computer, self.params, "config")
         self.entry_controller.populate_entry_fields()
         self.entry_controller.entry_view.text_lbl.config(text=message)
         # Wait for entry view window to close. After entry view window has been closed through the "submit" button,
@@ -174,21 +169,14 @@ class MainController(object):
             logger.debug("Previous asset_tag: {}".format(self.computer.prev_asset_tag))
             logger.debug("Previous name: {}".format(self.computer.prev_name))
 
-            for field in self.needs_search:
-                if self.needs_search[field] is True:
-                    if field == 'barcode_1':
+            for param in self.params.search_status:
+                if self.params.search_status[param] is False:
+                    if param == 'barcode_1':
                         self.computer.barcode_1 = self.computer.prev_barcode_1
-                    if field == 'barcode_2':
+                    if param == 'barcode_2':
                         self.computer.barcode_2 = self.computer.prev_barcode_2
-                    if field == 'asset_tag':
+                    if param == 'asset_tag':
                         self.computer.asset_tag = self.computer.prev_asset_tag
-
-            # # If neither the barcode_1, barcode_2, or asset have been entered, set the fields to the returned JSS fields
-            # if not self.barcode_1_searched and not self.barcode_2_searched and not self.asset_searched:
-            #     self.computer.barcode_1 = self.computer.prev_barcode_1
-            #     self.computer.barcode_2 = self.computer.prev_barcode_2
-            #     self.computer.asset_tag = self.computer.prev_asset_tag
-            #     self.computer.name = self.computer.prev_name
 
             if self.computer.serial_number is None:
                 self.computer.serial_number = self.computer.get_serial()
