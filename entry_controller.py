@@ -11,13 +11,14 @@ logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)
 
 
 class EntryController(object):
-    def __init__(self, master, computer, verify_data, input_type):
+    def __init__(self, master, computer, params, input_type):
 
         self.entry_view = EntryView(master)
         self.entry_view.protocol('WM_DELETE_WINDOW', self.close_button_clicked)
         self.computer = computer
         self.proceed = None
-        self.verify_data = verify_data
+        # self.verify_data = verify_data
+        self.params = params
         self.input_type = input_type
 
         self.set_to_middle(self.entry_view)
@@ -28,7 +29,6 @@ class EntryController(object):
 
         self.entry_view.submit_btn.config(command=self.submit_btn_clicked)
         self.entry_view.bind('<Return>', lambda event: self.submit_btn_clicked())
-        # self.hide_components()
 
         self.determine_widgets(input_type)
 
@@ -68,35 +68,35 @@ class EntryController(object):
             self.store_entry_fields()
 
     def store_entry_fields(self):
-        if self.verify_data['barcode_1'] is True:
+        if 'barcode_1' in self.params.enabled:
             if self.entry_view.barcode_1_entry.get() != "":
                 self.computer.barcode_1 = self.entry_view.barcode_1_entry.get()
 
-        if self.verify_data['barcode_2'] is True:
+        if 'barcode_2' in self.params.enabled:
             if self.entry_view.barcode_2_entry.get() != "":
                 self.computer.barcode_2 = self.entry_view.barcode_2_entry.get()
 
-        if self.verify_data['asset_tag'] is True:
+        if 'asset_tag' in self.params.enabled:
             if self.entry_view.asset_entry.get() != "":
                 self.computer.asset_tag = self.entry_view.asset_entry.get()
 
-        if self.verify_data['computer_name'] is True:
+        if 'computer_name' in self.params.enabled:
             if self.entry_view.name_entry.get() != "":
                 self.computer.name = self.entry_view.name_entry.get()
 
     def populate_entry_fields(self):
         none_filter = lambda x: "" if x is None else x
 
-        if self.verify_data['barcode_1'] is True:
+        if 'barcode_1' in self.params.enabled:
             self.entry_view.barcode_1_entry.insert(0, "{}".format(none_filter(self.computer.barcode_1)))
 
-        if self.verify_data['barcode_2'] is True:
+        if 'barcode_2' in self.params.enabled:
             self.entry_view.barcode_2_entry.insert(0, "{}".format(none_filter(self.computer.barcode_2)))
 
-        if self.verify_data['asset_tag'] is True:
+        if 'asset_tag' in self.params.enabled:
             self.entry_view.asset_entry.insert(0, "{}".format(none_filter(self.computer.asset_tag)))
 
-        if self.verify_data['computer_name'] is True:
+        if 'computer_name' in self.params.enabled:
             self.entry_view.name_entry.insert(0, "{}".format(none_filter(self.computer.name)))
 
     def close_button_clicked(self):
@@ -124,94 +124,18 @@ class EntryController(object):
             self.determine_widgets_from_config()
 
     def determine_widgets_from_config(self):
-        if self.verify_data['barcode_1'] is True:
+        if 'barcode_1' in self.params.enabled:
             self.entry_view.barcode_1_lbl.grid(row=1, column=0, sticky="E")
             self.entry_view.barcode_1_entry.grid(row=1, column=1)
 
-        if self.verify_data['barcode_2'] is True:
+        if 'barcode_2' in self.params.enabled:
             self.entry_view.barcode_2_lbl.grid(row=2, column=0, sticky="E")
             self.entry_view.barcode_2_entry.grid(row=2, column=1)
 
-        if self.verify_data['asset_tag'] is True:
+        if 'asset_tag' in self.params.enabled:
             self.entry_view.asset_lbl.grid(row=3, column=0, sticky="E")
             self.entry_view.asset_entry.grid(row=3, column=1)
 
-        if self.verify_data['computer_name'] is True:
+        if 'computer_name' in self.params.enabled:
             self.entry_view.name_lbl.grid(row=4, column=0)
             self.entry_view.name_entry.grid(row=4, column=1)
-
-    # def hide_components(self):
-    #     if self.verify_data['barcode_1'] is False:
-    #         self.entry_view.barcode_1_entry.grid_forget()
-    #         self.entry_view.barcode_1_lbl.grid_forget()
-    #
-    #     if self.verify_data['barcode_2'] is False:
-    #         self.entry_view.barcode_2_entry.grid_forget()
-    #         self.entry_view.barcode_2_lbl.grid_forget()
-    #
-    #     if self.verify_data['asset_tag'] is False:
-    #         self.entry_view.asset_entry.grid_forget()
-    #         self.entry_view.asset_lbl.grid_forget()
-    #
-    #     if self.verify_data['computer_name'] is False:
-    #         self.entry_view.name_entry.grid_forget()
-    #         self.entry_view.name_lbl.grid_forget()
-
-    # def barcode_1_only(self):
-    #     self.entry_view.title("Search JSS")
-    #     self.entry_view.text_lbl.config(text="Enter barcode 1.")
-    #     self.entry_view.barcode_1_entry.focus()
-    #
-    #     self.entry_view.name_entry.grid_forget()
-    #     self.entry_view.name_lbl.grid_forget()
-    #
-    #     self.entry_view.asset_entry.grid_forget()
-    #     self.entry_view.asset_lbl.grid_forget()
-    #
-    #     self.entry_view.barcode_2_entry.grid_forget()
-    #     self.entry_view.barcode_2_lbl.grid_forget()
-    #
-    # def barcode_2_only(self):
-    #     self.entry_view.title("Search JSS")
-    #     self.entry_view.text_lbl.config(text="Enter barcode 2.")
-    #     self.entry_view.barcode_2_entry.focus()
-    #
-    #     self.entry_view.name_entry.grid_forget()
-    #     self.entry_view.name_lbl.grid_forget()
-    #
-    #     self.entry_view.asset_entry.grid_forget()
-    #     self.entry_view.asset_lbl.grid_forget()
-    #
-    #     self.entry_view.barcode_1_entry.grid_forget()
-    #     self.entry_view.barcode_1_lbl.grid_forget()
-    #
-    # def asset_only(self):
-    #     self.entry_view.title("Search JSS")
-    #     self.entry_view.text_lbl.config(text="Enter the asset.")
-    #     self.entry_view.asset_entry.focus()
-    #
-    #     self.entry_view.name_entry.grid_forget()
-    #     self.entry_view.name_lbl.grid_forget()
-    #
-    #     self.entry_view.barcode_1_entry.grid_forget()
-    #     self.entry_view.barcode_1_lbl.grid_forget()
-    #
-    #     self.entry_view.barcode_2_entry.grid_forget()
-    #     self.entry_view.barcode_2_lbl.grid_forget()
-    #
-    # def serial_only(self):
-    #     """Has a potential use. Not implemented currently."""
-    #     self.entry_view.title("Search JSS")
-    #     self.entry_view.text_lbl.config(text="Enter the serial number.")
-    #
-    #     self.entry_view.name_entry.grid_forget()
-    #     self.entry_view.name_lbl.grid_forget()
-    #
-    #     self.entry_view.barcode_1_entry.grid_forget()
-    #     self.entry_view.barcode_1_lbl.grid_forget()
-    #
-    #     self.entry_view.barcode_2_entry.grid_forget()
-    #     self.entry_view.barcode_2_lbl.grid_forget()
-    #
-    #     self.entry_view.asset_entry.grid_forget()
-    #     self.entry_view.asset_lbl.grid_forget()
