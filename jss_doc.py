@@ -71,13 +71,13 @@ class JssDoc(object):
 
         none_filter = lambda x : "" if x is None else x
 
-        if self.computer.incorrect_barcode is not None \
+        if self.computer.incorrect_barcode_1 is not None \
                 or self.computer.incorrect_asset is not None \
                 or self.computer.incorrect_serial is not None:
             review_content = """<b>These are the previous incorrect JSS fields. They should be reviewed to fix </b>
             <b>any JSS inconsistencies.</b>
             <p>
-            <b>Previous barcode: </b> <font color="red">""" + "{}".format(none_filter(self.computer.incorrect_barcode)) + """</font>
+            <b>Previous barcode: </b> <font color="red">""" + "{}".format(none_filter(self.computer.incorrect_barcode_1)) + """</font>
             <p>
             <b>Previous asset tag: </b> <font color="red">""" + "{}".format(none_filter(self.computer.incorrect_asset)) + """</font>
             <p>
