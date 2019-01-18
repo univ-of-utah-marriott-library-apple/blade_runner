@@ -12,6 +12,8 @@ import xml.etree.cElementTree as ET
 import sys
 from time import sleep
 
+# TODO Change all "utf-8" strings to a single var.
+
 class JssServer(object):
     def __init__(self, username=None, password=None, jss_url=None, invite=None, jamf_binary_1=None, jamf_binary_2=None):
         self.username = username
