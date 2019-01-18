@@ -85,13 +85,13 @@ class MainView(tk.Toplevel):
 
         self.serial_btn.grid(row=2, column=0, sticky='EW')
 
-        if self.controller.verify_data['barcode_1'] is True:
+        if 'barcode_1' in self.controller.params.enabled:
             self.barcode_1_btn.grid(row=3, column=0, sticky='EW')
 
-        if self.controller.verify_data['barcode_2'] is True:
+        if 'barcode_2' in self.controller.params.enabled:
             self.barcode_2_btn.grid(row=4, column=0, sticky='EW')
 
-        if self.controller.verify_data['asset_tag'] is True:
+        if 'asset_tag' in self.controller.params.enabled:
             self.asset_btn.grid(row=5, column=0, sticky='EW')
 
 
