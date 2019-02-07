@@ -1,4 +1,4 @@
-from entry_controller_base import EntryController
+from entry_controller import EntryController
 import inspect
 from management_tools import loggers
 import os
