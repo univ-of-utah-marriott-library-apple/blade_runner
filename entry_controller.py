@@ -1,109 +1,58 @@
-from entry_view import EntryView
-import inspect
-from management_tools import loggers
-import os
-
-cf = inspect.currentframe()
-filename = inspect.getframeinfo(cf).filename
-filename = os.path.basename(filename)
-filename = os.path.splitext(filename)[0]
-logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)
+from controller import Controller
 
 
-class EntryController(object):
-    def __init__(self, master, computer, params, input_type):
-
-        self.entry_view = EntryView(master)
-        self.entry_view.protocol('WM_DELETE_WINDOW', self.close_button_clicked)
+class EntryController(Controller):
+    def __init__(self, master, computer, view):
         self.computer = computer
-        self.proceed = None
-        # self.verify_data = verify_data
-        self.params = params
-        self.input_type = input_type
+        self.entry_view = view
 
-        self.set_to_middle(self.entry_view)
-
-        # These two lines make it so only the entry_view window can be interacted with
-        self.entry_view.transient(master)
-        self.entry_view.grab_set()
-
-        self.entry_view.submit_btn.config(command=self.submit_btn_clicked)
-        self.entry_view.bind('<Return>', lambda event: self.submit_btn_clicked())
-
-        self.determine_widgets(input_type)
-
-    def set_to_middle(self, window):
-        # Gets computer screen width and height
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
-
-        # Updates window info to current window state
-        window.update_idletasks()
-
-        # Sets window position
-        window.geometry('+%d+%d' % (screen_width / 2 - window.winfo_width() / 2, screen_height / 4))
-
-    def submit_btn_clicked(self):
-        self.store_entry_fields()
-        self.proceed = True
-        self.entry_view.destroy()
-
-    def store_entry_field(self):
-        if self.input_type == "barcode_1":
+    def store_entry_field(self, input_type):
+        if input_type == "barcode_1":
             if self.entry_view.barcode_1_entry.get() != "":
                 self.computer.barcode_1 = self.entry_view.barcode_1_entry.get()
+                return True
 
-        elif self.input_type == "barcode_2":
+        elif input_type == "barcode_2":
             if self.entry_view.barcode_2_entry.get() != "":
                 self.computer.barcode_2 = self.entry_view.barcode_2_entry.get()
+                return True
 
-        elif self.input_type == "asset_tag":
+        elif input_type == "asset_tag":
             if self.entry_view.asset_entry.get() != "":
                 self.computer.asset_tag = self.entry_view.asset_entry.get()
+                return True
 
-        elif self.input_type == "computer_name":
+        elif input_type == "computer_name":
             if self.entry_view.name_entry.get() != "":
                 self.computer.name = self.entry_view.name_entry.get()
-        elif self.input_type == "config":
-            self.store_entry_fields()
+                return True
 
-    def store_entry_fields(self):
-        if 'barcode_1' in self.params.enabled:
-            if self.entry_view.barcode_1_entry.get() != "":
-                self.computer.barcode_1 = self.entry_view.barcode_1_entry.get()
+        elif input_type == "serial_number":
+            if self.entry_view.serial_entry.get() != "":
+                self.computer.serial_number = self.entry_view.serial_entry.get()
+                return True
 
-        if 'barcode_2' in self.params.enabled:
-            if self.entry_view.barcode_2_entry.get() != "":
-                self.computer.barcode_2 = self.entry_view.barcode_2_entry.get()
+        return False
 
-        if 'asset_tag' in self.params.enabled:
-            if self.entry_view.asset_entry.get() != "":
-                self.computer.asset_tag = self.entry_view.asset_entry.get()
-
-        if 'computer_name' in self.params.enabled:
-            if self.entry_view.name_entry.get() != "":
-                self.computer.name = self.entry_view.name_entry.get()
-
-    def populate_entry_fields(self):
+    def populate_user_entry(self, input_type):
         none_filter = lambda x: "" if x is None else x
 
-        if 'barcode_1' in self.params.enabled:
+        if input_type == 'barcode_1':
             self.entry_view.barcode_1_entry.insert(0, "{}".format(none_filter(self.computer.barcode_1)))
 
-        if 'barcode_2' in self.params.enabled:
+        elif input_type == 'barcode_2':
             self.entry_view.barcode_2_entry.insert(0, "{}".format(none_filter(self.computer.barcode_2)))
 
-        if 'asset_tag' in self.params.enabled:
+        elif input_type == 'asset_tag':
             self.entry_view.asset_entry.insert(0, "{}".format(none_filter(self.computer.asset_tag)))
 
-        if 'computer_name' in self.params.enabled:
+        elif input_type == 'computer_name':
             self.entry_view.name_entry.insert(0, "{}".format(none_filter(self.computer.name)))
 
-    def close_button_clicked(self):
-        self.proceed = False
-        self.entry_view.destroy()
+        elif input_type == 'serial_number':
+            self.entry_view.serial_entry.insert(0, "{}".format(none_filter(self.computer.serial_number)))
 
-    def determine_widgets(self, input_type):
+    def determine_user_widget(self, input_type):
         if input_type == "barcode_1":
             self.entry_view.barcode_1_lbl.grid(row=1, column=0, sticky="E")
             self.entry_view.barcode_1_entry.grid(row=1, column=1)
@@ -120,22 +69,59 @@ class EntryController(object):
             self.entry_view.name_lbl.grid(row=4, column=0, sticky="E")
             self.entry_view.name_entry.grid(row=4, column=1)
 
-        elif input_type == "config":
-            self.determine_widgets_from_config()
+        elif input_type == "serial_number":
+            self.entry_view.serial_lbl.grid(row=5, column=0, sticky="E")
+            self.entry_view.serial_entry.grid(row=5, column=1, sticky='E')
 
-    def determine_widgets_from_config(self):
-        if 'barcode_1' in self.params.enabled:
-            self.entry_view.barcode_1_lbl.grid(row=1, column=0, sticky="E")
-            self.entry_view.barcode_1_entry.grid(row=1, column=1)
+    def focus_entry(self, input_type):
+        if input_type == "barcode_1":
+            self.entry_view.barcode_1_entry.focus()
 
-        if 'barcode_2' in self.params.enabled:
-            self.entry_view.barcode_2_lbl.grid(row=2, column=0, sticky="E")
-            self.entry_view.barcode_2_entry.grid(row=2, column=1)
+        elif input_type == "barcode_2":
+            self.entry_view.barcode_2_entry.focus()
 
-        if 'asset_tag' in self.params.enabled:
-            self.entry_view.asset_lbl.grid(row=3, column=0, sticky="E")
-            self.entry_view.asset_entry.grid(row=3, column=1)
+        elif input_type == "asset_tag":
+            self.entry_view.asset_entry.focus()
 
-        if 'computer_name' in self.params.enabled:
-            self.entry_view.name_lbl.grid(row=4, column=0)
-            self.entry_view.name_entry.grid(row=4, column=1)
+        elif input_type == "computer_name":
+            self.entry_view.name_entry.focus()
+
+        elif input_type == "serial_number":
+            self.entry_view.serial_entry.focus()
+
+    # def populate_entry(self, input_type, source):
+    #     none_filter = lambda x: "" if x is None else x
+    #
+    #     if source == "user":
+    #         barcode_1 = self.computer.barcode_1
+    #         barcode_2 = self.computer.barcode_2
+    #         asset_tag = self.computer.asset_tag
+    #         name = self.computer.name
+    #         serial_number = self.computer.serial_number
+    #
+    #     elif source == "jss":
+    #         barcode_1 = self.computer.prev_barcode_1
+    #         barcode_2 = self.computer.prev_barcode_2
+    #         asset_tag = self.computer.prev_asset_tag
+    #         name = self.computer.prev_name
+    #         serial_number = self.computer.prev_serial_number
+    #
+    #     if input_type == 'barcode_1':
+    #         self.entry_view.barcode_1_entry.insert(0, "{}".format(none_filter(barcode_1)))
+    #
+    #     elif input_type == 'barcode_2':
+    #         self.entry_view.barcode_2_entry.insert(0, "{}".format(none_filter(barcode_2)))
+    #
+    #     elif input_type == 'asset_tag':
+    #         self.entry_view.asset_entry.insert(0, "{}".format(none_filter(asset_tag)))
+    #
+    #     elif input_type == 'computer_name':
+    #         self.entry_view.name_entry.insert(0, "{}".format(none_filter(name)))
+    #
+    #     elif input_type == 'serial_number':
+    #         self.entry_view.serial_entry.insert(0, "{}".format(none_filter(serial_number)))
+
+
+
+
+
