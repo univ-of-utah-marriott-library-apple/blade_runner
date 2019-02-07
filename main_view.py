@@ -46,31 +46,15 @@ class MainView(tk.Toplevel):
         self.controller.set_to_middle(self)
 
     def input_btn_clicked(self, input_type):
-        if input_type == 'barcode_1':
-            self.controller.determine_input_type(input_type)
-        if input_type == 'barcode_2':
-            self.controller.determine_input_type(input_type)
-        if input_type == 'asset_tag':
-            self.controller.determine_input_type(input_type)
-        if input_type == 'serial_number':
-            self.controller.determine_input_type(input_type)
+        self.controller.act(input_type)
 
     def next_btn_clicked(self):
         self.options_scene()
-        self.bind('<Return>', lambda event: self.serial_btn_clicked())
+        self.bind('<Return>', lambda event: self.input_btn_clicked('serial_number'))
         self.controller.save_offboard_config(self.combobox.get())
 
-    def serial_btn_clicked(self):
-        self.controller.serial_input()
-
-    def barcode_btn_clicked(self):
-        self.controller.barcode_1_input()
-
-    def asset_btn_clicked(self):
-        self.controller.asset_input()
-
     def exit_btn_clicked(self):
-        self.master.destroy()
+        self.controller.terminate()
 
     def populate_combobox(self):
         self.controller.populate_config_combobox()
@@ -85,13 +69,13 @@ class MainView(tk.Toplevel):
 
         self.serial_btn.grid(row=2, column=0, sticky='EW')
 
-        if 'barcode_1' in self.controller.params.enabled:
+        if 'barcode_1' in self.controller.search_params.enabled:
             self.barcode_1_btn.grid(row=3, column=0, sticky='EW')
 
-        if 'barcode_2' in self.controller.params.enabled:
+        if 'barcode_2' in self.controller.search_params.enabled:
             self.barcode_2_btn.grid(row=4, column=0, sticky='EW')
 
-        if 'asset_tag' in self.controller.params.enabled:
+        if 'asset_tag' in self.controller.search_params.enabled:
             self.asset_btn.grid(row=5, column=0, sticky='EW')
 
 
