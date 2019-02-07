@@ -10,7 +10,6 @@ import re
 import inspect
 import xml.etree.cElementTree as ET
 import sys
-from time import sleep
 
 # TODO Change all "utf-8" strings to a single var.
 
@@ -35,6 +34,7 @@ class JssServer(object):
             computer_url = '***REMOVED***/JSSResource/computers/match/' + string
         '''
         computer_url = self.jss_url + '/JSSResource/computers/match/' + search_param
+        logger.debug("API call: {}".format(computer_url))
 
         request = urllib2.Request(computer_url)
         request.add_header('Accept', 'application/json')
@@ -60,9 +60,9 @@ class JssServer(object):
             split_computer_match = response_json['computers'][0]
         except:
             if len(search_param) > 10:
-                logger.info("Serial number was not found in the JSS.")
+                logger.info("Serial number was not found in the JSS. {}".format(search_param))
             else:
-                logger.info("Barcode or asset not found in the JSS.")
+                logger.info("Barcode or asset not found in the JSS. {}".format(search_param))
             return None
         # Prints the computers ID.
         logger.info("JSS assigned ID: %r" % split_computer_match['id'])
@@ -334,6 +334,12 @@ class JssServer(object):
 
         self._push_xml_handler(xml, computer_id)
 
+    def push_xml_str_fields(self, xml_str, computer_id):
+        xml_str = re.sub("\n", "", xml_str)
+        xml_str = re.sub("(>)\s+(<)", r"\1\2", xml_str)
+
+        self._push_xml_handler(xml_str, computer_id)
+
     def push_offboard_fields(self, computer_id, offboard_fields):
 
         logger.debug("push_offboard_fields(): activated")
@@ -559,7 +565,13 @@ class JssServer(object):
         # Enroll computer
         try:
             # enroll_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            '''
+            If this process hangs when jamf is running softwareupdate, go to Settings>Computer Management>Inventory
+            Collection>General and uncheck 'Include home directory sizes'. I also uncheck 'Collect available software 
+            updates' for the purpose of testing.
+            '''
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
             while proc.poll() is None:
                 line = proc.stdout.readline()
                 line = line.strip()
@@ -568,6 +580,7 @@ class JssServer(object):
                     sys.stdout.write('{}Enrolling: {}\r'.format(ERASE_LINE, line))
                     sys.stdout.flush()
             print("")
+
             logger.info('Enrolling finished.')
             return True
         except (OSError, subprocess.CalledProcessError) as e:
@@ -600,7 +613,8 @@ class JssServer(object):
             logger.debug("  Submitting XML: %r" % xml)
 
             opener = urllib2.build_opener(urllib2.HTTPHandler)
-            computer_url = self.jss_url + '/JSSResource/computers/id/' + computer_id
+            computer_url = "{}/JSSResource/computers/id/{}".format(self.jss_url, computer_id)
+            logger.debug("API request: {}".format(computer_url))
             request = urllib2.Request(computer_url, data=xml)
             request.add_header('Authorization', 'Basic ' + base64.b64encode(self.username + ':' + self.password))
             request.add_header('Content-Type', 'text/xml')
@@ -619,7 +633,7 @@ class JssServer(object):
             elif error.code == 403:
                 print("HTTP code %i: %s " % (error.code, "Permissions error."))
             elif error.code == 404:
-                print("HTTP code %i: %s " % (error.code, "Resource not found."))
+                print("HTTP code %i: %s " % (error.code, "Resource not found. API request: " + computer_url))
             elif error.code == 409:
                 error_message = re.findall("Error: (.*)<", contents)
                 print("HTTP code %i: %s %s" % (error.code, "Resource conflict.", error_message[0]))
