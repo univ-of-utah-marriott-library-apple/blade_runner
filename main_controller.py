@@ -122,7 +122,7 @@ class MainController(Controller):
 
         for param in self.search_params:
             if not self.search_params.was_searched(param):
-                if self.proceed is True:
+                if self.proceed is True and self.computer.jss_id is None:
                     self.determine_input_type(param)
 
         self.restart()
