@@ -1,5 +1,3 @@
-from model import Model
-from entry_controller import EntryController
 from main_view import MainView
 import Tkinter as tk
 import subprocess
@@ -9,7 +7,6 @@ import os
 from jss_server import JssServer
 import plistlib
 from computer import Computer
-from pprint import pformat
 import socket
 from management_tools.slack import IncomingWebhooksSender as IWS
 from jss_doc import JssDoc
