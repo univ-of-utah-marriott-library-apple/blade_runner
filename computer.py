@@ -4,6 +4,7 @@ from management_tools import loggers
 import re
 import inspect
 
+
 class Computer(object):
     def __init__(self):
         self.serial_number = None
@@ -22,6 +23,7 @@ class Computer(object):
         self.prev_barcode_2 = None
         self.prev_asset_tag = None
         self.prev_name = None
+        self.prev_serial_number = None
 
     def get_serial(self):
         """Gets and returns serial number from the computer"""
