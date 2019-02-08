@@ -1,21 +1,4 @@
-
-# TODO There is a potential bug when using search_status. See below.
-'''
-The key "computer_name" in the verify config is not a valid search item, but it gets stored in the search_status
-dictionary. This could be misleading in future implementations of search_status. Haven't devised a fix yet, as I want
-all enabled parameters in the same config. Right now the main controller removes the computer_name key before storing
-it in the search_status list.
-'''
-
-
 class Params(object):
-    def __init__(self, params_dict):
-        params_dict = self._values_to_bools(params_dict)
-
-        self.all = params_dict
-        self.enabled = set(self._remove_keys_with_value(False, params_dict))
-        self.disabled = set(self._remove_keys_with_value(True, params_dict))
-        self.search_status = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
 
     def _values_to_bools(self, dictionary):
         """
@@ -51,8 +34,6 @@ class Params(object):
                 dct.pop(key, None)
         return dct
 
-
-
     def _invert_bool_values(self, dictionary):
         """
         Inverts boolean values one level deep in a dictionary, e.g.,
@@ -72,3 +53,50 @@ class Params(object):
                 dct[key] = True
         return dct
 
+
+class SearchParams(Params):
+    def __init__(self, params_dict):
+        params_dict = self._values_to_bools(params_dict)
+
+        self.originals = params_dict
+        self.enabled = set(self._remove_keys_with_value(False, params_dict))
+        self.disabled = set(self._remove_keys_with_value(True, params_dict))
+        self.search_status = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
+        self.matches = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
+        self.search_count = 0
+
+    def was_searched(self, param):
+        if param in self.search_status:
+            return self.search_status[param]
+
+    def set_searched(self, param):
+        if param in self.search_status:
+            self.search_status[param] = True
+            self.search_count += 1
+
+    def set_match(self, param):
+        if param in self.matches:
+            self.matches[param] = True
+
+    def get_matches(self):
+        return self.matches
+
+    def exists_match(self):
+        return any(self.matches.values())
+
+    def all_searched(self):
+        return all(self.search_status.values())
+
+    def __iter__(self):
+        for param in self.enabled:
+            yield param
+
+
+class VerifyParams(Params):
+    def __init__(self, params_dict):
+        params_dict = self._values_to_bools(params_dict)
+
+        self.originals = params_dict
+        self.enabled = set(self._remove_keys_with_value(False, params_dict))
+        self.disabled = set(self._remove_keys_with_value(True, params_dict))
+        self.search_status = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
