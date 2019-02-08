@@ -45,12 +45,20 @@ class TestBladeRunner(unittest.TestCase):
         jss_server_data = plistlib.readPlist(jss_server_plist)
         cls.jss_server = JssServer(**jss_server_data)
 
-        slack_plist = os.path.join(blade_runner_dir, "private/slack_config.plist")
+        slack_plist = os.path.join(blade_runner_dir, "private/test_slack_config.plist")
         slack_data = plistlib.readPlist(slack_plist)
         current_ip = socket.gethostbyname(socket.gethostname())
         bot = IWS(slack_data['slack_url'], bot_name=current_ip, channel=slack_data['slack_channel'])
 
-        cls.main_vc = MainController(root, cls.jss_server)
+        offboard_config = "private/test_offboard_config.xml"
+
+        verify_config = os.path.join(blade_runner_dir, "private/test_verify_config.plist")
+        verify_data = plistlib.readPlist(verify_config)
+
+        search_params_config = os.path.join(blade_runner_dir, "private/test_search_params_config.plist")
+        search_params = plistlib.readPlist(search_params_config)
+
+        cls.main_vc = MainController(root, cls.jss_server, slack_data, verify_data, search_params)
         cls.main_vc.computer.serial = cls.main_vc.computer.get_serial()
         # cls.main_vc.run()
 
