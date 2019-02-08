@@ -14,7 +14,7 @@ import user_xml_updater as user
 from params import SearchParams, VerifyParams
 from search_controller import SearchController
 from verification_controller import VerificationController
-from dual_verification_controller import DualVerificationController
+from dual_verify_controller import DualVerificationController
 from controller import Controller
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
