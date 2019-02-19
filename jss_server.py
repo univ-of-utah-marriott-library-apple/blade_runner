@@ -11,7 +11,6 @@ import inspect
 import xml.etree.cElementTree as ET
 import sys
 
-# TODO Change all "utf-8" strings to a single var.
 
 class JssServer(object):
     def __init__(self, username=None, password=None, jss_url=None, invite=None, jamf_binary_1=None, jamf_binary_2=None):
@@ -198,6 +197,7 @@ class JssServer(object):
             yellow asset tag number
             budget source
         '''
+        encoding = 'utf-8'
         logger.info("push_enroll_fields(): activated")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # v BEGIN: Create XML structure that will be sent through the api call
@@ -210,7 +210,7 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # TODO Delete
         # if budget_source is not None:
-        #     budget_source.decode('utf-8')
+        #     budget_source.decode(encoding)
         #     # Extension attribute tag
         #     budget_source_attr = ET.SubElement(ext_attrs, 'extension_attribute')
         #
@@ -251,25 +251,25 @@ class JssServer(object):
         # barcode_1 tag
         if computer.barcode_1 is not None:
             barcode_1_xml = ET.SubElement(general, 'barcode_1')
-            barcode_1_xml.text = computer.barcode_1.decode('utf-8')
+            barcode_1_xml.text = computer.barcode_1.decode(encoding)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # barcode_2 tag
         if computer.barcode_2 is not None:
             barcode_2_xml = ET.SubElement(general, 'barcode_2')
-            barcode_2_xml.text = computer.barcode_2.decode('utf-8')
+            barcode_2_xml.text = computer.barcode_2.decode(encoding)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # asset_tag tag
         if computer.asset_tag is not None:
             asset_tag_xml = ET.SubElement(general, 'asset_tag')
-            asset_tag_xml.text = computer.asset_tag.decode('utf-8')
+            asset_tag_xml.text = computer.asset_tag.decode(encoding)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        if computer.serial is not None:
+        if computer.serial_number is not None:
             serial_number_xml = ET.SubElement(general, 'serial_number')
-            serial_number_xml.text = computer.serial.decode('utf-8')
+            serial_number_xml.text = computer.serial_number.decode(encoding)
 
         if computer.name is not None:
             name_xml = ET.SubElement(general, 'name')
-            name_xml.text = computer.name.decode('utf-8')
+            name_xml.text = computer.name.decode(encoding)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # ^ END: Create XML structure that will be sent through the api call
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -283,6 +283,7 @@ class JssServer(object):
                 yellow asset tag number
             '''
         logger.info("push_label_fields(): activated")
+        encoding = 'utf-8'
         # logger.debug("  ARGS (" + computer_id + ", " + barcode_number + ", " + yellow_asset_tag + ", " + name_label + ")")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # v BEGIN: Create XML structure that will be sent through the api call
@@ -296,12 +297,12 @@ class JssServer(object):
         # barcode_1 tag (white tag)
         if barcode_number != "":
             barcode_1_xml = ET.SubElement(general, 'barcode_1')
-            barcode_1_xml.text = barcode_number.decode('utf-8')
+            barcode_1_xml.text = barcode_number.decode(encoding)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # asset_tag tag (yellow tag)
         if yellow_asset_tag != "":
             yellow_asset_tag_xml = ET.SubElement(general, 'asset_tag')
-            yellow_asset_tag_xml.text = yellow_asset_tag.decode('utf-8')
+            yellow_asset_tag_xml.text = yellow_asset_tag.decode(encoding)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Extension attributes tag
         ext_attrs = ET.SubElement(top, 'extension_attributes')
@@ -460,15 +461,16 @@ class JssServer(object):
     def set_offboard_fields(self, offboard_fields, inventory_status=None):
 
         logger.info("set_offboard_fields(): activated")
+        encoding = 'utf-8'
 
         if inventory_status == 'Salvage':
 
-            new_prefix = '[SALV]-'.decode('utf-8')
+            new_prefix = '[SALV]-'.decode(encoding)
             new_computer_name = new_prefix + offboard_fields['general']['serial_number']
 
         elif inventory_status == 'Storage':
 
-            new_prefix = '[STOR]-'.decode('utf-8')
+            new_prefix = '[STOR]-'.decode(encoding)
             new_computer_name = new_prefix + offboard_fields['general']['serial_number']
 
         else:
@@ -477,24 +479,24 @@ class JssServer(object):
 
         # offboard_fields['general'].pop('serial_number', None)
 
-        offboard_fields['location'].update({'building': ''.decode('utf-8'),
-                                            'department': ''.decode('utf-8'),
-                                            'email_address': ''.decode('utf-8'),
-                                            'phone': ''.decode('utf-8'),
-                                            'phone_number': ''.decode('utf-8'),
-                                            'position': ''.decode('utf-8'),
-                                            'real_name': ''.decode('utf-8'),
-                                            'realname': ''.decode('utf-8'),
-                                            'room': ''.decode('utf-8'),
-                                            'username': ''.decode('utf-8')})
+        offboard_fields['location'].update({'building': ''.decode(encoding),
+                                            'department': ''.decode(encoding),
+                                            'email_address': ''.decode(encoding),
+                                            'phone': ''.decode(encoding),
+                                            'phone_number': ''.decode(encoding),
+                                            'position': ''.decode(encoding),
+                                            'real_name': ''.decode(encoding),
+                                            'realname': ''.decode(encoding),
+                                            'room': ''.decode(encoding),
+                                            'username': ''.decode(encoding)})
 
         offboard_fields['general'].update({'computer_name': new_computer_name})
 
-        offboard_fields['general']['remote_management'].update({'managed': 'False'.decode('utf-8')})
+        offboard_fields['general']['remote_management'].update({'managed': 'False'.decode(encoding)})
 
-        offboard_fields['extension_attributes'].update({'Inventory Category': 'None'.decode('utf-8'),
-                                                        'Inventory Status': inventory_status.decode('utf-8'),
-                                                        'Onboarding IP': ''.decode('utf-8')})
+        offboard_fields['extension_attributes'].update({'Inventory Category': 'None'.decode(encoding),
+                                                        'Inventory Status': inventory_status.decode(encoding),
+                                                        'Onboarding IP': ''.decode(encoding)})
 
         logger.debug("  offboard_fields: " + str(offboard_fields))
         logger.info("set_offboard_fields(): finished")
@@ -685,10 +687,11 @@ class JssServer(object):
             raise error
 
 
-
 cf = inspect.currentframe()
-filename = inspect.getframeinfo(cf).filename
-filename = os.path.basename(filename)
-filename = os.path.splitext(filename)[0]
-logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)
-logger.debug("Name of logger: " + filename)
+abs_file_path = inspect.getframeinfo(cf).filename
+basename = os.path.basename(abs_file_path)
+lbasename = os.path.splitext(basename)[0]
+logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
+logger.debug("{} logger started.".format(lbasename))
+
+
