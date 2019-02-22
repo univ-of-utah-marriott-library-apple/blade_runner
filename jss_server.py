@@ -91,8 +91,12 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Add headers to the request
         request.add_header('Accept', 'application/json')
-        # Add authorization data to header
-        request.add_header('Authorization', 'Basic ' + base64.b64encode(self._username + ':' + self._password))
+        # Add headers to the request
+        request.add_header('Accept', 'application/json')
+        # Format credentials for header.
+        creds = base64.b64encode("{}:{}".format(self._username, self._password))
+        # Add credentials to header
+        request.add_header('Authorization', 'Basic {}'.format(creds))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
@@ -197,29 +201,43 @@ class JssServer(object):
         return general_inv
 
     def get_extension_attributes(self, jss_id):
+        """Gets computer's extension attributes from the JSS.
+
+        Args:
+            jss_id (str): JSS ID of computer
+
+        Returns:
+            Extension attributes (dict)
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_extension_attributes: started")
-        # api request url
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set API request URL
         request_url = self._jss_url + '/JSSResource/computers/id/' + jss_id + '/subset/extension_attributes'
-
-        # executing/sending request
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create a request
         request = urllib2.Request(request_url)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Add headers to the request
         request.add_header('Accept', 'application/json')
-
-        # providing credentials
-        request.add_header('Authorization', 'Basic ' + base64.b64encode(self._username + ':' + self._password))
-
+        # Format credentials for header.
+        creds = base64.b64encode("{}:{}".format(self._username, self._password))
+        # Add credentials to header
+        request.add_header('Authorization', 'Basic {}'.format(creds))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open/send the request
         response = self.open_request_handler(request)
-
         logger.info("Status code from request: %s" % response.code)
-        # putting response in JSON format
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Read the JSON from the response.
         response_json = json.loads(response.read())
-
-        # remove unicode
-        # response_json = ast.literal_eval(json.dumps(response_json))
-
-        jss_extension_attributes = response_json.get('computer', {}).get('extension_attributes', {})
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get the extension attributes from the JSON response.
+        ext_attrs = response_json.get('computer', {}).get('extension_attributes', {})
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_extension_attributes: finished")
-        return jss_extension_attributes
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        return ext_attrs
 
     def get_location_fields(self, jss_id):
         logger.debug("get_location_fields: started")
