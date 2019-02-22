@@ -86,17 +86,8 @@ class JssServer(object):
         request_url = "{}/JSSResource/computers/match/{}".format(self._jss_url, search_param)
         logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Create a request
-        request = urllib2.Request(request_url)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Add headers to the request
-        request.add_header('Accept', 'application/json')
-        # Add headers to the request
-        request.add_header('Accept', 'application/json')
-        # Format credentials for header.
-        creds = base64.b64encode("{}:{}".format(self._username, self._password))
-        # Add credentials to header
-        request.add_header('Authorization', 'Basic {}'.format(creds))
+        # Create GET request
+        request = self.create_get_request_handler(request_url)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
@@ -140,13 +131,8 @@ class JssServer(object):
         request_url = "{}/JSSResource/computers/id/{}/subset/Hardware".format(self._jss_url, jss_id)
         logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Create a request
-        request = urllib2.Request(request_url)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Add headers to the request
-        request.add_header('Accept', 'application/json')
-        # Add authorization data to header
-        request.add_header('Authorization', 'Basic ' + base64.b64encode(self._username + ':' + self._password))
+        # Create GET request
+        request = self.create_get_request_handler(request_url)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
@@ -178,13 +164,8 @@ class JssServer(object):
         request_url = "{}/JSSResource/computers/id/{}/subset/General".format(self._jss_url, jss_id)
         logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Create a request
-        request = urllib2.Request(request_url)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Add headers to the request
-        request.add_header('Accept', 'application/json')
-        # Add authorization data to header
-        request.add_header('Authorization', 'Basic ' + base64.b64encode(self._username + ':' + self._password))
+        # Create GET request
+        request = self.create_get_request_handler(request_url)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
@@ -215,15 +196,8 @@ class JssServer(object):
         # Set API request URL
         request_url = self._jss_url + '/JSSResource/computers/id/' + jss_id + '/subset/extension_attributes'
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Create a request
-        request = urllib2.Request(request_url)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Add headers to the request
-        request.add_header('Accept', 'application/json')
-        # Format credentials for header.
-        creds = base64.b64encode("{}:{}".format(self._username, self._password))
-        # Add credentials to header
-        request.add_header('Authorization', 'Basic {}'.format(creds))
+        # Create GET request
+        request = self.create_get_request_handler(request_url)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
@@ -244,10 +218,8 @@ class JssServer(object):
 
         request_url = self._jss_url + '/JSSResource/computers/id/' + jss_id + '/subset/Location'
 
-        request = urllib2.Request(request_url)
-
-        request.add_header('Accept', 'application/json')
-        request.add_header('Authorization', 'Basic ' + base64.b64encode(self._username + ':' + self._password))
+        # Create GET request
+        request = self.create_get_request_handler(request_url)
 
         response = self.open_request_handler(request)
 
@@ -276,10 +248,8 @@ class JssServer(object):
 
         request_url = self._jss_url + '/JSSResource/computers/id/' + jss_id + '/subset/' + subset_request
 
-        request = urllib2.Request(request_url)
-
-        request.add_header('Accept', 'application/xml')
-        request.add_header('Authorization', 'Basic ' + base64.b64encode(self._username + ':' + self._password))
+        # Create GET request
+        request = self.create_get_request_handler(request_url)
 
         # receiving response of request
         response = self.open_request_handler(request)
@@ -593,6 +563,28 @@ class JssServer(object):
             raise error
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return response
+
+    def create_get_request_handler(self, request_url):
+        """Creates a GET request from a URL.
+
+        Args:
+            request_url (str): The request URL.
+
+        Returns:
+            The created request.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create a request
+        request = urllib2.Request(request_url)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Add headers to the request
+        request.add_header('Accept', 'application/json')
+        # Format credentials for header.
+        creds = base64.b64encode("{}:{}".format(self._username, self._password))
+        # Add credentials to header
+        request.add_header('Authorization', 'Basic {}'.format(creds))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        return request
 
     def _push_xml_handler(self, xml, jss_id):
         logger.debug("_push_xml_handler: started")
