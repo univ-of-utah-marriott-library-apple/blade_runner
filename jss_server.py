@@ -453,10 +453,25 @@ class JssServer(object):
         logger.debug("push_xml_str: finished")
 
     def get_serial(self, jss_id):
+        """Gets the serial number for the computer corresponding to JSS ID from the JSS.
+
+        Args:
+            jss_id (str): JSS ID of computer
+
+        Returns:
+            Serial number of computer according to the JSS. (str)
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_serial: started")
-        general_set = self.get_general_data(jss_id)
-        jss_serial = general_set['serial_number']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get general data.
+        general_data = self.get_general_data(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get serial number.
+        jss_serial = general_data['serial_number']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_serial: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return jss_serial
 
     def get_managed_status(self, jss_id):
