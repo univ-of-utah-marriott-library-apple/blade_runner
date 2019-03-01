@@ -475,12 +475,30 @@ class JssServer(object):
         return jss_serial
 
     def get_managed_status(self, jss_id):
-        logger.debug("get_managed_status: started")
+        """Get managed status of computer corresponding to JSS ID.
 
-        general_list_main = self.get_general_data(jss_id)
-        remote_mangement_list = general_list_main['remote_management']
-        logger.debug("get_managed_status: finished")
-        return str(remote_mangement_list['managed']).lower()
+        Args:
+            jss_id (str): JSS ID of computer
+
+        Returns:
+            Managed status of computer. (str)
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug('get_managed_status: started')
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get general data.
+        general_data = self.get_general_data(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get remote management data.
+        remote_mangement_data = general_data['remote_management']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get management status
+        managed = str(remote_mangement_data['managed']).lower()
+        logger.debug('Management status: {}'.format(managed))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug('get_managed_status: finished')
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        return managed
 
     def get_barcode_1(self, jss_id):
         logger.debug("get_barcode_1: started")
