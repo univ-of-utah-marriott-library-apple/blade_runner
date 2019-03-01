@@ -206,7 +206,7 @@ class MainController(Controller):
         # At this point, all computer fields that were the same are now none.
         self.offboard_config = user.append_name(self.computer.get_serial(), self.offboard_config)
         self.offboard_config = user.timestamp_note(self.offboard_config)
-        # ADD PREVIOUS NAME UPDATER HERE
+        self.offboard_config = user.set_previous_computer_name(self.computer.name, self.offboard_config)
 
         self.jss_server.push_xml_str_fields(self.offboard_config, self.computer.jss_id)
         # self.jss_server.push_xml_fields(os.path.join(self.private_dir, self.offboard_config), self.computer.jss_id)
