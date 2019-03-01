@@ -535,20 +535,35 @@ class JssServer(object):
         logger.debug("get_barcode_2: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get general data.
-        general_set = self.get_general_data(jss_id)
+        general_data = self.get_general_data(jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get barcode 2.
-        barcode = general_set['barcode_2']
+        barcode = general_data['barcode_2']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_barcode_2: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return barcode
 
     def get_asset_tag(self, jss_id):
+        """Get asset tag of computer corresponding to JSS ID.
+
+        Args:
+            jss_id (str): JSS ID of computer
+
+        Returns:
+            Asset tag of computer. (str)
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_asset_tag: started")
-        general_set = self.get_general_data(jss_id)
-        asset = general_set['asset_tag']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get general data.
+        general_data = self.get_general_data(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get asset tag.
+        asset = general_data['asset_tag']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_asset_tag: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return asset
 
     def get_computer_name(self, jss_id):
