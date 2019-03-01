@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 import datetime
 
 
-def append_xml_name(string, xml_file):
+def xml_file_append_name(string, xml_file):
     xml_tree = ET.parse(xml_file)
     xml_root = xml_tree.getroot()
 
@@ -13,7 +13,7 @@ def append_xml_name(string, xml_file):
     return ET.tostring(xml_root)
 
 
-def append_xml_str_name(string, xml_str):
+def append_name(string, xml_str):
     xml_root = ET.fromstring(xml_str)
 
     for general_element in xml_root.findall("./general"):
@@ -44,12 +44,25 @@ def append_additional_note(string, xml_str):
 
     return ET.tostring(xml_root)
 
+
 def set_additional_note(string, xml_str):
     xml_root = ET.fromstring(xml_str)
 
     for ext_attrs in xml_root.findall("./extension_attributes"):
         for ext_attr in ext_attrs:
             if ext_attr.find('id').text == "45":
+                value_element = ext_attr.find('value')
+                value_element.text = string
+
+    return ET.tostring(xml_root)
+
+
+def set_previous_computer_name(string, xml_str):
+    xml_root = ET.fromstring(xml_str)
+
+    for ext_attrs in xml_root.findall("./extension_attributes"):
+        for ext_attr in ext_attrs:
+            if ext_attr.find('id').text == "46":
                 value_element = ext_attr.find('value')
                 value_element.text = string
 
@@ -88,6 +101,6 @@ def update_inventory_status(status, xml_file):
 
 if __name__ == "__main__":
     xml_file = "scratch.xml"
-    append_xml_name("johnny", xml_file)
+    xml_file_append_name("johnny", xml_file)
     update_managed_status("false", xml_file)
     update_inventory_status("Salvage", xml_file)
