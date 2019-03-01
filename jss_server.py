@@ -83,7 +83,7 @@ class JssServer(object):
         logger.debug("match: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set API request URL
-        request_url = "{}/JSSResource/computers/match/{}".format(self._jss_url, search_param)
+        request_url = "{0}/JSSResource/computers/match/{1}".format(self._jss_url, search_param)
         logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create GET request
@@ -96,7 +96,7 @@ class JssServer(object):
         # Read the JSON from the response.
         response_json = json.loads(response.read())
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get the computer data from the jss
+        # Get the computer data from the JSS
         try:
             computer_data = response_json['computers'][0]
         except IndexError as e:
@@ -115,20 +115,20 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return jss_id
 
-    def get_hardware_inventory(self, jss_id):
-        """Get hardware inventory data for the JSS ID from the JSS.
+    def get_hardware_data(self, jss_id):
+        """Get hardware data for computer corresponding to the JSS ID from the JSS.
 
         Args:
             jss_id (str): JSS ID of the computer.
 
         Returns:
-            hardware inventory data (dict)
+            hardware data
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_hardware_inventory: started")
+        logger.debug("get_hardware_data: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set API request URL
-        request_url = "{}/JSSResource/computers/id/{}/subset/Hardware".format(self._jss_url, jss_id)
+        request_url = "{0}/JSSResource/computers/id/{1}/subset/Hardware".format(self._jss_url, jss_id)
         logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create GET request
@@ -144,24 +144,24 @@ class JssServer(object):
         # Get the hardware data from the JSON
         hardware_inventory = response_json['computer']['hardware']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_hardware_inventory: finished")
+        logger.debug("get_hardware_data: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return hardware_inventory
 
-    def get_general_inventory(self, jss_id):
-        """Gets a computer's general inventory from the JSS.
+    def get_general_data(self, jss_id):
+        """Gets general data for computer corresponding to JSS ID from the JSS.
 
         Args:
             jss_id (str): JSS ID of computer
 
         Returns:
-            General inventory (dict)
+            General data.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_general_inventory: started")
+        logger.debug("get_general_data: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Set API request URL
-        request_url = "{}/JSSResource/computers/id/{}/subset/General".format(self._jss_url, jss_id)
+        # Create API request URL
+        request_url = "{0}/JSSResource/computers/id/{1}/subset/General".format(self._jss_url, jss_id)
         logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create GET request
@@ -169,39 +169,39 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
-        logger.info("Status code from request: %s" % response.code)
+        logger.info("Status code from request: {}".format(response.code))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Read the JSON from the response.
         response_json = json.loads(response.read())
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get the general inventory data from the JSON
+        # Get the general data from the JSON
         general_inv = response_json['computer']['general']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_general_inventory: finished")
+        logger.debug("get_general_data: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return general_inv
 
     def get_extension_attributes(self, jss_id):
-        """Gets computer's extension attributes from the JSS.
+        """Gets extension attributes for computer corresponding to JSS ID from the JSS.
 
         Args:
             jss_id (str): JSS ID of computer
 
         Returns:
-            Extension attributes (dict)
+            Extension attributes.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_extension_attributes: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Set API request URL
-        request_url = self._jss_url + '/JSSResource/computers/id/' + jss_id + '/subset/extension_attributes'
+        # Create API request URL
+        request_url = "{0}/JSSResource/computers/id/{1}/subset/extension_attributes".format(self._jss_url, jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create GET request
         request = self.create_get_request_handler(request_url)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
-        logger.info("Status code from request: %s" % response.code)
+        logger.info("Status code from request: {}".format(response.code))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Read the JSON from the response.
         response_json = json.loads(response.read())
@@ -213,103 +213,154 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return ext_attrs
 
-    def get_location_fields(self, jss_id):
-        logger.debug("get_location_fields: started")
+    def get_location_data(self, jss_id):
+        """Gets location data for computer corresponding to JSS ID from the JSS.
 
-        request_url = self._jss_url + '/JSSResource/computers/id/' + jss_id + '/subset/Location'
+        Args:
+            jss_id (str): JSS ID of computer
 
+        Returns:
+            Location data.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_location_data: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create API request URL
+        request_url = "{0}/JSSResource/computers/id/{1}/subset/Location".format(self._jss_url, jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create GET request
         request = self.create_get_request_handler(request_url)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open/send the request
         response = self.open_request_handler(request)
-
-        # putting response in JSON format
+        logger.info("Status code from request: {}".format(response.code))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Read the JSON from the response.
         response_json = json.loads(response.read())
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get the location data from the JSON response.
         jss_location_fields = response_json.get('computer', {}).get('location', {})
-        logger.debug("get_location_fields: finished")
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_location_data: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return jss_location_fields
 
-    def get_xml_fields(self, jss_id, xml_file):
-        logger.debug("get_xml_fields: started")
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
+    def get_subsets_data(self, jss_id, xml_file):
+        """Gets all the data in each subset of the xml file for the given JSS ID.
 
+        Args:
+            jss_id (str): JSS ID of computer.
+            xml_file (str): File path to XML file.
+
+        Returns:
+
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_subsets_data: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Parse the xml file into an element tree
+        tree = ET.parse(xml_file)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get the root element of the tree.
+        root = tree.getroot()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # For each subset in the xml file/element tree, add it to the subsets list.
         subsets = []
         for subset in root.findall("./"):
             subsets.append(subset.tag)
-        print(subsets)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Initialize subset request that will be appended to the API request.
         subset_request = ""
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # For each subset in the list, add it to the subset request.
         for subset in subsets:
             subset_request += subset + "&"
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Remove the last ampersand.
         subset_request = subset_request[:-1]
-
-        request_url = self._jss_url + '/JSSResource/computers/id/' + jss_id + '/subset/' + subset_request
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create request URL.
+        request_url = "{0}/JSSResource/computers/id/{1}/subset/{2}".format(self._jss_url, jss_id, subset_request)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create GET request
         request = self.create_get_request_handler(request_url)
-
-        # receiving response of request
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open/send the request
         response = self.open_request_handler(request)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Turn the xml response into an element tree.
         xml = ET.fromstring(response.read())
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Change the element tree into an xml string.
         xml_string = ET.tostring(xml, encoding='utf-8')
-        logger.debug("get_xml_fields: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_subsets_data: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return xml_string
 
+    # TODO Remove for public version. MacGroup only.
     def get_prev_name(self, jss_id):
+        """Gets previous name of computer corresponding to JSS ID.
+
+        Notes:
+            Previous name is an extension attribute.
+
+        Args:
+            jss_id (str): JSS ID of computer.
+
+        Returns:
+            Previous name of the computer (str).
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_prev_name: started")
-        jss_extension_attributes = self.get_extension_attributes(jss_id)
-
-        for attribute in jss_extension_attributes:
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get extension attributes
+        ext_attrs = self.get_extension_attributes(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Search for the previous computer name extension attribute and return it.
+        for attribute in ext_attrs:
             if attribute['name'] == 'Previous Computer Names':
                 prev_name = attribute['value']
                 return prev_name
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_prev_name: finished")
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return ""
 
     def delete_record(self, jss_id):
+        """Delete the JSS record corresponding to the JSS ID.
+
+        Args:
+            jss_id (str): JSS ID of computer.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("delete_record: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Delete the JSS record.
         self._delete_handler(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("delete_record: finished")
 
-    def push_enroll_fields(self, computer):
-        '''Pushes the following to the JSS:
-            barcode number
-            yellow asset tag number
-            budget source
-        '''
-        logger.debug("push_enroll_fields: started")
+    def push_identity_fields(self, computer):
+        """Pushes barcode, asset tag, serial number, and name fields to the JSS server.
+
+        Args:
+            computer (Computer): Provides data to send to the JSS.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("push_identity_fields: started")
         encoding = 'utf-8'
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # v BEGIN: Create XML structure that will be sent through the api call
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Computer: Top XML tag
         top = ET.Element('computer')
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Extension attributes tag
-        ext_attrs = ET.SubElement(top, 'extension_attributes')
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # TODO Make sure this only goes to the MacGroup
-        if computer.name is not None:
-            # Extension attribute tag
-            previous_computer_names__attr = ET.SubElement(ext_attrs, 'extension_attribute')
-
-            # ID tag for previous computer name
-            previous_computer_names_id = ET.SubElement(previous_computer_names__attr, 'id')
-            previous_computer_names_id.text = '46'
-
-            # Name tag for previous computer names
-            previous_computer_names_name = ET.SubElement(previous_computer_names__attr, 'name')
-            previous_computer_names_name.text = 'Previous Computer Names'
-
-            # Value tag for budget source
-            previous_computer_names_value = ET.SubElement(previous_computer_names__attr, 'value')
-            previous_computer_names_value.text = computer.name
-
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # General tag
         general = ET.SubElement(top, 'general')
@@ -342,7 +393,7 @@ class JssServer(object):
 
         xml = ET.tostring(top)
         self._push_xml_handler(xml, computer.jss_id)
-        logger.debug("push_enroll_fields: finished")
+        logger.debug("push_identity_fields: finished")
 
     def push_label_fields(self, jss_id, barcode_number, yellow_asset_tag, name_label):
         '''Pushes the following to the JSS:
@@ -416,7 +467,7 @@ class JssServer(object):
 
     def get_serial(self, jss_id):
         logger.debug("get_serial: started")
-        general_set = self.get_general_inventory(jss_id)
+        general_set = self.get_general_data(jss_id)
         jss_serial = general_set['serial_number']
         logger.debug("get_serial: finished")
         return jss_serial
@@ -424,35 +475,35 @@ class JssServer(object):
     def get_managed_status(self, jss_id):
         logger.debug("get_managed_status: started")
 
-        general_list_main = self.get_general_inventory(jss_id)
+        general_list_main = self.get_general_data(jss_id)
         remote_mangement_list = general_list_main['remote_management']
         logger.debug("get_managed_status: finished")
         return str(remote_mangement_list['managed']).lower()
 
     def get_barcode_1(self, jss_id):
         logger.debug("get_barcode_1: started")
-        general_set = self.get_general_inventory(jss_id)
+        general_set = self.get_general_data(jss_id)
         barcode = general_set['barcode_1']
         logger.debug("get_barcode_1: finished")
         return barcode
 
     def get_barcode_2(self, jss_id):
         logger.debug("get_barcode_2: started")
-        general_set = self.get_general_inventory(jss_id)
+        general_set = self.get_general_data(jss_id)
         barcode = general_set['barcode_2']
         logger.debug("get_barcode_2: finished")
         return barcode
 
     def get_asset_tag(self, jss_id):
         logger.debug("get_asset_tag: started")
-        general_set = self.get_general_inventory(jss_id)
+        general_set = self.get_general_data(jss_id)
         asset = general_set['asset_tag']
         logger.debug("get_asset_tag: finished")
         return asset
 
     def get_computer_name(self, jss_id):
         logger.debug("get_computer_name: started")
-        general_set = self.get_general_inventory(jss_id)
+        general_set = self.get_general_data(jss_id)
         name = general_set['name'].encode('utf-8')
         logger.debug("get_computer_name: finished")
         return name
@@ -599,6 +650,7 @@ class JssServer(object):
         response = self.open_request_handler(request)
         logger.info("   HTML PUT response code: {}".format(response.code))
         logger.debug("_push_xml_handler: finished")
+
 
 cf = inspect.currentframe()
 abs_file_path = inspect.getframeinfo(cf).filename
