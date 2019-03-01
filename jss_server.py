@@ -523,10 +523,25 @@ class JssServer(object):
         return barcode
 
     def get_barcode_2(self, jss_id):
+        """Get barcode 2 of computer corresponding to JSS ID.
+
+        Args:
+            jss_id (str): JSS ID of computer
+
+        Returns:
+            Barcode 2 of computer. (str)
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_barcode_2: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get general data.
         general_set = self.get_general_data(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get barcode 2.
         barcode = general_set['barcode_2']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_barcode_2: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return barcode
 
     def get_asset_tag(self, jss_id):
