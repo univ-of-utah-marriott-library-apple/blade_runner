@@ -398,7 +398,7 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("push_identity_fields: finished")
 
-    def push_xml_fields(self, xml, jss_id):
+    def push_xml(self, xml, jss_id):
         """Push XML data to update JSS record for the given JSS ID.
 
         Args:
@@ -409,7 +409,7 @@ class JssServer(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("push_xml_fields: started")
+        logger.debug("push_xml: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Parse XML file into an element tree.
         tree = ET.parse(xml)
@@ -426,16 +426,32 @@ class JssServer(object):
         # Push XML string to udpate JSS record.
         self._push_xml_handler(xml, jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("push_xml_fields: finished")
+        logger.debug("push_xml: finished")
 
-    def push_xml_str_fields(self, xml_str, jss_id):
-        logger.debug("push_xml_str_fields: started")
+    def push_xml_str(self, xml_str, jss_id):
+        """
+
+        Args:
+            xml_str:
+            jss_id:
+
+        Returns:
+
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("push_xml_str: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
         xml_str = re.sub("\n", "", xml_str)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
         xml_str = re.sub("(>)\s+(<)", r"\1\2", xml_str)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
         self._push_xml_handler(xml_str, jss_id)
-        logger.debug("push_xml_str_fields: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+        logger.debug("push_xml_str: finished")
 
     def get_serial(self, jss_id):
         logger.debug("get_serial: started")
