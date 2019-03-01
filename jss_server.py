@@ -399,13 +399,33 @@ class JssServer(object):
         logger.debug("push_identity_fields: finished")
 
     def push_xml_fields(self, xml, jss_id):
-        logger.debug("push_xml_fields: started")
-        tree = ET.parse(xml)
-        xml = ET.tostring(tree.getroot(), encoding='utf-8')
-        xml = re.sub("\n", "", xml)
-        xml = re.sub("(>)\s+(<)", r"\1\2", xml)
+        """Push XML data to update JSS record for the given JSS ID.
 
+        Args:
+            xml (str): File path of XML file.
+            jss_id (str): JSS ID of computer.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("push_xml_fields: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Parse XML file into an element tree.
+        tree = ET.parse(xml)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Convert element tree into an XML string.
+        xml = ET.tostring(tree.getroot(), encoding='utf-8')
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Remove new lines from xml string.
+        xml = re.sub("\n", "", xml)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Remove white space between tags.
+        xml = re.sub("(>)\s+(<)", r"\1\2", xml)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Push XML string to udpate JSS record.
         self._push_xml_handler(xml, jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("push_xml_fields: finished")
 
     def push_xml_str_fields(self, xml_str, jss_id):
