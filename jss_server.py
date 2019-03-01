@@ -399,7 +399,7 @@ class JssServer(object):
         logger.debug("push_identity_fields: finished")
 
     def push_xml(self, xml, jss_id):
-        """Push XML data to update JSS record for the given JSS ID.
+        """Push data from XML file to update JSS record for the given JSS ID.
 
         Args:
             xml (str): File path of XML file.
@@ -429,28 +429,27 @@ class JssServer(object):
         logger.debug("push_xml: finished")
 
     def push_xml_str(self, xml_str, jss_id):
-        """
+        """Push data from XML string to update JSS record for the given JSS ID.
 
         Args:
-            xml_str:
-            jss_id:
+            xml (str): XML string
+            jss_id (str): JSS ID of computer.
 
         Returns:
-
+            void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("push_xml_str: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
+        # Remove new lines from xml string.
         xml_str = re.sub("\n", "", xml_str)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
+        # Remove white space between tags.
         xml_str = re.sub("(>)\s+(<)", r"\1\2", xml_str)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
+        # Push XML string to udpate JSS record.
         self._push_xml_handler(xml_str, jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
         logger.debug("push_xml_str: finished")
 
     def get_serial(self, jss_id):
