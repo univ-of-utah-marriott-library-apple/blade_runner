@@ -501,10 +501,25 @@ class JssServer(object):
         return managed
 
     def get_barcode_1(self, jss_id):
+        """Get barcode 1 of computer corresponding to JSS ID.
+
+        Args:
+            jss_id (str): JSS ID of computer
+
+        Returns:
+            Barcode 1 of computer. (str)
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_barcode_1: started")
-        general_set = self.get_general_data(jss_id)
-        barcode = general_set['barcode_1']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get general data.
+        general_data = self.get_general_data(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get barcode 1.
+        barcode = general_data['barcode_1']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_barcode_1: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return barcode
 
     def get_barcode_2(self, jss_id):
