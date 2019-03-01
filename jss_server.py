@@ -390,9 +390,12 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # ^ END: Create XML structure that will be sent through the api call
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
+        # Convert xml tree to an xml string.
         xml = ET.tostring(top)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Push xml string and update the computer in the JSS.
         self._push_xml_handler(xml, computer.jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("push_identity_fields: finished")
 
     def push_label_fields(self, jss_id, barcode_number, yellow_asset_tag, name_label):
