@@ -566,11 +566,26 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return asset
 
-    def get_computer_name(self, jss_id):
-        logger.debug("get_computer_name: started")
-        general_set = self.get_general_data(jss_id)
-        name = general_set['name'].encode('utf-8')
-        logger.debug("get_computer_name: finished")
+    def get_name(self, jss_id):
+        """Get name of computer corresponding to JSS ID.
+
+        Args:
+            jss_id (str): JSS ID of computer
+
+        Returns:
+            Name of computer. (str)
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_name: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get general data.
+        general_data = self.get_general_data(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get name.
+        name = general_data['name'].encode('utf-8')
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_name: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return name
 
     def enroll_computer(self):
