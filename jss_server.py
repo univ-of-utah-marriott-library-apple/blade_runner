@@ -398,57 +398,6 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("push_identity_fields: finished")
 
-    def push_label_fields(self, jss_id, barcode_number, yellow_asset_tag, name_label):
-        '''Pushes the following to the JSS:
-                barcode number
-                yellow asset tag number
-            '''
-        logger.debug("push_label_fields: started")
-        encoding = 'utf-8'
-        # logger.debug("  ARGS (" + jss_id + ", " + barcode_number + ", " + yellow_asset_tag + ", " + name_label + ")")
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # v BEGIN: Create XML structure that will be sent through the api call
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Top XML tag
-        top = ET.Element('computer')
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # General tag
-        general = ET.SubElement(top, 'general')
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # barcode_1 tag (white tag)
-        if barcode_number != "":
-            barcode_1_xml = ET.SubElement(general, 'barcode_1')
-            barcode_1_xml.text = barcode_number.decode(encoding)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # asset_tag tag (yellow tag)
-        if yellow_asset_tag != "":
-            yellow_asset_tag_xml = ET.SubElement(general, 'asset_tag')
-            yellow_asset_tag_xml.text = yellow_asset_tag.decode(encoding)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Extension attributes tag
-        ext_attrs = ET.SubElement(top, 'extension_attributes')
-        if name_label != "":
-            # Extension attribute tag
-            previous_computer_names__attr = ET.SubElement(ext_attrs, 'extension_attribute')
-
-            # ID tag for previous computer name
-            previous_computer_names_id = ET.SubElement(previous_computer_names__attr, 'id')
-            previous_computer_names_id.text = '46'
-
-            # Name tag for previous computer names
-            previous_computer_names_name = ET.SubElement(previous_computer_names__attr, 'name')
-            previous_computer_names_name.text = 'Previous Computer Names'
-
-            # Value tag for budget source
-            previous_computer_names_value = ET.SubElement(previous_computer_names__attr, 'value')
-            previous_computer_names_value.text = name_label
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # ^ END: Create XML structure that will be sent through the api call
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        xml = ET.tostring(top)
-        self._push_xml_handler(xml, jss_id)
-        logger.debug("push_label_fields: finished")
-
     def push_xml_fields(self, xml, jss_id):
         logger.debug("push_xml_fields: started")
         tree = ET.parse(xml)
