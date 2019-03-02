@@ -589,59 +589,140 @@ class JssServer(object):
         return name
 
     def enroll_computer(self):
+        """Enrolls the computer into the JSS. If the enroll fails, another attempt is made with the second JAMF binary.
+
+        Notes:
+            The sole purpose of this is to enable modification of the JSS record. It's not for long term enrollment.
+            Hence '-noPolicy' and '-noManage' in the enroll command.
+
+            If the process hangs when jamf is running softwareupdate, go to Settings>Computer Management>Inventory
+            Collection>General and uncheck 'Include home directory sizes'. I also uncheck 'Collect available software
+            updates' for the purpose of testing.
+
+        Returns:
+            void
+        """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("enroll_computer: activated")
         logger.info('Enrolling computer.')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        cmd = [self._jamf_binary_1, 'enroll', '-invitation', self._invite, '-noPolicy', '-noManage', '-verbose']
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Enroll computer
+        # Enroll computer. If the process hangs, see Note section in docstring.
         try:
-            # enroll_output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            '''
-            If this process hangs when jamf is running softwareupdate, go to Settings>Computer Management>Inventory
-            Collection>General and uncheck 'Include home directory sizes'. I also uncheck 'Collect available software 
-            updates' for the purpose of testing.
-            '''
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-            while proc.poll() is None:
-                line = proc.stdout.readline()
-                line = line.strip()
-                if line != "":
-                    ERASE_LINE = '\x1b[2K'
-                    sys.stdout.write('{}Enrolling: {}\r'.format(ERASE_LINE, line))
-                    sys.stdout.flush()
-            print("")
-
+            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            # Run enroll command
+            self._enroll(self._jamf_binary_1, self._invite)
+            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             logger.info('Enrolling finished.')
             logger.debug('enroll_computer: finished')
-            return True
         except (OSError, subprocess.CalledProcessError) as e:
-            # if e.errno == 2:
-            logger.error("Couldn't find " + self._jamf_binary_2 + ". Enrolling failed. " + str(e))
+            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            logger.error("Couldn't find {} or enrolling failed. Error: {}".format(self._jamf_binary_1, e))
+            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            # Try enrolling again using the second jamf binary.
             try:
-                logger.info("Enrolling again. Now using " + self._jamf_binary_2)
-
-                conf_cmd = [self._jamf_binary_2, 'createConf', '-url', self._jss_url, '-verifySSLCert', 'never']
-                conf_output = subprocess.check_output(conf_cmd, stderr=subprocess.STDOUT)
-                logger.debug(conf_output)
-                enroll_cmd = [self._jamf_binary_2, 'enroll', '-invitation', self._invite, '-noPolicy', '-noManage', '-verbose']
-                enroll_output = subprocess.check_output(enroll_cmd, stderr=subprocess.STDOUT)
-                logger.debug(enroll_output)
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                logger.info("Enrolling again. Now using {}".format(self._jamf_binary_2))
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                # Create jamf.conf configuration
+                self._jamf_create_conf(self._jamf_binary_2, self._jss_url)
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                # Enroll the computer
+                self._enroll(self._jamf_binary_2, self._invite)
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 logger.info('Enrolling finished.')
                 logger.debug('enroll_computer: finished')
-                return True
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             except subprocess.CalledProcessError as e:
-                logger.error(e.output)
-                logger.info("enroll_computer: failed")
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                msg = "An error occurred while enrolling. {}".format(e)
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                # Add another argument to the exception to store the message.
+                e.args += (msg,)
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                logger.error(msg)
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 raise
             except Exception as e:
-                logger.error("  > Either the path to " + self._jamf_binary_2 + " is incorrect or JAMF has not "
-                                                                "been installed on this computer. ")
-                logger.error(e)
-                logger.info("enroll_computer: failed")
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                msg = "Enrolling failed. Either the path to {} is incorrect or JAMF has not been " \
+                      "installed on this computer.".format(self._jamf_binary_2)
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                # Add another argument to the exception to store the message.
+                e.args += (msg,)
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                logger.error(msg)
+                # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 raise
+
+    def _enroll(self, jamf_binary, invite):
+        """Enroll the computer.
+
+        Args:
+            binary (str): Path to JAMF binary.
+            invite (str): Invitation code to enroll in JAMF server.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Setup the command to enroll the computer.
+        enroll_cmd = [jamf_binary, 'enroll', '-invitation', invite, '-noPolicy', '-noManage', '-verbose']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Run command and print it in place
+        self._print_proc_in_place(enroll_cmd)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def _jamf_create_conf(self, jamf_binary, jss_url):
+        """Create jamf.conf configuration to bypass verifiying SSL cert when enrolling.
+
+        Args:
+            jamf_binary (str): Path to the JAMF binary.
+            jss_url (str): URL of the JSS server.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set up the command to create the jamf.conf
+        conf_cmd = [jamf_binary, 'createConf', '-url', jss_url, '-verifySSLCert', 'never']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Run the command.
+        conf_output = subprocess.check_output(conf_cmd, stderr=subprocess.STDOUT)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug(conf_output)
+
+    def _print_proc_in_place(self, cmd):
+        """Run a process and print it in place. This means that all the output will be written to a single line,
+        in which each new line from the process erases the previous line.
+
+        Args:
+            cmd (list): Command to be executed.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open the enroll process.
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # While the process is running, output the process information onto a single line.
+        while proc.poll() is None:
+            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            # Read a line from the process output.
+            line = proc.stdout.readline()
+            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            # Remove the newline character
+            line = line.strip()
+            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            # If the line is not empty string, insert the erase line character to erase the line and print
+            # the new line. Then flush stdout. This makes the output print in place.
+            if line != "":
+                erase_line = '\x1b[2K'
+                sys.stdout.write('{}Enrolling: {}\r'.format(erase_line, line))
+                sys.stdout.flush()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Print empty string to advance the line.
+        print("")
 
     def _delete_handler(self, jss_id):
         logger.debug("_delete_handler: started")
