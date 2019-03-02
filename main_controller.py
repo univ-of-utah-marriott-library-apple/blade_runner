@@ -16,6 +16,7 @@ from search_controller import SearchController
 from verification_controller import VerificationController
 from dual_verify_controller import DualVerifyController
 from controller import Controller
+import tkMessageBox
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
 # TODO BUG: If spaces are entered in the asset or barcode inputs the program quits. Formatting issue. Need to format spaces.
@@ -23,6 +24,7 @@ from controller import Controller
 
 class MainController(Controller):
     def __init__(self, root, server, slack_data, verify_params, search_params):
+        root.report_callback_exception = self._exception_messagebox
 
         self.jss_server = server
         self.computer = Computer()
@@ -41,6 +43,24 @@ class MainController(Controller):
 
         self.verify_params = VerifyParams(verify_params)
         self.search_params = SearchParams(search_params)
+
+    def _exception_messagebox(self, exc, value, traceback):
+        """Displays a message box with the accompanying exception message whenver an exception occurs.
+
+        Args:
+            exc: Exception received.
+            value: Value of exception.
+            traceback: Traceback from exception.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grab the last value in the value tuple. This is normally the message.
+        message = "{}".format(value[-1])
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Display a message box containing the exception's message.
+        tkMessageBox.showerror('Exception', message)
 
     def run(self):
         self.main_view = MainView(self.root, self)
@@ -124,7 +144,7 @@ class MainController(Controller):
                 self.computer.jss_barcode_2 = self.jss_server.get_barcode_2(self.computer.jss_id)
                 self.computer.jss_asset_tag = self.jss_server.get_asset_tag(self.computer.jss_id)
                 self.computer.jss_serial_number = self.jss_server.get_serial(self.computer.jss_id)
-                self.computer.prev_name = self.jss_server.get_computer_name(self.computer.jss_id)
+                self.computer.prev_name = self.jss_server.get_name(self.computer.jss_id)
 
                 logger.debug("Previous barcode_1: {}".format(self.computer.jss_barcode_1))
                 logger.debug("Previous barcode_2: {}".format(self.computer.jss_barcode_2))
@@ -172,7 +192,7 @@ class MainController(Controller):
             logger.debug("JSS id after enrolling: {}".format(self.computer.jss_id))
 
             # Update the JAMF record with the barcode, asset, and name of the computer
-            self.jss_server.push_enroll_fields(self.computer)
+            self.jss_server.push_identity_fields(self.computer)
 
         # If JSS ID exists
         elif self.computer.jss_id is not None:
@@ -200,7 +220,7 @@ class MainController(Controller):
                 self.jss_server.enroll_computer()
 
             # Push enroll fields to JSS server
-            self.jss_server.push_enroll_fields(self.computer)
+            self.jss_server.push_identity_fields(self.computer)
 
         # TODO Remove this for open source version. MacGroup only.
         # At this point, all computer fields that were the same are now none.
@@ -208,8 +228,8 @@ class MainController(Controller):
         self.offboard_config = user.timestamp_note(self.offboard_config)
         self.offboard_config = user.set_previous_computer_name(self.computer.name, self.offboard_config)
 
-        self.jss_server.push_xml_str_fields(self.offboard_config, self.computer.jss_id)
-        # self.jss_server.push_xml_fields(os.path.join(self.private_dir, self.offboard_config), self.computer.jss_id)
+        self.jss_server.push_xml_str(self.offboard_config, self.computer.jss_id)
+        # self.jss_server.push_xml(os.path.join(self.private_dir, self.offboard_config), self.computer.jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get the new managed status and make sure it's false
         post_managed_status = self.jss_server.get_managed_status(self.computer.jss_id)
