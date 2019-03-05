@@ -394,7 +394,7 @@ class JssServer(object):
         xml = ET.tostring(top)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Push xml string and update the computer in the JSS.
-        self._push_xml_handler(xml, computer.jss_id)
+        self._push_xml_str_handler(xml, computer.jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("push_identity_fields: finished")
 
@@ -424,7 +424,7 @@ class JssServer(object):
         xml = re.sub("(>)\s+(<)", r"\1\2", xml)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Push XML string to udpate JSS record.
-        self._push_xml_handler(xml, jss_id)
+        self._push_xml_str_handler(xml, jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("push_xml: finished")
 
@@ -448,7 +448,7 @@ class JssServer(object):
         xml_str = re.sub("(>)\s+(<)", r"\1\2", xml_str)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Push XML string to udpate JSS record.
-        self._push_xml_handler(xml_str, jss_id)
+        self._push_xml_str_handler(xml_str, jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("push_xml_str: finished")
 
@@ -606,20 +606,16 @@ class JssServer(object):
         logger.debug("enroll_computer: activated")
         logger.info('Enrolling computer.')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Enroll computer. If the process hangs, see Note section in docstring.
-        try:
+        try: # enrolling computer. If the process hangs, see Note section in docstring.
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             # Run enroll command
             self._enroll(self._jamf_binary_1, self._invite)
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-            logger.info('Enrolling finished.')
-            logger.debug('enroll_computer: finished')
         except (OSError, subprocess.CalledProcessError) as e:
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-            logger.error("Couldn't find {} or enrolling failed. Error: {}".format(self._jamf_binary_1, e))
+            logger.error("First enroll attempt failed. Error: {}".format(e))
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-            # Try enrolling again using the second jamf binary.
-            try:
+            try: # enrolling using the second jamf binary
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 logger.info("Enrolling again. Now using {}".format(self._jamf_binary_2))
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -653,6 +649,9 @@ class JssServer(object):
                 logger.error(msg)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 raise
+            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            logger.info('Enrolling finished.')
+            logger.debug('enroll_computer: finished')
 
     def _enroll(self, jamf_binary, invite):
         """Enroll the computer.
@@ -725,25 +724,44 @@ class JssServer(object):
         print("")
 
     def _delete_handler(self, jss_id):
+        """Handles delete requests.
+
+        Args:
+            jss_id (str):
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("_delete_handler: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create request url.
         request_url = "{}/JSSResource/computers/id/{}".format(self._jss_url, jss_id)
         logger.debug("Request URL: {}".format(request_url))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create the request.
         request = urllib2.Request(request_url)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Add the headers to the request
         request.add_header('Authorization', 'Basic ' + base64.b64encode(self._username + ':' + self._password))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the method to DELETE
         request.get_method = lambda: 'DELETE'
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open/send the request.
         response = self.open_request_handler(request)
-        logger.debug("  HTML DELETE response code: {}".format(response.code))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("HTML DELETE response code: {}".format(response.code))
         logger.debug("_delete_handler: finished")
 
     def open_request_handler(self, request):
-        """Opens urllib2.Request.
+        """Handles open requests for requests that are urllib2.Request.
 
         Args:
             request (urllib2.Request): Request to send.
 
         Returns:
-            response from request
+            Response from request (str).
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open the request and handle it accordingly.
@@ -798,21 +816,42 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return request
 
-    def _push_xml_handler(self, xml, jss_id):
-        logger.debug("_push_xml_handler: started")
+    def _push_xml_str_handler(self, xml, jss_id):
+        """Handles pushing XML string to the JSS.
+
+        Args:
+            xml (str): XML in string format.
+            jss_id (str): JSS ID of computer.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("_push_xml_str_handler: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create request url.
         request_url = "{}/JSSResource/computers/id/{}".format(self._jss_url, jss_id)
         logger.debug("Request URL: {}".format(request_url))
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create request from request url.
         request = urllib2.Request(request_url, data=xml)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Add headers to the request.
         request.add_header('Authorization', 'Basic ' + base64.b64encode(self._username + ':' + self._password))
         request.add_header('Content-Type', 'text/xml')
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the request method.
         request.get_method = lambda: 'PUT'
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open/send the request.
         response = self.open_request_handler(request)
         logger.info("   HTML PUT response code: {}".format(response.code))
-        logger.debug("_push_xml_handler: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("_push_xml_str_handler: finished")
 
 
+# Setup logging
 cf = inspect.currentframe()
 abs_file_path = inspect.getframeinfo(cf).filename
 basename = os.path.basename(abs_file_path)
