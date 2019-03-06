@@ -1,3 +1,22 @@
+################################################################################
+# Copyright (c) 2019 University of Utah Student Computing Labs.
+# All Rights Reserved.
+#
+# Author: Thackery Archuletta
+# Creation Date: Oct 2018
+# Last Updated: Feb 2019
+#
+# Permission to use, copy, modify, and distribute this software and
+# its documentation for any purpose and without fee is hereby granted,
+# provided that the above copyright notice appears in all copies and
+# that both that copyright notice and this permission notice appear
+# in supporting documentation, and that the name of The University
+# of Utah not be used in advertising or publicity pertaining to
+# distribution of the software without specific, written prior
+# permission. This software is supplied as is without expressed or
+# implied warranties of any kind.
+################################################################################
+
 from main_view import MainView
 import Tkinter as tk
 import subprocess
@@ -19,30 +38,56 @@ from controller import Controller
 import tkMessageBox
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
-# TODO BUG: If spaces are entered in the asset or barcode inputs the program quits. Formatting issue. Need to format spaces.
+# TODO BUG: If spaces are entered in the asset/barcode inputs the program quits. Need to format spaces.
+# TODO Find a better way to enable/disable JSS Doc printing. I don't like it being an arg for MainController.
 
 
 class MainController(Controller):
-    def __init__(self, root, server, slack_data, verify_params, search_params):
-        root.report_callback_exception = self._exception_messagebox
+    """Blade-Runner's main controller."""
 
-        self.jss_server = server
-        self.computer = Computer()
-        self.proceed = True
-        self.root = root
+    def __init__(self, root, server, slack_data, verify_params, search_params, print_enabled=False):
+        """Initialize the main controller.
 
-        self.main_view = None
-        self.search_controller = None
-        self.verify_controller = None
-        self.entry_view = None
-        self.print_enabled = False
-
-        self.offboard_config = None
-        self.slack_data = slack_data
-        self.private_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "private")
-
+        Args:
+            root: The root Tk window.
+            server (JssServer): The JSS server to connect to.
+            slack_data (dict): Slack configuration data.
+            verify_params (dict): Verification parameters configuration data.
+            search_params (dict): Search parameters configuration data.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set report callback so that a Tk window will appear with the exception message when an exception occurs.
+        self._root = root
+        self._root.report_callback_exception = self._exception_messagebox
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # JSS server
+        self._jss_server = server
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Stores information about the computer
+        self._computer = Computer()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Used to exit out of a function if the user cancels.
+        self._proceed = True
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set views
+        self._main_view = None
+        self._entry_view = None
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set controllers
+        self._search_controller = None
+        self._verify_controller = None
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set whether or not a JSSDoc will be printed to a printer.
+        self._print_enabled = print_enabled
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set configuration data
+        self._offboard_config = None
+        self._slack_data = slack_data
         self.verify_params = VerifyParams(verify_params)
         self.search_params = SearchParams(search_params)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set path to private directory that contains the configuration files.
+        self._private_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "private")
 
     def _exception_messagebox(self, exc, value, traceback):
         """Displays a message box with the accompanying exception message whenver an exception occurs.
@@ -63,64 +108,64 @@ class MainController(Controller):
         tkMessageBox.showerror('Exception', message)
 
     def run(self):
-        self.main_view = MainView(self.root, self)
-        self._set_to_middle(self.main_view)
+        self._main_view = MainView(self._root, self)
+        self._set_to_middle(self._main_view)
         self.refocus()
-        self.main_view.mainloop()
+        self._main_view.mainloop()
 
     def terminate(self):
         # Destroy the main view and the root mainloop.
-        self.main_view.destroy()
-        self.root.destroy()
+        self._main_view.destroy()
+        self._root.destroy()
 
     def restart(self):
-        self.computer = Computer()
+        self._computer = Computer()
         self.verify_params = VerifyParams(self.verify_params.originals)
         self.search_params = SearchParams(self.search_params.originals)
         logger.info("Blade-Runner reset.")
 
     def populate_config_combobox(self):
-        private_files = os.listdir(self.private_dir)
+        private_files = os.listdir(self._private_dir)
         offboard_configs = []
         for file in private_files:
             if file.endswith(".xml"):
                 offboard_configs.append(file)
-        self.main_view.combobox.config(values=offboard_configs)
-        self.main_view.combobox.current(0)
+        self._main_view.combobox.config(values=offboard_configs)
+        self._main_view.combobox.current(0)
 
     def save_offboard_config(self, offboard_config):
-        self.offboard_config = user.xml_to_string(os.path.join(self.private_dir, offboard_config))
+        self._offboard_config = user.xml_to_string(os.path.join(self._private_dir, offboard_config))
 
     def determine_input_type(self, input_type):
         if input_type == "serial_number":
-            self.computer.serial_number = self.computer.get_serial()
+            self._computer.serial_number = self._computer.get_serial()
 
-        self.search_controller = SearchController(self.main_view, self.computer, input_type)
+        self._search_controller = SearchController(self._main_view, self._computer, input_type)
 
-        self.main_view.wait_window(window=self.search_controller.entry_view)
+        self._main_view.wait_window(window=self._search_controller.entry_view)
 
-        self.proceed = self.search_controller.proceed
+        self._proceed = self._search_controller.proceed
 
-        if self.proceed is False:
+        if self._proceed is False:
             self.restart()
             return
 
         if input_type == "barcode_1":
-            search_param = self.computer.barcode_1
+            search_param = self._computer.barcode_1
         elif input_type == "barcode_2":
-            search_param = self.computer.barcode_2
+            search_param = self._computer.barcode_2
         elif input_type == "asset_tag":
-            search_param = self.computer.asset_tag
+            search_param = self._computer.asset_tag
         elif input_type == "serial_number":
-            search_param = self.computer.serial_number
+            search_param = self._computer.serial_number
 
         try:
-            self.computer.jss_id = self.jss_server.match(search_param)
+            self._computer.jss_id = self._jss_server.match(search_param)
             self.search_params.set_searched(input_type)
         except NameError as e:
             raise SystemExit("{}. The input type supplied from the button is not supported.".format(e))
 
-        if self.computer.jss_id is not None:
+        if self._computer.jss_id is not None:
             self.search_params.set_match(input_type)
             self.process_logic()
         elif self.search_params.all_searched():
@@ -131,7 +176,7 @@ class MainController(Controller):
 
         for param in self.search_params:
             if not self.search_params.was_searched(param):
-                if self.proceed is True and self.computer.jss_id is None:
+                if self._proceed is True and self._computer.jss_id is None:
                     self.determine_input_type(param)
 
         self.restart()
@@ -140,118 +185,117 @@ class MainController(Controller):
         if self.search_params.exists_match():
             if self.search_params.search_count >= 1:
 
-                self.computer.jss_barcode_1 = self.jss_server.get_barcode_1(self.computer.jss_id)
-                self.computer.jss_barcode_2 = self.jss_server.get_barcode_2(self.computer.jss_id)
-                self.computer.jss_asset_tag = self.jss_server.get_asset_tag(self.computer.jss_id)
-                self.computer.jss_serial_number = self.jss_server.get_serial(self.computer.jss_id)
-                self.computer.prev_name = self.jss_server.get_name(self.computer.jss_id)
+                self._computer.jss_barcode_1 = self._jss_server.get_barcode_1(self._computer.jss_id)
+                self._computer.jss_barcode_2 = self._jss_server.get_barcode_2(self._computer.jss_id)
+                self._computer.jss_asset_tag = self._jss_server.get_asset_tag(self._computer.jss_id)
+                self._computer.jss_serial_number = self._jss_server.get_serial(self._computer.jss_id)
+                self._computer.prev_name = self._jss_server.get_name(self._computer.jss_id)
 
-                logger.debug("Previous barcode_1: {}".format(self.computer.jss_barcode_1))
-                logger.debug("Previous barcode_2: {}".format(self.computer.jss_barcode_2))
-                logger.debug("Previous asset_tag: {}".format(self.computer.jss_asset_tag))
-                logger.debug("Previous serial_number: {}".format(self.computer.jss_serial_number))
-                logger.debug("Previous name: {}".format(self.computer.prev_name))
+                logger.debug("Previous barcode_1: {}".format(self._computer.jss_barcode_1))
+                logger.debug("Previous barcode_2: {}".format(self._computer.jss_barcode_2))
+                logger.debug("Previous asset_tag: {}".format(self._computer.jss_asset_tag))
+                logger.debug("Previous serial_number: {}".format(self._computer.jss_serial_number))
+                logger.debug("Previous name: {}".format(self._computer.prev_name))
 
-                self.verify_controller = DualVerifyController(self.main_view, self.computer, self.verify_params)
+                self._verify_controller = DualVerifyController(self._main_view, self._computer, self.verify_params)
         else:
-            self.verify_controller = VerificationController(self.main_view, self.computer, self.verify_params, self.search_params)
+            self._verify_controller = VerificationController(self._main_view, self._computer, self.verify_params, self.search_params)
 
-        self.verify_controller.entry_view.text_lbl.config(text=message)
+        self._verify_controller.entry_view.text_lbl.config(text=message)
 
         # Wait for entry view window to close. After entry view window has been closed through the "submit" button,
         # the barcode, asset, and name fields of the computer object will be updated.
-        self.main_view.wait_window(window=self.verify_controller.entry_view)
-        if self.verify_controller.proceed is True:
-            self.proceed = True
+        self._main_view.wait_window(window=self._verify_controller.entry_view)
+        if self._verify_controller.proceed is True:
+            self._proceed = True
 
     def process_logic(self):
-        self.proceed = False
+        self._proceed = False
 
         # If JSS ID doesn't exist
-        if self.computer.jss_id is None:
+        if self._computer.jss_id is None:
             message = "JSS doesn't record exist. Please verify\nthe following fields before submitting\nthem to the JSS.\n"
             self.open_verification_view(message)
 
             # If user closes out of entry view window using the x button, proceed = False, and the function exits.
-            if self.proceed is False:
+            if self._proceed is False:
                 self.restart()
                 return
 
             # Make sure the serial field for the computer object was updated/set.
-            if self.computer.serial_number is None:
-                self.computer.serial_number = self.computer.get_serial()
+            if self._computer.serial_number is None:
+                self._computer.serial_number = self._computer.get_serial()
 
             # If user clicked submit in the entry view window, the computer will be enrolled in the JSS to create
             # a JSS ID for it in JAMF.
             logger.debug("Enrolling because no JSS ID exists for this computer.")
-            self.jss_server.enroll_computer()
+            self._jss_server.enroll_computer()
             logger.debug("Enrolling finished.")
 
             # Since JSS ID has now been created, retrieve it using the search parameter inputted by the user.
-            self.computer.jss_id = self.jss_server.match(self.computer.serial_number)
-            logger.debug("JSS id after enrolling: {}".format(self.computer.jss_id))
+            self._computer.jss_id = self._jss_server.match(self._computer.serial_number)
+            logger.debug("JSS id after enrolling: {}".format(self._computer.jss_id))
 
             # Update the JAMF record with the barcode, asset, and name of the computer
-            self.jss_server.push_identity_fields(self.computer)
+            self._jss_server.push_identity_fields(self._computer)
 
         # If JSS ID exists
-        elif self.computer.jss_id is not None:
+        elif self._computer.jss_id is not None:
             message = "JSS record exists. Please verify/correct\n " \
                       "the following fields."
             self.open_verification_view(message)
 
-            if self.computer.serial_number is None:
-                self.computer.serial_number = self.computer.get_serial()
+            if self._computer.serial_number is None:
+                self._computer.serial_number = self._computer.get_serial()
 
             # If user closes out of entry view window using the x button, proceed = False, and the function exits.
-            if self.proceed is False:
+            if self._proceed is False:
                 self.restart()
                 return
 
-            self.store_incorrect_records(self.computer)
+            self.store_incorrect_records(self._computer)
 
             # Check if Managed
-            managed = self.jss_server.get_managed_status(self.computer.jss_id)
+            managed = self._jss_server.get_managed_status(self._computer.jss_id)
             logger.debug("Management status is {}".format(managed))
 
             # If managed status is false, re-enroll computer to set managed status to true.
             if managed == 'false' or managed == 'False':
                 logger.info("Enrolling to change managed status to true to enable modification of JSS record.")
-                self.jss_server.enroll_computer()
+                self._jss_server.enroll_computer()
 
             # Push enroll fields to JSS server
-            self.jss_server.push_identity_fields(self.computer)
+            self._jss_server.push_identity_fields(self._computer)
 
         # TODO Remove this for open source version. MacGroup only.
         # At this point, all computer fields that were the same are now none.
-        self.offboard_config = user.append_name(self.computer.get_serial(), self.offboard_config)
-        self.offboard_config = user.timestamp_note(self.offboard_config)
-        self.offboard_config = user.set_previous_computer_name(self.computer.name, self.offboard_config)
+        self._offboard_config = user.append_name(self._computer.get_serial(), self._offboard_config)
+        self._offboard_config = user.timestamp_note(self._offboard_config)
+        self._offboard_config = user.set_previous_computer_name(self._computer.name, self._offboard_config)
 
-        self.jss_server.push_xml_str(self.offboard_config, self.computer.jss_id)
-        # self.jss_server.push_xml(os.path.join(self.private_dir, self.offboard_config), self.computer.jss_id)
+        self._jss_server.push_xml_str(self._offboard_config, self._computer.jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get the new managed status and make sure it's false
-        post_managed_status = self.jss_server.get_managed_status(self.computer.jss_id)
+        post_managed_status = self._jss_server.get_managed_status(self._computer.jss_id)
         logger.debug("post_managed_status: {}".format(post_managed_status))
 
         if post_managed_status != 'false':
             raise SystemExit("ERROR: Managed status is not false after offboarding.")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Notify slack channel that offboard tool has finished.
-        if self.slack_data['slack_enabled'] == "True":
+        if self._slack_data['slack_enabled'] == "True":
             # TODO add this to a config.
-            self.send_slack_message("Offboarding complete. Serial {}".format(self.computer.serial_number))
+            self.send_slack_message("Offboarding complete. Serial {}".format(self._computer.serial_number))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Prepare document for printing
-        doc = JssDoc(self.jss_server, self.computer.jss_id, self.computer)
+        doc = JssDoc(self._jss_server, self._computer)
         doc.create_html()
-        doc.html2pdf()
-        if self.print_enabled:
-            doc.applescript_print()
+        doc.html_to_pdf()
+        if self._print_enabled:
+            doc.print_to_default()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Start Slackify daemon
-        if self.slack_data['slackify_daemon_enabled'] == 'True':
+        if self._slack_data['slackify_daemon_enabled'] == 'True':
             self.start_slackify_reminder_dameon()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         #  Terminate
@@ -274,7 +318,7 @@ class MainController(Controller):
 
         if computer.jss_serial_number != computer.get_serial():
             computer.serial_number = computer.get_serial()
-            computer.incorrect_serial = self.jss_server.get_serial(computer.jss_id)
+            computer.incorrect_serial = self._jss_server.get_serial(computer.jss_id)
             logger.debug("JSS serial {} is incorrect.".format(computer.incorrect_serial))
 
     def set_correct_entries_to_none(self, computer):
@@ -301,7 +345,7 @@ class MainController(Controller):
 
     def send_slack_message(self, message):
         current_ip = socket.gethostbyname(socket.gethostname())
-        slack_bot = IWS(self.slack_data['slack_url'], bot_name=current_ip, channel=self.slack_data['slack_channel'])
+        slack_bot = IWS(self._slack_data['slack_url'], bot_name=current_ip, channel=self._slack_data['slack_channel'])
         slack_bot.send_message(message)
 
     def start_slackify_reminder_dameon(self):
