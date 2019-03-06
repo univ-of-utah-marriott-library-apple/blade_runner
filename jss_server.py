@@ -648,8 +648,9 @@ class JssServer(object):
         # Get hardware data.
         hardware_data = self.get_hardware_data(jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get RAM.
-        capacity = hardware_data["drive_capacity_mb"]
+        # Get drive capacity.
+        storage = hardware_data["storage"][0]
+        capacity = storage["drive_capacity_mb"]
         capacity = "{} MB".format(capacity)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("get_drive_capacity: finished")
