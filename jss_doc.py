@@ -7,60 +7,53 @@ import subprocess
 import webbrowser
 from tuggyboat import TuggyBoat
 
+
 class JssDoc(object):
-    def __init__(self, jss_server, jss_id, computer):
-        self.tuggyboat = TuggyBoat(jss_server)
+
+    def __init__(self, jss_server, computer):
         self.jss_server = jss_server
         self.computer = computer
         self.home = os.path.expanduser("~")
         self.blade_runner_dir = "blade-runner-data/"
         self.abs_dir = self.home + '/Desktop/' + self.blade_runner_dir
-        self.computer.jss_id = jss_id
-        self.computer.prev_name = jss_server.get_prev_name(jss_id)
-        self.computer.name = self.tuggyboat.get_tugboat_fields(jss_id)['general']['computer_name']
-        # self.computer.name = str(re.sub(u'(\u2019|\u2018)', '', self.computer.name))
-        self.computer.barcode_1 = self.tuggyboat.get_tugboat_fields(jss_id)['general']['barcode_1']
-        self.computer.asset_tag = self.tuggyboat.get_tugboat_fields(jss_id)['general']['asset_tag']
 
-
-        self.lbase = self.computer.asset_tag + "_yellow_asset_tag"
+        self.lbase = self.jss_server.get_asset_tag(self.computer.jss_id) + "_yellow_asset_tag"
         self.abs_lbase = self.abs_dir + self.lbase
         self.abs_html = self.abs_lbase + ".html"
         self.abs_pdf = self.abs_lbase + ".pdf"
 
     def create_html(self):
         '''Creates an .html file'''
-        hardware_list_main = self.jss_server.get_hardware_inventory(self.computer.jss_id)
-        hardware_list_storage = hardware_list_main['storage'][0]
-        drive_capacity = str(hardware_list_storage['drive_capacity_mb'])
+
+        # TODO Remove. This is MacGroup only.
+        prev_name = self.jss_server.get_prev_name(self.computer.jss_id)
+
+        name = self.jss_server.get_name(self.computer.jss_id)
+
+        barcode_1 = self.jss_server.get_barcode_1(self.computer.jss_id)
+
+        asset_tag = self.jss_server.get_asset_tag(self.computer.jss_id)
+        drive_capacity = self.jss_server.get_drive_capacity(self.computer.jss_id)
+
+        # Grabs the Model of Computer
+        computer_model = self.jss_server.get_model(self.computer.jss_id)
 
         # Grabs information on if the computer has an SSD or not.
-        drive_model = hardware_list_storage['model']
-        if "SSD" in drive_model:
-            has_SSD = "Yes"
-        elif "OWC" in drive_model:
+        if "SSD" in computer_model or "OWC" in computer_model:
             has_SSD = "Yes"
         else:
             has_SSD = "No"
 
         # Grabs the current total of RAM.
-        ram_total = hardware_list_main["total_ram"]
-        ram_total = str(ram_total) + " MB"
-
-        # Grabs the Model of Computer
-        computer_model = hardware_list_main["model"]
+        ram_total = self.jss_server.get_ram(self.computer.jss_id)
 
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # General Tab requests
-        # Builds overall list
-        general_list_main = self.jss_server.get_general_inventory(self.computer.jss_id)
-
         # Check if Managed
-        remote_mangement_list = general_list_main['remote_management']
-        managed = str(remote_mangement_list['managed'])
+        managed = self.jss_server.get_managed_status(self.computer.jss_id)
 
         # Grab the Serial Number
-        serial_number = general_list_main["serial_number"]
+        serial_number = self.jss_server.get_serial(self.computer.jss_id)
 
         # Make directory for jss doc if it doesn't exist
         try:
@@ -95,13 +88,13 @@ class JssDoc(object):
           </head>
           <body>
             <font size="5">
-            <b>New Name: </b> """ + self.computer.name + """
+            <b>New Name: </b> """ + name + """
             <p>
-            <b>Previous Name: </b> """ + self.computer.prev_name + """
+            <b>Previous Name: </b> """ + prev_name + """
             <p>
-            <b>Barcode: </b> """ + self.computer.barcode_1 + """
+            <b>Barcode: </b> """ + barcode_1 + """
             <p>
-            <b>Asset: </b> """ + self.computer.asset_tag + """
+            <b>Asset: </b> """ + asset_tag + """
             <p>
             <b>JSS ID: </b> """ + self.computer.jss_id + """    <b>Managed: </b> """ + managed + """
             <p>
@@ -111,7 +104,7 @@ class JssDoc(object):
             <p>
             <b>SSD: </b> """ + has_SSD + """    <b>RAM: </b> """ + ram_total + """
             <p>
-            <b>Drive Capacity: </b> """ + drive_capacity + """ MB
+            <b>Drive Capacity: </b> """ + drive_capacity + """
             <p>
             """ + review_content + """
           </body>
@@ -121,13 +114,14 @@ class JssDoc(object):
             f.write(file_content)
 
     def open_html(self):
-        logger.info("open_html" + ": activated")
+        logger.info("open_html: started")
         try:
             webbrowser.get('macosx').open("file://" + self.abs_html)
         except Exception as e:
             pass
+        logger.info("open_html: finished")
 
-    def html2pdf(self):
+    def html_to_pdf(self):
         '''Convert .html to .pdf so that file can be printed through command line. Prints only the first page, which
         is  the "-P 1" option.'''
         logger.info("Converting HTML to PDF")
@@ -139,53 +133,8 @@ class JssDoc(object):
             logger.debug(e.output)
         logger.info("Converting HTML to PDF finished.")
 
-    def exist_printer(self, printer):
-        logger.info("Checking for printers.")
-        cmd = ['lpstat', '-a']
-        try:
-            printers = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            if printers.find(printer) != -1:
-                logger.info("Checking for printers finished.")
-                return True
-        except subprocess.CalledProcessError as e:
-            logger.info("Checking for printers failed.")
-            logger.debug(e.output)
-            return False
-
-        logger.info("Checking for printers finished.")
-        return False
-
-    def set_up_printer(self, printer, area, ip):
-        logger.info("Setting up printer.")
-        cmd = ['lpadmin', '-p', printer, '-L', area, '-E', '-v', ip]
-        try:
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
-            logger.info("Setting up printer failed.")
-            logger.debug(e.output)
-
-        logger.info("Setting up printer finished.")
-
-    def print_pdf(self):
-        '''Prints .pdf file to local printer. To find available printers, use:
-
-                lpstat -a
-
-        '''
-        logger.info("print_pdf" + ": activated")
-
-        printer_1 = 'Tech_Lvl5_HP_M3035'
-        printer_2 = '_155_97_1_91'
-        print_cmd = ['lp', '-d', printer_2, self.abs_pdf]
-        try:
-            subprocess.check_output(print_cmd)
-            logger.info("Print successful.")
-        except subprocess.CalledProcessError as e:
-            logger.info(e)
-        logger.info("Printing computer info finished.")
-
-    def applescript_print(self):
-        logger.info("applescript_print" + ": activated")
+    def print_to_default(self):
+        logger.info("print_to_default: started")
 
         script = r'''set theFile to POSIX path of "''' + self.abs_pdf + r'''"
         do shell script("open " & theFile) 
@@ -206,11 +155,11 @@ class JssDoc(object):
         except subprocess.CalledProcessError as e:
             logger.info("" + str(e.output))
             logger.info("Document didn't print. Make sure a default printer has been configured.")
-            # logger.info("The selected printer " + printer + " can not be found. To set up a printer, or see a list of "
-            #                                           "available printers, go to System "
-            #                                           "Preferences>Printers & Scanners. The name of the printer is "
-            #                                           "the argument for applescripot_print()")
-            logger.info("applescript_print" + ": failed")
+            logger.info("The selected printer can not be found. To set up a printer, or see a list of "
+                                                      "available printers, go to System "
+                                                      "Preferences>Printers & Scanners. The name of the printer is "
+                                                      "the argument for print_to_default()")
+        logger.info("print_to_default: finished")
 
 
 cf = inspect.currentframe()
