@@ -588,6 +588,74 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return name
 
+    def get_model(self, jss_id):
+        """Get the model of the computer corresponding to the JSS ID.
+
+        Args:
+            jss_id (str): JSS ID of computer.
+
+        Returns:
+            Model of computer (str).
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_model: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get hardware data.
+        hardware_data = self.get_hardware_data(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get computer model.
+        computer_model = hardware_data["model"]
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_model: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        return computer_model
+
+    def get_ram(self, jss_id):
+        """Get the RAM of the computer corresponding to the JSS ID.
+
+        Args:
+            jss_id (str): JSS ID of computer.
+
+        Returns:
+            Amount of RAM (str).
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_ram: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get hardware data.
+        hardware_data = self.get_hardware_data(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get RAM.
+        ram = hardware_data["total_ram"]
+        ram = "{} MB".format(ram)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_ram: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        return ram
+
+    def get_drive_capacity(self, jss_id):
+        """Get the drive capacity (MB) of the computer corresponding to the JSS ID.
+
+        Args:
+            jss_id (str): JSS ID of computer.
+
+        Returns:
+            Drive capacity in MB (str).
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_drive_capacity: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get hardware data.
+        hardware_data = self.get_hardware_data(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get RAM.
+        capacity = hardware_data["drive_capacity_mb"]
+        capacity = "{} MB".format(capacity)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_drive_capacity: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        return capacity
+
     def enroll_computer(self):
         """Enrolls the computer into the JSS. If the enroll fails, another attempt is made with the second JAMF binary.
 
