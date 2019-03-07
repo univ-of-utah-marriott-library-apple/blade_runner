@@ -186,80 +186,145 @@ class MainController(Controller):
         Returns:
             void
         """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Save the XML file as an XML string.
         self._offboard_config = user.xml_to_string(os.path.join(self._private_dir, offboard_config))
 
-    def determine_input_type(self, input_type):
-        if input_type == "serial_number":
-            self._computer.serial_number = self._computer.get_serial()
+    def search_sequence(self, input_type):
+        """Determines the search window sequence based on the input type and previous search params.
 
-        self._search_controller = SearchController(self._main_view, self._computer, input_type)
+        Args:
+            input_type (str): Data identifier.
 
-        self._main_view.wait_window(window=self._search_controller.entry_view)
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Process the input type and handle the JSS search.
+        self.search_handler(input_type)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # For every search parameter enabled
+        for param in self.search_params:
+            # If search parameter hasn't been searched yet.
+            if not self.search_params.was_searched(param):
+                # If user hasn't canceled operation and no match was found
+                if self._proceed is True and self._computer.jss_id is None:
+                    # Process the input type and handle the JSS search.
+                    self.search_handler(param)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # All search params have been searched and Blade-Runner has finished processing the computer.
+        # Restart Blade-Runner.
+        self.restart()
 
-        self._proceed = self._search_controller.proceed
+    def search_handler(self, input_type):
+        """Handles search events.
 
+        Args:
+            input_type (str): Data identifier.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open the search view for the input type.
+        self.open_search_view(input_type)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # If the user canceled the search view, proceed will be false, Blade-Runner will restart, and function returns.
         if self._proceed is False:
             self.restart()
             return
-
-        if input_type == "barcode_1":
-            search_param = self._computer.barcode_1
-        elif input_type == "barcode_2":
-            search_param = self._computer.barcode_2
-        elif input_type == "asset_tag":
-            search_param = self._computer.asset_tag
-        elif input_type == "serial_number":
-            search_param = self._computer.serial_number
-
-        try:
-            self._computer.jss_id = self._jss_server.match(search_param)
-            self.search_params.set_searched(input_type)
-        except NameError as e:
-            raise SystemExit("{}. The input type supplied from the button is not supported.".format(e))
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Since the computer object has been filled with user input data for the input type, search the JSS.
+        self.dynamic_search(self._computer, input_type)
+        self.search_params.set_searched(input_type)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # If the search resulted in a match, start the offboard process.
         if self._computer.jss_id is not None:
             self.search_params.set_match(input_type)
             self.process_logic()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Otherwise, if all input types have been searched, start the offboard process.
         elif self.search_params.all_searched():
             self.process_logic()
 
-    def act(self, input_type):
-        self.determine_input_type(input_type)
+    def dynamic_search(self, computer, input_type):
+        """Dynamically search the JSS with the Computer attribute that matches the input type.
 
-        for param in self.search_params:
-            if not self.search_params.was_searched(param):
-                if self._proceed is True and self._computer.jss_id is None:
-                    self.determine_input_type(param)
+        Args:
+            computer (Computer): Stores information about the computer.
+            input_type (str): Data identifier.
 
-        self.restart()
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Use the computer object to set the search parameter.
+        if input_type == "barcode_1":
+            search_param = computer.barcode_1
+        elif input_type == "barcode_2":
+            search_param = computer.barcode_2
+        elif input_type == "asset_tag":
+            search_param = computer.asset_tag
+        elif input_type == "serial_number":
+            search_param = computer.serial_number
+        else:
+            raise SystemExit("The input type \"{}\" supplied from the button is not supported.".format(input_type))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Search the JSS.
+        computer.jss_id = self._jss_server.match(search_param)
 
-    def open_verification_view(self, message):
+    def open_search_view(self, input_type):
+        """Open the search view. Saves user input in computer object.
+
+        Args:
+            input_type (str): Data identifier.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # If serial number, save serial number to computer object. This allows the serial to be displayed before
+        # submitting it for a search.
+        if input_type == "serial_number":
+            self._computer.serial_number = self._computer.get_serial()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open the search controller/view. Inputs given to the view will be saved in the computer object.
+        self._search_controller = SearchController(self._main_view, self._computer, input_type)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Wait for search view to close.
+        self._main_view.wait_window(window=self._search_controller.entry_view)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # If the user canceled the operation, proceed will be false.
+        self._proceed = self._search_controller.proceed
+
+    def open_verify_view(self, message):
+        """Open the verification view. If there is a search match, a DualVerifyView will be opened, otherwise
+        a VerifyView will be opened. Computer object will be updated.
+
+        Args:
+            message (str): Message to be displayed in view.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # If a JSS match has been found, open a DualVerifyView.
         if self.search_params.exists_match():
             if self.search_params.search_count >= 1:
-
-                self._computer.jss_barcode_1 = self._jss_server.get_barcode_1(self._computer.jss_id)
-                self._computer.jss_barcode_2 = self._jss_server.get_barcode_2(self._computer.jss_id)
-                self._computer.jss_asset_tag = self._jss_server.get_asset_tag(self._computer.jss_id)
-                self._computer.jss_serial_number = self._jss_server.get_serial(self._computer.jss_id)
-                self._computer.prev_name = self._jss_server.get_name(self._computer.jss_id)
-
-                logger.debug("Previous barcode_1: {}".format(self._computer.jss_barcode_1))
-                logger.debug("Previous barcode_2: {}".format(self._computer.jss_barcode_2))
-                logger.debug("Previous asset_tag: {}".format(self._computer.jss_asset_tag))
-                logger.debug("Previous serial_number: {}".format(self._computer.jss_serial_number))
-                logger.debug("Previous name: {}".format(self._computer.prev_name))
-
-                self._verify_controller = DualVerifyController(self._main_view, self._computer, self.verify_params)
+                self._verify_controller = DualVerifyController(self._main_view, self._computer, self.verify_params, self._jss_server)
+        # Otherwise open a VerifyView.
         else:
             self._verify_controller = VerificationController(self._main_view, self._computer, self.verify_params, self.search_params)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Configure message to be displayed.
         self._verify_controller.entry_view.text_lbl.config(text=message)
-
-        # Wait for entry view window to close. After entry view window has been closed through the "submit" button,
-        # the barcode, asset, and name fields of the computer object will be updated.
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Wait for entry view window to close.
         self._main_view.wait_window(window=self._verify_controller.entry_view)
-        if self._verify_controller.proceed is True:
-            self._proceed = True
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # After entry view window has been closed through the "submit" button, proceed will be True, and the barcode,
+        # asset, and name fields of the computer object will be updated.
+        self._proceed = self._verify_controller.proceed
 
     def process_logic(self):
         self._proceed = False
@@ -267,7 +332,7 @@ class MainController(Controller):
         # If JSS ID doesn't exist
         if self._computer.jss_id is None:
             message = "JSS doesn't record exist. Please verify\nthe following fields before submitting\nthem to the JSS.\n"
-            self.open_verification_view(message)
+            self.open_verify_view(message)
 
             # If user closes out of entry view window using the x button, proceed = False, and the function exits.
             if self._proceed is False:
@@ -295,7 +360,7 @@ class MainController(Controller):
         elif self._computer.jss_id is not None:
             message = "JSS record exists. Please verify/correct\n " \
                       "the following fields."
-            self.open_verification_view(message)
+            self.open_verify_view(message)
 
             if self._computer.serial_number is None:
                 self._computer.serial_number = self._computer.get_serial()
