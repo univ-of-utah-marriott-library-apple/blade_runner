@@ -156,12 +156,25 @@ class MainController(Controller):
         logger.info("Blade-Runner reset.")
 
     def populate_config_combobox(self):
+        """Populates the main view's combobox with available configuration files.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get a list of the files in the private directory.
         private_files = os.listdir(self._private_dir)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get all XML files .
         offboard_configs = []
         for file in private_files:
             if file.endswith(".xml"):
                 offboard_configs.append(file)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Fill the main view's combobox with the XML files.
         self._main_view.combobox.config(values=offboard_configs)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the initial choice to the first XML file in the list.
         self._main_view.combobox.current(0)
 
     def save_offboard_config(self, offboard_config):
