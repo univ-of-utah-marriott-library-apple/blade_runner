@@ -178,6 +178,14 @@ class MainController(Controller):
         self._main_view.combobox.current(0)
 
     def save_offboard_config(self, offboard_config):
+        """Save the offboard config as an XML string.
+
+        Args:
+            offboard_config (str): File name, not the file path.
+
+        Returns:
+            void
+        """
         self._offboard_config = user.xml_to_string(os.path.join(self._private_dir, offboard_config))
 
     def determine_input_type(self, input_type):
