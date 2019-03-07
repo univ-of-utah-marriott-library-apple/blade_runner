@@ -108,20 +108,51 @@ class MainController(Controller):
         tkMessageBox.showerror('Exception', message)
 
     def run(self):
+        """Start Blade-Runner.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create the main view.
         self._main_view = MainView(self._root, self)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set it to the middle of the screen.
         self._set_to_middle(self._main_view)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Refocus on the window.
         self.refocus()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Make this window the main loop.
         self._main_view.mainloop()
 
     def terminate(self):
-        # Destroy the main view and the root mainloop.
+        """Terminates Blade-Runner.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Destroy the main view and the root window.
         self._main_view.destroy()
         self._root.destroy()
 
     def restart(self):
+        """Restart Blade-Runner without quiting the entire program.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create a new Computer object.
         self._computer = Computer()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create a new VerifyParams object.
         self.verify_params = VerifyParams(self.verify_params.originals)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create a new SearchParams object.
         self.search_params = SearchParams(self.search_params.originals)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.info("Blade-Runner reset.")
 
     def populate_config_combobox(self):
