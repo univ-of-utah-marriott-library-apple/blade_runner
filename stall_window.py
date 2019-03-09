@@ -68,8 +68,8 @@ class StallWindow(tk.Toplevel):
         content_frame = tk.Frame(self, height=master.winfo_width())
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Text header widget
-        self.text_lbl = tk.Label(content_frame, text=msg, wraplength=self.master.winfo_width())
-        self.text_lbl.grid(row=0, padx=(20, 20), pady=(20, 20))
+        self._text_lbl = tk.Label(content_frame, text=msg, wraplength=self.master.winfo_width())
+        self._text_lbl.grid(row=0, padx=(20, 20), pady=(20, 20))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Grid the content frame.
         content_frame.grid(row=0)
