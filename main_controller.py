@@ -346,11 +346,7 @@ class MainController(Controller):
         self._proceed = self._search_controller.proceed
 
     def open_verify_view(self):
-        """Open the verification view. If there is a search match, a DualVerifyView will be opened, otherwise
-        a VerifyView will be opened. Computer object will be updated.
-
-        Args:
-            message (str): Message to be displayed in view.
+        """Opens a VerifyView window.
 
         Returns:
             void
@@ -370,8 +366,14 @@ class MainController(Controller):
         self._proceed = self._verify_controller.proceed
 
     def open_dual_verify_view(self):
-        message = "JSS record exists. Please verify/correct\n the following fields."
+        """Opens a DualVerifyView window.
 
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open DualVerifyWindow/Controller
+        message = "JSS record exists. Please verify/correct\n the following fields."
         self._verify_controller = DualVerifyController(self._main_view, self._computer, self.verify_params,
                                                        self._jss_server)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -381,8 +383,7 @@ class MainController(Controller):
         # Wait for entry view window to close.
         self._main_view.wait_window(window=self._verify_controller.entry_view)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # After entry view window has been closed through the "submit" button, proceed will be True, and the barcode,
-        # asset, and name fields of the computer object will be updated.
+        # Store exit status of the view.
         self._proceed = self._verify_controller.proceed
 
     def _user_defined_updates(self):
