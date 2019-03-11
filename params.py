@@ -148,7 +148,7 @@ class SearchParams(Params):
             Searched status of parameter.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Check if key exists in dict. Return its value.
+        # Check if key exists in dict. Return its searched status.
         if param in self.search_status:
             return self.search_status[param]
 
@@ -162,12 +162,22 @@ class SearchParams(Params):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # If key exists in dict, set its value to True and increment the search counter.
+        # Set params searched status to True.
         if param in self.search_status:
             self.search_status[param] = True
             self.search_count += 1
 
     def set_match(self, param):
+        """Set matched status of a search parameter.
+
+        Args:
+            param (str): Search parameter key.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set params matched status to True.
         if param in self.matches:
             self.matches[param] = True
 
