@@ -78,19 +78,48 @@ class VerificationController(EntryController):
         self.entry_view.destroy()
 
     def _store_user_entries(self):
+        """Store user entries.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # For every enabled verification parameter, store the value in its corresponding entry.
         for param in self.verify_params.enabled:
             self._store_user_entry(param)
 
     def _fill_user_entries(self):
+        """Fill user entries with information from the computer object.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # For every enabled verification parameter, set its value in its corresponding entry.
         for param in self.verify_params.enabled:
             self._fill_user_entry(param)
 
     def _grid_user_widgets(self):
+        """Grid user widgets into the view.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid the user label.
         self.entry_view.user_lbl.grid(row=0, column=1)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # For every enabled verification parameter, grid its corresponding widget.
         for param in self.verify_params.enabled:
             self._grid_user_widget(param)
 
     def cancel_operation(self):
+        """If user cancels operation, set proceed to False and destroy the view.
+
+        Returns:
+
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.proceed = False
         self.entry_view.destroy()
 
