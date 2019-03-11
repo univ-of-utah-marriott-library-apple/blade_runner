@@ -507,10 +507,17 @@ class MainController(Controller):
         subprocess.Popen(cmd, stderr=subprocess.STDOUT)
 
     def refocus(self):
-        # Python tkinter window gets selected automatically
+        """Set the focus to the Python application.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set up the command
         select_window = ['/usr/bin/osascript', '-e',
                          'tell application "Finder" to set frontmost of process "Python" to true']
-        try:
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        try: # set focus to the main view.
             subprocess.check_output(select_window)
         except subprocess.CalledProcessError:
             logger.debug("Setting frontmost of process Python to true failed.")
