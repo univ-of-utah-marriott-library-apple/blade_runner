@@ -211,10 +211,29 @@ class SearchParams(Params):
 
 
 class VerifyParams(Params):
-    def __init__(self, params_dict):
-        params_dict = self._values_to_bools(params_dict)
+    """Converts a dictionary of enabled verification parameters into other data structures and representations, such as
+    which parameters are enabled, disabled, and which ones have been searched for in the JSS.
+    """
 
+    def __init__(self, params_dict):
+        """Convert the enabled verification parameters dictionary into enabled, disabled, and searched verification
+        params.
+
+        Args:
+            params_dict (dict): Enabled verification parameters denoted by boolean values.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Deep copy of params_dict
+        params_dict = self._values_to_bools(params_dict)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Store the originals.
         self.originals = params_dict
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create a set of the enabled parameters.
         self.enabled = set(self._remove_keys_with_value(False, params_dict))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create a set of the disabled parameters.
         self.disabled = set(self._remove_keys_with_value(True, params_dict))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create a dictionary of the searched status of the parameters.
         self.search_status = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
