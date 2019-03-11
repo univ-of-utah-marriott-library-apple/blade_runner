@@ -24,7 +24,8 @@
 class Params(object):
     """Contains methods for pruning keys and changing values of a boolean based dictionary"""
 
-    def _values_to_bools(self, dictionary):
+    @staticmethod
+    def _values_to_bools(dictionary):
         """Converts values, one level deep in a dictionary, that are string booleans to booleans, e.g.,
 
             "False" -> False
@@ -52,7 +53,8 @@ class Params(object):
         # Return the altered copy.
         return dct
 
-    def _remove_keys_with_value(self, value, dictionary):
+    @staticmethod
+    def _remove_keys_with_value(value, dictionary):
         """Remove keys that contain a certain value. Only removes up to one level deep.
 
         Args:
@@ -74,7 +76,8 @@ class Params(object):
         # Return the altered copy.
         return dct
 
-    def _invert_bool_values(self, dictionary):
+    @staticmethod
+    def _invert_bool_values(dictionary):
         """Inverts boolean values one level deep in a dictionary, e.g.,
 
             False -> True
