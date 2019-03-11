@@ -145,7 +145,7 @@ class SearchParams(Params):
             param (str): Search parameter key.
 
         Returns:
-            Searched status of parameter.
+            True if parameter was searched, False otherwise.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Check if key exists in dict. Return its searched status.
@@ -182,6 +182,12 @@ class SearchParams(Params):
             self.matches[param] = True
 
     def exists_match(self):
+        """Return whether or not a match has been found for any of the search parameters.
+
+        Returns:
+            True if match exists, False otherwise.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return any(self.matches.values())
 
     def all_searched(self):
