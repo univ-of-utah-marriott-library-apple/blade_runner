@@ -214,7 +214,7 @@ def set_inventory_status(status, xml_str):
     # Return XML string.
     return ET.tostring(root)
 
-
+# TODO: Remove this.
 if __name__ == "__main__":
     xml_file = "scratch.xml"
     xml_file_append_name("johnny", xml_file)
