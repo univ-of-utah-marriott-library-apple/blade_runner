@@ -171,20 +171,23 @@ def set_previous_computer_name(string, xml_str):
 
 
 def xml_to_string(xml_file):
+    """Get XML string representation of XML file.
+
+    Args:
+        xml_file (str): XML file path.
+
+    Returns:
+        XML string.
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Parse XML file into an XML tree.
     xml_tree = ET.parse(xml_file)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Get the root of the tree.
     xml_root = xml_tree.getroot()
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Return XML string.
     return ET.tostring(xml_root)
-
-
-def update_managed_status(status, xml_file):
-    tree = ET.parse(xml_file)
-    root = tree.getroot()
-
-    for remote_management_element in root.findall("./general/remote_management"):
-        managed_element = remote_management_element.find("managed")
-        managed_element.text = status
-
-    tree.write(xml_file)
 
 
 def update_inventory_status(status, xml_file):
@@ -203,5 +206,4 @@ def update_inventory_status(status, xml_file):
 if __name__ == "__main__":
     xml_file = "scratch.xml"
     xml_file_append_name("johnny", xml_file)
-    update_managed_status("false", xml_file)
     update_inventory_status("Salvage", xml_file)
