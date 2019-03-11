@@ -387,9 +387,19 @@ class MainController(Controller):
         self._proceed = self._verify_controller.proceed
 
     def _user_defined_updates(self):
+        """User defines implementation. Meant to update the computer's JSS record with extra information before
+        offboarding.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # TODO Remove this for open source version. MacGroup only.
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Append the computer name with the serial number.
         self._offboard_config = user.append_name(self._computer.get_serial(), self._offboard_config)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Add a timestamp to the additional notes attribute.
         self._offboard_config = user.timestamp_note(self._offboard_config)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the previous computer name extension attribute.
         self._offboard_config = user.set_previous_computer_name(self._computer.name, self._offboard_config)
 
     def _offboard(self):
