@@ -124,7 +124,7 @@ def set_additional_note(string, xml_str):
     """Replace "Additional Item Notes" with the given string.
 
     Args:
-        string (str): String to be appended to the value.
+        string (str): String that replaces the value.
         xml_str (str): XML string.
 
     Returns:
@@ -146,14 +146,27 @@ def set_additional_note(string, xml_str):
 
 
 def set_previous_computer_name(string, xml_str):
-    xml_root = ET.fromstring(xml_str)
+    """Set the previous computer name extension attribute.
 
+    Args:
+        string (str): String that replaces the value.
+        xml_str (str): XML string.
+
+    Returns:
+        Modified XML string.
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Convert XML string into an XML tree and get the root of that tree.
+    xml_root = ET.fromstring(xml_str)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Get the "Previous Name Field" value under the "extenstion_attributes" tag and replace the value.
     for ext_attrs in xml_root.findall("./extension_attributes"):
         for ext_attr in ext_attrs:
             if ext_attr.find('id').text == "46":
                 value_element = ext_attr.find('value')
                 value_element.text = string
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Return XML string.
     return ET.tostring(xml_root)
 
 
