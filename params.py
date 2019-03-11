@@ -52,17 +52,25 @@ class Params(object):
         return dct
 
     def _remove_keys_with_value(self, value, dictionary):
-        """
-        Removes keys from a dictionary according to a given value that is one level deep.
+        """Remove keys that contain a certain value. Only removes up to one level deep.
 
-        :param value: The value that indicates key removal.
-        :param params: Dictionary.
-        :return: Copy of the dictionary.
+        Args:
+            value: Value that indicates key removal.
+            dictionary (dict): Dictionary to searched.
+
+        Returns:
+            Copy of original dictionary.
         """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Deep copy dictionary.
         dct = dict(dictionary)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # For every key, check its value, and remove the key if the value matches the removal value.
         for key in dictionary:
             if dct[key] == value:
                 dct.pop(key, None)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Return a copy of the dictionary.
         return dct
 
     def _invert_bool_values(self, dictionary):
