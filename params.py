@@ -106,14 +106,36 @@ class Params(object):
 
 
 class SearchParams(Params):
-    def __init__(self, params_dict):
-        params_dict = self._values_to_bools(params_dict)
+    """Manipulates a dictionary containing boolean values. This dictionary indicates whether or not a certain
+    key has been searched in the JSS and which keys are to be used in the search.
+    """
 
+    def __init__(self, params_dict):
+        """Process the dictionary.
+
+        Args:
+            params_dict (dict): Dictionary that indicates which keys are to be used in the search. Values are booleans.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Deep copy dictionary.
+        params_dict = self._values_to_bools(params_dict)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Store the originals.
         self.originals = params_dict
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Make a set of the enabled search params.
         self.enabled = set(self._remove_keys_with_value(False, params_dict))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Make a set of the disabled params.
         self.disabled = set(self._remove_keys_with_value(True, params_dict))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the search status of the enabled search params.
         self.search_status = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the matched status of the enabled search params.
         self.matches = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the search count.
         self.search_count = 0
 
     def was_searched(self, param):
