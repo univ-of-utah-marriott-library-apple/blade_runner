@@ -153,6 +153,16 @@ class SearchParams(Params):
             return self.search_status[param]
 
     def set_searched(self, param):
+        """Set the searched status of search parameter.
+
+        Args:
+            param (str): Search parameter key.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # If key exists in dict, set its value to True and increment the search counter.
         if param in self.search_status:
             self.search_status[param] = True
             self.search_count += 1
