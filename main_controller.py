@@ -403,14 +403,23 @@ class MainController(Controller):
         self._offboard_config = user.set_previous_computer_name(self._computer.name, self._offboard_config)
 
     def _offboard(self):
-        self._user_defined_updates()
+        """Offboard computer object with the offboard config.
 
+        Returns:
+
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Update the JSS record according to the implementation of the user.
+        self._user_defined_updates()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Push the offboard config to the JSS to offboard the computer.
         self._jss_server.push_xml_str(self._offboard_config, self._computer.jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get the new managed status and make sure it's false
         post_managed_status = self._jss_server.get_managed_status(self._computer.jss_id)
         logger.debug("post_managed_status: {}".format(post_managed_status))
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Make sure managed status is false. If not, exit.
         if post_managed_status != 'false':
             raise SystemExit("ERROR: Managed status is not false after offboarding.")
 
