@@ -1,3 +1,25 @@
+#!/usr/bin/python
+
+# -*- coding: utf-8 -*-
+################################################################################
+# Copyright (c) 2019 University of Utah Student Computing Labs.
+# All Rights Reserved.
+#
+# Author: Thackery Archuletta
+# Creation Date: Oct 2018
+# Last Updated: Feb 2019
+#
+# Permission to use, copy, modify, and distribute this software and
+# its documentation for any purpose and without fee is hereby granted,
+# provided that the above copyright notice appears in all copies and
+# that both that copyright notice and this permission notice appear
+# in supporting documentation, and that the name of The University
+# of Utah not be used in advertising or publicity pertaining to
+# distribution of the software without specific, written prior
+# permission. This software is supplied as is without expressed or
+# implied warranties of any kind.
+################################################################################
+
 from entry_controller import EntryController
 import inspect
 from management_tools import loggers
@@ -8,33 +30,33 @@ from verification_view import VerifyView
 class VerificationController(EntryController):
     def __init__(self, master, computer, verify_params, search_params):
         view = VerifyView(master, self)
-        super(VerificationController, self).__init__(master, computer, view)
+        super(VerificationController, self).__init__(computer, view)
         self.proceed = None
         self.verify_params = verify_params
         self.search_params = search_params
 
-        self.determine_user_entries()
-        self.populate_user_entries()
+        self._grid_user_widgets()
+        self._fill_user_entries()
 
-        self.set_to_middle(view)
+        self._set_to_middle(view)
 
     def proceed_operation(self, sender):
-        self.store_user_verification_fields()
+        self._store_user_entries()
         self.proceed = True
         self.entry_view.destroy()
 
-    def store_user_verification_fields(self):
+    def _store_user_entries(self):
         for param in self.verify_params.enabled:
-            self.store_entry_field(param)
+            self._store_user_entry(param)
 
-    def populate_user_entries(self):
+    def _fill_user_entries(self):
         for param in self.verify_params.enabled:
-            self.populate_user_entry(param)
+            self._fill_user_entry(param)
 
-    def determine_user_entries(self):
+    def _grid_user_widgets(self):
         self.entry_view.user_lbl.grid(row=0, column=1)
         for param in self.verify_params.enabled:
-            self.determine_user_widget(param)
+            self._grid_user_widget(param)
 
     def cancel_operation(self):
         self.proceed = False
