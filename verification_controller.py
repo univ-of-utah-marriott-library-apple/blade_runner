@@ -28,16 +28,34 @@ from verification_view import VerifyView
 
 
 class VerificationController(EntryController):
+    """Controller for VerificationView."""
+
     def __init__(self, master, computer, verify_params, search_params):
+        """Set up the verification controller.
+
+        Args:
+            master: Parent Tk window.
+            computer (Computer): Stores information about the computer.
+            verify_params (VerifyParams): Verification parameters.
+            search_params (SearchParams): Search parameters.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Save the view in the superclass (EntryController).
         view = VerifyView(master, self)
         super(VerificationController, self).__init__(computer, view)
-        self.proceed = None
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Store inputs.
+        self.proceed = False
         self.verify_params = verify_params
         self.search_params = search_params
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid user entries.
         self._grid_user_widgets()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Fil user entries.
         self._fill_user_entries()
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set view to middle of screen.
         self._set_to_middle(view)
 
     def proceed_operation(self, sender):
