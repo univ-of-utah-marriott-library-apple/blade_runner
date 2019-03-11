@@ -59,8 +59,22 @@ class VerificationController(EntryController):
         self._set_to_middle(view)
 
     def proceed_operation(self, sender):
+        """If user continues with operation, store entries, set proceed to True, and destroy the view.
+
+        Args:
+            sender (str): ID of button
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Store user entries into computer object.
         self._store_user_entries()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set proceed flag
         self.proceed = True
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Destroy the view.
         self.entry_view.destroy()
 
     def _store_user_entries(self):
