@@ -73,7 +73,15 @@ def run_daemon():
 
 
 if __name__ == "__main__":
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set path to script .
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set path to Slack config plist.
     slack_plist = os.path.join(script_dir, "private/slack_config.plist")
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Convert Slack config to a dictionary.
     slack_data = plistlib.readPlist(slack_plist)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Run the daemon.
     run_daemon()
