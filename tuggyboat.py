@@ -16,12 +16,13 @@ class TuggyBoat(object):
     def __init__(self, jss_server):
         self.jss_server = jss_server
 
-    def get_tugboat_fields(self, computer_id):
+    def get_tugboat_fields(self, jss_id):
         '''This method is not complete. I'd like to implement getting all Tugboat fields, but currently I'll just get
         the yellow asset tag and barcode. Later I'd like to have get_offboard_fields() call this function and just
         remove/pop entries that aren't used for offboarding.'''
         # get jss extenstion attributes
-        jss_extension_attributes = self.jss_server.get_extension_attributes(computer_id)
+        jss_extension_attributes = self.jss_server.get_extension_attributes(jss_id)
+        encoding = 'utf-8'
 
         # store tugboat extension attributes
         for attribute in jss_extension_attributes:
@@ -42,15 +43,15 @@ class TuggyBoat(object):
 
                 budget_source = attribute['value']
 
-        tugboat_ext_attr = {'extension_attributes'.decode('utf-8'): {}}
-        tugboat_ext_attr['extension_attributes'].update({'Onboarding IP'.decode('utf-8'): onboarding_IP,
-                                                         'Inventory Status'.decode('utf-8'): inventory_status,
-                                                         'Inventory Category'.decode('utf-8'): inventory_category,
-                                                         'Budget Source'.decode('utf-8'): budget_source})
+        tugboat_ext_attr = {'extension_attributes'.decode(encoding): {}}
+        tugboat_ext_attr['extension_attributes'].update({'Onboarding IP'.decode(encoding): onboarding_IP,
+                                                         'Inventory Status'.decode(encoding): inventory_status,
+                                                         'Inventory Category'.decode(encoding): inventory_category,
+                                                         'Budget Source'.decode(encoding): budget_source})
 
         # get jss location fields such as building, department, email, phone, realname, etc.
-        jss_location_fields = self.jss_server.get_location_fields(computer_id)
-        tugboat_loc_fields = {'location'.decode('utf-8'): {}}
+        jss_location_fields = self.jss_server.get_location_data(jss_id)
+        tugboat_loc_fields = {'location'.decode(encoding): {}}
 
         # store tugboat location fields and reset user
         building = jss_location_fields['building']
@@ -64,19 +65,19 @@ class TuggyBoat(object):
         room = jss_location_fields['room']
         username = jss_location_fields['username']
 
-        tugboat_loc_fields['location'].update({'building'.decode('utf-8'): building,
-                                               'department'.decode('utf-8'): department,
-                                               'email_address'.decode('utf-8'): email_address,
-                                               'phone'.decode('utf-8'): phone,
-                                               'phone_number'.decode('utf-8'): phone_number,
-                                               'position'.decode('utf-8'): position,
-                                               'real_name'.decode('utf-8'): real_name,
-                                               'realname'.decode('utf-8'): realname,
-                                               'room'.decode('utf-8'): room,
-                                               'username'.decode('utf-8'): username})
+        tugboat_loc_fields['location'].update({'building'.decode(encoding): building,
+                                               'department'.decode(encoding): department,
+                                               'email_address'.decode(encoding): email_address,
+                                               'phone'.decode(encoding): phone,
+                                               'phone_number'.decode(encoding): phone_number,
+                                               'position'.decode(encoding): position,
+                                               'real_name'.decode(encoding): real_name,
+                                               'realname'.decode(encoding): realname,
+                                               'room'.decode(encoding): room,
+                                               'username'.decode(encoding): username})
 
         # Get general inventory to get managed status and serial number
-        jss_general_inventory = self.jss_server.get_general_inventory(computer_id)
+        jss_general_inventory = self.jss_server.get_general_data(jss_id)
         computer_name = jss_general_inventory['name']
         serial_number = jss_general_inventory['serial_number']
         barcode_number_jss = jss_general_inventory['barcode_1']
@@ -85,16 +86,16 @@ class TuggyBoat(object):
         # Get managed status
         managed = str(jss_general_inventory['remote_management']['managed'])
 
-        tugboat_gen_inventory = {'general'.decode('utf-8'): {}}
+        tugboat_gen_inventory = {'general'.decode(encoding): {}}
         # Update general inventory tugboat dictionary
-        tugboat_gen_inventory['general'].update({'computer_name'.decode('utf-8'): computer_name,
-                                                 'serial_number'.decode('utf-8'): serial_number,
-                                                 'remote_management'.decode('utf-8'): {},
-                                                 'barcode_1'.decode('utf-8'): barcode_number_jss,
-                                                 'asset_tag'.decode('utf-8'): yellow_asset_tag_jss})
+        tugboat_gen_inventory['general'].update({'computer_name'.decode(encoding): computer_name,
+                                                 'serial_number'.decode(encoding): serial_number,
+                                                 'remote_management'.decode(encoding): {},
+                                                 'barcode_1'.decode(encoding): barcode_number_jss,
+                                                 'asset_tag'.decode(encoding): yellow_asset_tag_jss})
 
         tugboat_gen_inventory['general']['remote_management'].update(
-            {'managed'.decode('utf-8'): managed.decode('utf-8')})
+            {'managed'.decode(encoding): managed.decode(encoding)})
 
         # tugboat_fields = {'computer': None}
         tugboat_fields = {}
@@ -104,16 +105,16 @@ class TuggyBoat(object):
 
         return tugboat_fields
 
-    def get_offboard_fields(self, computer_id):
+    def get_offboard_fields(self, jss_id):
 
-        offboard_fields = self.get_tugboat_fields(computer_id)
+        offboard_fields = self.get_tugboat_fields(jss_id)
         offboard_fields['extension_attributes'].pop('Budget Source', None)
         offboard_fields['general'].pop('barcode_1', None)
         offboard_fields['general'].pop('asset_tag', None)
 
         return offboard_fields
 
-    def push_offboard_fields(self, computer_id, offboard_fields):
+    def push_offboard_fields(self, jss_id, offboard_fields):
 
         logger.debug("push_offboard_fields(): activated")
 
@@ -234,9 +235,9 @@ class TuggyBoat(object):
 
             logger.debug("  Submitting XML: %r" % ET.tostring(top))
             opener = urllib2.build_opener(urllib2.HTTPHandler)
-            computer_url = self.jss_server.jss_url + '/JSSResource/computers/id/' + computer_id
-            request = urllib2.Request(computer_url, data=ET.tostring(top))
-            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.jss_server.username + ':' + self.jss_server.password))
+            request_url = self.jss_server._jss_url + '/JSSResource/computers/id/' + jss_id
+            request = urllib2.Request(request_url, data=ET.tostring(top))
+            request.add_header('Authorization', 'Basic ' + base64.b64encode(self.jss_server._username + ':' + self.jss_server._password))
             request.add_header('Content-Type', 'text/xml')
             request.get_method = lambda: 'PUT'
             response = opener.open(request)
@@ -270,17 +271,17 @@ class TuggyBoat(object):
         return False
 
     def set_offboard_fields(self, offboard_fields, inventory_status=None):
-
         logger.info("set_offboard_fields(): activated")
+        encoding = 'utf-8'
 
         if inventory_status == 'Salvage':
 
-            new_prefix = '[SALV]-'.decode('utf-8')
+            new_prefix = '[SALV]-'.decode(encoding)
             new_computer_name = new_prefix + offboard_fields['general']['serial_number']
 
         elif inventory_status == 'Storage':
 
-            new_prefix = '[STOR]-'.decode('utf-8')
+            new_prefix = '[STOR]-'.decode(encoding)
             new_computer_name = new_prefix + offboard_fields['general']['serial_number']
 
         else:
@@ -315,8 +316,9 @@ class TuggyBoat(object):
 
 
 cf = inspect.currentframe()
-filename = inspect.getframeinfo(cf).filename
-filename = os.path.basename(filename)
-filename = os.path.splitext(filename)[0]
-logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)
-logger.debug("Name of logger: " + filename)
+abs_file_path = inspect.getframeinfo(cf).filename
+basename = os.path.basename(abs_file_path)
+lbasename = os.path.splitext(basename)[0]
+logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
+logger.debug("{} logger started.".format(lbasename))
+
