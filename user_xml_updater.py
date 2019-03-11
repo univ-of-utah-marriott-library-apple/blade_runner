@@ -190,20 +190,32 @@ def xml_to_string(xml_file):
     return ET.tostring(xml_root)
 
 
-def update_inventory_status(status, xml_file):
-    tree = ET.parse(xml_file)
-    root = tree.getroot()
+def set_inventory_status(status, xml_str):
+    """Set the inventory status.
 
+    Args:
+        status (str): Inventory status.
+        xml_str (str): XML string.
+
+    Returns:
+        Modified XML string.
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Create XML tree and get the root.
+    root = ET.fromstring(xml_str)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set the "Inventory Status" value.
     for ext_attr_element in root.findall("./extension_attributes/extension_attribute"):
         element = ext_attr_element.find("name")
         if element.text == "Inventory Status":
             inventory_status_element = ext_attr_element.find("value")
             inventory_status_element.text = status
-
-    tree.write(xml_file)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Return XML string.
+    return ET.tostring(root)
 
 
 if __name__ == "__main__":
     xml_file = "scratch.xml"
     xml_file_append_name("johnny", xml_file)
-    update_inventory_status("Salvage", xml_file)
+    set_inventory_status("Salvage", xml_file)
