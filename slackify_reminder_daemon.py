@@ -32,16 +32,27 @@ from management_tools import filelock
 # TODO Create config plist that specifies frequency and whether or not the daemon is enabled.
 
 def slackify_reminder():
+    """Sends a message to a Slack channel during a specified time period on a specified interval.
+
+    Returns:
+        void
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set up.
     python_bin = '/usr/bin/python'
     script_path = os.path.join(script_dir, 'slackify.py')
     channel = slack_data['slack_channel']
     message = 'Reminder: Blade-Runner finished.'
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Start the message loop
     while True:
+        # Get the current hour.
         hour = time.localtime().tm_hour
+        # If hour is between these times, send the message.
         if 9 <= hour < 18:
             cmd = [python_bin, script_path, channel, message]
             subprocess.Popen(cmd, stderr=subprocess.STDOUT)
+        # Sleep for a day.
         time.sleep(24*3600)
 
 
