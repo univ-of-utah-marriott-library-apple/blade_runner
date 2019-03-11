@@ -74,11 +74,24 @@ def append_name(string, xml_str):
 
 
 def timestamp_note(xml_str, append=True):
-    d = datetime.datetime.now().strftime("%Y.%m.%d_%H:%M:%S")
+    """Append or replace the value in "Additional Item Notes" with the current timestamp.
 
+    Args:
+        xml_str (str): XML string.
+        append (bool): Whether not not value will be appended or replaced.
+
+    Returns:
+        Modified XML string.
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Get the current time.
+    d = datetime.datetime.now().strftime("%Y.%m.%d_%H:%M:%S")
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Append the value with the timestamp.
     if append:
         return append_additional_note(d, xml_str)
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Otherwise, replace the value with the timestamp.
     return set_additional_note(d, xml_str)
 
 
