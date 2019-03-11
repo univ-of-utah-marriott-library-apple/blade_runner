@@ -4,7 +4,7 @@ import Tkinter as tk
 class VerifyView(tk.Toplevel):
     def __init__(self, master, controller):
         tk.Toplevel.__init__(self, master)
-        self.protocol('WM_DELETE_WINDOW', self.close_button_clicked)
+        self.protocol('WM_DELETE_WINDOW', self._close_button_clicked)
 
         # These two lines make it so only the entry_view window can be interacted with
         self.transient(master)
@@ -15,7 +15,7 @@ class VerifyView(tk.Toplevel):
         header_frame = tk.Frame(self)
         content_frame = tk.Frame(self)
 
-        self.bind('<Return>', lambda event: self.user_submit_btn_clicked())
+        self.bind('<Return>', lambda event: self._user_submit_btn_clicked())
 
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Creating and adding components to subframes
@@ -55,14 +55,14 @@ class VerifyView(tk.Toplevel):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
         # Submit button
-        self.user_submit_btn = tk.Button(content_frame, text='Submit from User', command=self.user_submit_btn_clicked)
-        self.user_submit_btn.grid(row=6, column=1)
+        self._user_submit_btn = tk.Button(content_frame, text='Submit from User', command=self._user_submit_btn_clicked)
+        self._user_submit_btn.grid(row=6, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         header_frame.grid(row=0)
         content_frame.grid(row=1)
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>^
 
-    def close_button_clicked(self):
+    def _close_button_clicked(self):
         self.controller.cancel_operation()
 
     def user_submit_btn_clicked(self):
