@@ -57,8 +57,18 @@ def slackify_reminder():
 
 
 def run_daemon():
+    """Run slackify_reminder() as a daemon.
+
+    Returns:
+        void
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     print("Running Slackify daemon.")
-    with daemon.DaemonContext(stdout=sys.stdout, stderr=sys.stdout, pidfile=filelock.FileLock('/tmp/slackify.pid', timeout=0)):
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Run slackify_reminder() as a daemon.
+    with daemon.DaemonContext(stdout=sys.stdout,
+                              stderr=sys.stdout,
+                              pidfile=filelock.FileLock('/tmp/slackify.pid', timeout=0)):
         slackify_reminder()
 
 
