@@ -87,24 +87,36 @@ def timestamp_note(xml_str, append=True):
     # Get the current time.
     d = datetime.datetime.now().strftime("%Y.%m.%d_%H:%M:%S")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Append the value with the timestamp.
+    # Append the value with the timestamp and return the XML string.
     if append:
         return append_additional_note(d, xml_str)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Otherwise, replace the value with the timestamp.
+    # Otherwise, replace the value with the timestamp and return the XML string.
     return set_additional_note(d, xml_str)
 
 
 def append_additional_note(string, xml_str):
-    xml_root = ET.fromstring(xml_str)
+    """Append "Additional Item Notes" with the given string.
 
+    Args:
+        string (str): String to be appended to the value.
+        xml_str (str): XML string.
+
+    Returns:
+        Modified XML string.
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Convert XML string into an XML tree and get the root of that tree.
+    xml_root = ET.fromstring(xml_str)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Get the "Additional Item Notes" value under the "extenstion_attributes" tag and append the string to the value.
     for ext_attrs in xml_root.findall("./extension_attributes"):
         for ext_attr in ext_attrs:
-
             if ext_attr.find('name').text == "Additional Item Notes" or ext_attr.find('id').text == "45":
                 value_element = ext_attr.find('value')
                 value_element.text = value_element.text + string
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Return XML string.
     return ET.tostring(xml_root)
 
 
