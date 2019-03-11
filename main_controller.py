@@ -489,10 +489,22 @@ class MainController(Controller):
         slack_bot.send_message(message)
 
     def start_slackify_reminder_dameon(self):
-        # Start Slackify reminder daemon
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            cmd = ['/usr/bin/python', os.path.join(script_dir, 'slackify_reminder_daemon.py')]
-            subprocess.Popen(cmd, stderr=subprocess.STDOUT)
+        """Start the Slackify reminder daemon.
+
+        Notes:
+            The Slackify reminder daemon can't be imported into this script and run directly. In order for it to
+            run as it's own detached process after this script finishes, it must be run through a subprocess call.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get the script directory
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set up and run the command.
+        cmd = ['/usr/bin/python', os.path.join(script_dir, 'slackify_reminder_daemon.py')]
+        subprocess.Popen(cmd, stderr=subprocess.STDOUT)
 
     def refocus(self):
         # Python tkinter window gets selected automatically
