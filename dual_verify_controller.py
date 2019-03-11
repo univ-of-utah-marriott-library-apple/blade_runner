@@ -39,19 +39,22 @@ class DualVerifyController(EntryController):
                         otherwise, it's True.
 
     """
-    def __init__(self, master, computer, verify_params):
+    def __init__(self, master, computer, verify_params, jss_server):
         """Stores view and shows and populates widgets according to search params."""
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create view and store it in the super class.
         view = DualVerifyView(master, self)
         super(DualVerifyController, self).__init__(computer, view)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        self.proceed = None
+        self.proceed = False
         self._verify_params = verify_params
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Determine which widgets to show based off the verify params
         self._grid_user_widgets(verify_params)
         self._grid_jss_widgets(verify_params)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Fill the JSS attributes in the computer object.
+        self.get_jss_data(self.computer, jss_server)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Populate the widgets based off the verify params
         self._fill_user_entries(computer, verify_params)
@@ -76,6 +79,7 @@ class DualVerifyController(EntryController):
         # If the sender buttons ID is 'user', store the user fields
         if sender == "user":
             self._store_user_entries(self.computer, self._verify_params)
+            self._store_conflicts(self.computer)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # If the sender buttons ID is 'jss', store the jss fields
         if sender == "jss":
@@ -90,8 +94,51 @@ class DualVerifyController(EntryController):
         Returns:
             void
         """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.proceed = False
         self.entry_view.destroy()
+
+    def get_jss_data(self, computer, jss_server):
+        """Get the JSS data for a computer object and store it in the computer object.
+
+        Args:
+            computer (Computer): Stores information about the computer.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get the JSS data for the computer.
+        computer.jss_barcode_1 = jss_server.get_barcode_1(computer.jss_id)
+        computer.jss_barcode_2 = jss_server.get_barcode_2(computer.jss_id)
+        computer.jss_asset_tag = jss_server.get_asset_tag(computer.jss_id)
+        computer.jss_serial_number = jss_server.get_serial(computer.jss_id)
+        computer.prev_name = jss_server.get_name(computer.jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("Previous barcode_1: {}".format(computer.jss_barcode_1))
+        logger.debug("Previous barcode_2: {}".format(computer.jss_barcode_2))
+        logger.debug("Previous asset_tag: {}".format(computer.jss_asset_tag))
+        logger.debug("Previous serial_number: {}".format(computer.jss_serial_number))
+        logger.debug("Previous name: {}".format(computer.prev_name))
+
+    def _store_conflicts(self, computer):
+        # Check to see what fields changed after the user updated the fields through the entry view window.
+        if computer.barcode_1 != computer.jss_barcode_1:
+            computer.incorrect_barcode_1 = computer.jss_barcode_1
+            logger.debug("barcode_1 {} is incorrect.".format(computer.incorrect_barcode_1))
+
+        if computer.barcode_2 != computer.jss_barcode_2:
+            computer.incorrect_barcode_2 = computer.jss_barcode_2
+            logger.debug("barcode_2 {} is incorrect.".format(computer.incorrect_barcode_2))
+
+        if computer.asset_tag != computer.jss_asset_tag:
+            computer.incorrect_asset = computer.jss_asset_tag
+            logger.debug("asset_tag {} is incorrect.".format(computer.incorrect_asset))
+
+        if computer.jss_serial_number != computer.get_serial():
+            computer.serial_number = computer.get_serial()
+            computer.incorrect_serial = self._jss_server.get_serial(computer.jss_id)
+            logger.debug("JSS serial {} is incorrect.".format(computer.incorrect_serial))
 
     def _store_user_entries(self, computer, verify_params):
         """Store the user fields in the Computer object.
