@@ -424,15 +424,23 @@ class MainController(Controller):
             raise SystemExit("ERROR: Managed status is not false after offboarding.")
 
     def _slack_handler(self, slack_data):
+        """Handles all Slack related items: sends Slack message and starts Slackify daemon.
+
+        Args:
+            slack_data (dict): Slack configuration.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Notify slack channel that offboard tool has finished.
         if slack_data['slack_enabled'] == "True":
-            # TODO add this to a config.
+            # TODO add this to a config (slack message).
             self.send_slack_message("Offboarding complete. Serial {}".format(self._computer.serial_number))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Start Slackify daemon
         if slack_data['slackify_daemon_enabled'] == 'True':
             self.start_slackify_reminder_dameon()
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
     def _jss_doc_handler(self, computer, jss_server, print_doc=False):
         """Creates a document from the predefined setup in JssDoc and prints the document
