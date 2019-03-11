@@ -121,14 +121,27 @@ def append_additional_note(string, xml_str):
 
 
 def set_additional_note(string, xml_str):
-    xml_root = ET.fromstring(xml_str)
+    """Replace "Additional Item Notes" with the given string.
 
+    Args:
+        string (str): String to be appended to the value.
+        xml_str (str): XML string.
+
+    Returns:
+        Modified XML string.
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Convert XML string into an XML tree and get the root of that tree.
+    xml_root = ET.fromstring(xml_str)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Get the "Additional Item Notes" value under the "extenstion_attributes" tag and replace the value.
     for ext_attrs in xml_root.findall("./extension_attributes"):
         for ext_attr in ext_attrs:
             if ext_attr.find('id').text == "45":
                 value_element = ext_attr.find('value')
                 value_element.text = string
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Return XML string.
     return ET.tostring(xml_root)
 
 
