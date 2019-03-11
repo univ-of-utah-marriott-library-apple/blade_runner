@@ -24,21 +24,38 @@ import Tkinter as tk
 
 
 class VerifyView(tk.Toplevel):
-    def __init__(self, master, controller):
-        tk.Toplevel.__init__(self, master)
-        self.protocol('WM_DELETE_WINDOW', self._close_button_clicked)
+    """View used for verifying previously entered data for a computer object."""
 
-        # These two lines make it so only the entry_view window can be interacted with
+    def __init__(self, master, controller):
+        """Build the view.
+
+        Args:
+            master: Parent Tk window.
+            controller (Controller): Controller for the view.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Call __init__ for parent class.
+        tk.Toplevel.__init__(self, master)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the function that is called when the "x" button is pressed.
+        self.protocol('WM_DELETE_WINDOW', self._close_button_clicked)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # These two lines make it so only this window can be interacted with until it's dismissed.
         self.transient(master)
         self.grab_set()
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the controller.
         self.controller = controller
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the view's title.
         self.title("Create New JSS Record")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create the frames.
         header_frame = tk.Frame(self)
         content_frame = tk.Frame(self)
-
-        self.bind('<Return>', lambda event: self._user_submit_btn_clicked())
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Bind submit button to the Return key.
+        self.bind('<Return>', lambda event: self._submit_btn_clicked())
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Creating and adding components to subframes
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
@@ -54,30 +71,25 @@ class VerifyView(tk.Toplevel):
         # Barcode_1 components
         self.barcode_1_lbl = tk.Label(content_frame, text='Barcode 1:')
         self.barcode_1_entry = tk.Entry(content_frame)
-        # self.barcode_1_entry.grid(row=1, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Barcode_2 components
         self.barcode_2_lbl = tk.Label(content_frame, text='Barcode 2:')
         self.barcode_2_entry = tk.Entry(content_frame)
-        # self.barcode_2_entry.grid(row=2, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Asset components
         self.asset_lbl = tk.Label(content_frame, text='Asset Tag:')
         self.asset_entry = self.asset_entry = tk.Entry(content_frame)
-        # self.asset_entry.grid(row=3, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Name components
         self.name_lbl = tk.Label(content_frame, text='Name:')
         self.name_entry = tk.Entry(content_frame)
-        # self.name_entry.grid(row=4, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Serial components
         self.serial_lbl = tk.Label(content_frame, text='Serial #')
         self.serial_entry = tk.Entry(content_frame)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-
         # Submit button
-        self._user_submit_btn = tk.Button(content_frame, text='Submit from User', command=self._user_submit_btn_clicked)
+        self._user_submit_btn = tk.Button(content_frame, text='Submit from User', command=self._submit_btn_clicked)
         self._user_submit_btn.grid(row=6, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         header_frame.grid(row=0)
@@ -85,13 +97,31 @@ class VerifyView(tk.Toplevel):
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>^
 
     def _close_button_clicked(self):
+        """Cancels the operation when the close button is clicked.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Signal to the controller that the close button has been clicked.
         self.controller.cancel_operation()
 
-    def user_submit_btn_clicked(self):
-        self.controller.proceed_operation("user")
+    def _submit_btn_clicked(self):
+        """Proceeds with operation when the user "submit" button is pressed.
 
-    def jss_submit_btn_clicked(self):
-        self.controller.proceed_operation("jss")
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Signal to the controller that the submit button has been clicked.
+        self.controller.proceed_operation()
 
     def set_to_middle(self):
+        """Sets window to middle of screen.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Signal the controller to set the view to the middle of the screen.
         self.controller.set_to_middle(self)
