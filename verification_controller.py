@@ -58,11 +58,8 @@ class VerificationController(EntryController):
         # Set view to middle of screen.
         self._set_to_middle(view)
 
-    def proceed_operation(self, sender):
+    def proceed_operation(self):
         """If user continues with operation, store entries, set proceed to True, and destroy the view.
-
-        Args:
-            sender (str): ID of button
 
         Returns:
             void
@@ -86,7 +83,7 @@ class VerificationController(EntryController):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # For every enabled verification parameter, store the value in its corresponding entry.
         for param in self.verify_params.enabled:
-            self._store_user_entry(param)
+            self._store_user_entry(self.computer, param)
 
     def _fill_user_entries(self):
         """Fill user entries with information from the computer object.
@@ -97,7 +94,7 @@ class VerificationController(EntryController):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # For every enabled verification parameter, set its value in its corresponding entry.
         for param in self.verify_params.enabled:
-            self._fill_user_entry(param)
+            self._fill_user_entry(self.computer, param)
 
     def _grid_user_widgets(self):
         """Grid user widgets into the view.
@@ -117,12 +114,11 @@ class VerificationController(EntryController):
         """If user cancels operation, set proceed to False and destroy the view.
 
         Returns:
-
+            void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.proceed = False
         self.entry_view.destroy()
-
 
 
 cf = inspect.currentframe()
