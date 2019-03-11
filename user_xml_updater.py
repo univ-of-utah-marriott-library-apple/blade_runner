@@ -32,7 +32,7 @@ def xml_file_append_name(string, xml_file):
         xml_file (str): File path to XML file.
 
     Returns:
-        void
+        Modified XML string.
     """
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Parse XML file into an XML tree.
@@ -51,12 +51,25 @@ def xml_file_append_name(string, xml_file):
 
 
 def append_name(string, xml_str):
-    xml_root = ET.fromstring(xml_str)
+    """Append the "name" tag in the XML string with the given string.
 
+    Args:
+        string (str): String that is appended to the name.
+        xml_str (str): XML string.
+
+    Returns:
+        Modified XML string.
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Parse the XML string into an XML tree and get the root.
+    xml_root = ET.fromstring(xml_str)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Find the "name" tag in "general" and append its value with the string input.
     for general_element in xml_root.findall("./general"):
         name_element = general_element.find('name')
         name_element.text = name_element.text + string
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Return an XML string.
     return ET.tostring(xml_root)
 
 
