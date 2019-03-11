@@ -457,14 +457,35 @@ class MainController(Controller):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Prepare document for printing
         doc = JssDoc(jss_server, computer)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create html document from settings in JssDoc.
         doc.create_html()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Convert HTML document into a PDF document.
         doc.html_to_pdf()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # If document printing is enabled, print to the default printer.
+        # TODO: Make print_doc part of some config.
         if print_doc:
             doc.print_to_default()
 
     def send_slack_message(self, message):
+        """Sends a Slack message to a specified channel and Slack url.
+
+        Args:
+            message (str): Message to be sent to the Slack channel.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get the current IP
         current_ip = socket.gethostbyname(socket.gethostname())
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set up the Slack bot
         slack_bot = IWS(self._slack_data['slack_url'], bot_name=current_ip, channel=self._slack_data['slack_channel'])
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Send the Slack message
         slack_bot.send_message(message)
 
     def start_slackify_reminder_dameon(self):
