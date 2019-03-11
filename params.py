@@ -22,6 +22,7 @@
 
 
 class Params(object):
+    """Contains methods for pruning keys and changing values of a boolean based dictionary"""
 
     def _values_to_bools(self, dictionary):
         """Converts values, one level deep in a dictionary, that are string booleans to booleans, e.g.,
@@ -34,7 +35,7 @@ class Params(object):
             dictionary (dict): Dictionary with values of string booleans.
 
         Returns:
-            Copy of the dictionary with boolean values instead of string boolean values.
+            Altered copy of the dictionary with boolean values instead of string boolean values.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>x
         # Deep copy of dictionary.
@@ -48,7 +49,7 @@ class Params(object):
                 elif dct[key].lower() == "true":
                     dct[key] = True
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Return the copy of the dictionary.
+        # Return the altered copy.
         return dct
 
     def _remove_keys_with_value(self, value, dictionary):
@@ -59,7 +60,7 @@ class Params(object):
             dictionary (dict): Dictionary to searched.
 
         Returns:
-            Copy of original dictionary.
+            Altered copy of original dictionary.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Deep copy dictionary.
@@ -70,26 +71,34 @@ class Params(object):
             if dct[key] == value:
                 dct.pop(key, None)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Return a copy of the dictionary.
+        # Return the altered copy.
         return dct
 
     def _invert_bool_values(self, dictionary):
-        """
-        Inverts boolean values one level deep in a dictionary, e.g.,
+        """Inverts boolean values one level deep in a dictionary, e.g.,
 
             False -> True
                 or
             True -> False
 
-        :param dictionary: Dictionary.
-        :return: Copy of dictionary.
+        Args:
+            dictionary (dict): Dictionary of boolean values.
+
+        Returns:
+            Altered copy of original dictionary.
         """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Deep copy dictionary.
         dct = dict(dictionary)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Invert all the boolean values.
         for key in dictionary:
             if dct[key] is True:
                 dct[key] = False
             elif dct[key] is False:
                 dct[key] = True
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Return the altered copy.
         return dct
 
 
