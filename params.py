@@ -191,9 +191,21 @@ class SearchParams(Params):
         return any(self.matches.values())
 
     def all_searched(self):
+        """Returns status on whether or not all the search parameters have been searched.
+
+        Returns:
+            True if all search parameters have been searched, False otherwise.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return all(self.search_status.values())
 
     def __iter__(self):
+        """Defines an iterator. Iterator is a list of the enabled search parameters.
+
+        Returns:
+            Enabled search parameters.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         for param in self.enabled:
             yield param
 
