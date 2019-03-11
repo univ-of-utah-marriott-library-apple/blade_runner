@@ -106,11 +106,14 @@ class MainController(Controller):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Grab the last value in the value tuple. This is normally the message.
-        message = "{}".format(value[-1])
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Display a message box containing the exception's message.
-        tkMessageBox.showerror('Exception', message)
+        try:
+            # Grab the last value in the value tuple. This is normally the message.
+            message = "{}".format(value[-1])
+            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+            # Display a message box containing the exception's message.
+            tkMessageBox.showerror('Exception', message)
+        except IndexError:
+            tkMessageBox.showerror('Exception', value)
 
     def run(self):
         """Start Blade-Runner.
@@ -261,6 +264,8 @@ class MainController(Controller):
                     logger.debug(msg)
                     # Open a stall window, enroll the computer, and close the stall window.
                     StallWindow(self._main_view, self._jss_server.enroll_computer, msg)
+            else:
+                return
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Otherwise, if all input types have been searched...
         elif self.search_params.all_searched():
@@ -276,6 +281,8 @@ class MainController(Controller):
                 # Since JSS ID has now been created, retrieve it.
                 self._computer.jss_id = self._jss_server.match(self._computer.serial_number)
                 logger.debug("JSS id after enrolling: {}".format(self._computer.jss_id))
+            else:
+                return
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Otherwise, return.
         elif self._computer.jss_id is None:
