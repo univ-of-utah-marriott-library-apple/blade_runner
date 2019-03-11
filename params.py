@@ -181,9 +181,6 @@ class SearchParams(Params):
         if param in self.matches:
             self.matches[param] = True
 
-    def get_matches(self):
-        return self.matches
-
     def exists_match(self):
         return any(self.matches.values())
 
