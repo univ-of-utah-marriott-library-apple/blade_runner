@@ -139,6 +139,16 @@ class SearchParams(Params):
         self.search_count = 0
 
     def was_searched(self, param):
+        """Returns if the param has already been searched.
+
+        Args:
+            param (str): Search parameter key.
+
+        Returns:
+            Searched status of parameter.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Check if key exists in dict. Return its value.
         if param in self.search_status:
             return self.search_status[param]
 
