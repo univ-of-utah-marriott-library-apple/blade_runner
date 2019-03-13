@@ -14,7 +14,7 @@ import inspect
 import Tkinter as tk
 from main_controller import MainController
 from params import SearchParams, VerifyParams
-
+import user_xml_updater as user
 
 class TestBladeRunner(unittest.TestCase):
 
@@ -28,7 +28,7 @@ class TestBladeRunner(unittest.TestCase):
         self.blade_runner_dir = os.path.dirname(abs_file_path)
         jss_server_plist = os.path.join(self.blade_runner_dir, "private/test/jss_server_config.plist")
         jss_server_data = plistlib.readPlist(jss_server_plist)
-        self.jss_server = JssServer(**jss_server_data)
+        jss_server = JssServer(**jss_server_data)
 
         self.slack_plist = os.path.join(self.blade_runner_dir, "private/test/slack_config.plist")
         self.slack_data = plistlib.readPlist(self.slack_plist)
@@ -39,7 +39,19 @@ class TestBladeRunner(unittest.TestCase):
         self.search_params_config = os.path.join(self.blade_runner_dir, "private/test/search_params_config_all_enabled.plist")
         self.search_params = plistlib.readPlist(self.search_params_config)
 
-        self.br = MainController(root, self.jss_server, self.slack_data, self.verify_data, self.search_params)
+        self.br = MainController(root, jss_server, self.slack_data, self.verify_data, self.search_params)
+
+
+# class TestExceptionMessageBox(TestBladeRunner):
+#
+#     def setUp(self):
+#         super(TestExceptionMessageBox, self).setUp()
+#
+#     def test_exception(self):
+#         self.br.test_run(self.raise_exc)
+#
+#     def raise_exc(self, unused_input):
+#         pass
 
 class TestRestart(TestBladeRunner):
 
@@ -602,6 +614,116 @@ class TestGetOffboardConfigs(TestBladeRunner):
             self.assertTrue(config in offboard_configs)
 
 
+class TestGUIServer(TestBladeRunner):
+    def setUp(self):
+        super(TestGUIServer, self).setUp()
+
+        jss_id = self.br._jss_server.match(self.br._computer.get_serial())
+        if not jss_id or self.br._jss_server.get_managed_status(jss_id) == "false":
+            self.br._jss_server.enroll_computer()
+
+        self.br._computer.jss_id = jss_id
+        self.br._computer.barcode_1 = "jss_barcode_1_num"
+        self.br._computer.barcode_2 = "jss_barcode_2_num"
+        self.br._computer.asset_tag = "jss_asset_tag_num"
+        self.br._computer.name = "jss_name_string"
+        self.br._jss_server.push_identity_fields(self.br._computer)
+
+        self.br.restart()
+        self.br.restart = self.dummy_restart
+        self.br._user_defined_updates = lambda: None
+        self.br.save_offboard_config = self.dummy_save_offboard_config
+        self.br._exception_messagebox = lambda: None
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def test_keep_jss_data_on_first_match(self):
+        self.match = "barcode_1"
+        self.br.test_run(self.start_with_barcode_1)
+
+        self.assertEqual("jss_barcode_1_num", self.br._computer.barcode_1)
+        self.assertEqual("jss_barcode_2_num", self.br._computer.barcode_2)
+        self.assertEqual("jss_asset_tag_num", self.br._computer.asset_tag)
+        self.assertEqual("jss_name_string", self.br._computer.name)
+        self.assertTrue(self.br.search_params.exists_match())
+        jss_id = self.br._computer.jss_id
+        self.assertTrue(jss_id)
+
+        self.assertEqual("jss_barcode_1_num", self.br._jss_server.get_barcode_1(jss_id))
+        self.assertEqual("jss_barcode_2_num", self.br._jss_server.get_barcode_2(jss_id))
+        self.assertEqual("jss_asset_tag_num", self.br._jss_server.get_asset_tag(jss_id))
+        self.assertEqual("jss_name_string", self.br._jss_server.get_name(jss_id))
+
+    # def test_keep_jss_data_on_non_first_match(self):
+    #     self.match = "asset_tag"
+    #     self.br.test_run(lambda: self.start_with_barcode_1())
+    #     self.assertEqual("jss_barcode_1_num", self.br._computer.barcode_1)
+    #     self.assertEqual("jss_barcode_2_num", self.br._computer.barcode_2)
+    #     self.assertEqual("jss_asset_tag_num", self.br._computer.asset_tag)
+    #     self.assertEqual("jss_name_string", self.br._computer.name)
+    #     self.assertTrue(self.br.search_params.exists_match())
+    #     self.assertTrue(self.br._computer.jss_id)
+
+    def start_with_barcode_1(self):
+        self.br._main_view._next_btn.invoke()
+        self.curr_search_param = "barcode_1"
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("barcode_1"))
+        self.br._main_view._barcode_1_btn.invoke()
+
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def callback_barcode_1_saved(self):
+        self.curr_search_param = "serial_number"
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("barcode_1"))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def callback_barcode_2_saved(self):
+        self.curr_search_param = "barcode_1"
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("barcode_2"))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def callback_asset_tag_saved(self):
+        self.curr_search_param = "asset_tag"
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("asset_tag"))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def callback_serial_saved(self):
+        self.curr_search_param = "barcode_2"
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("serial_number"))
+
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def proceed_and_terminate(self, data_id):
+        if not self.br._computer.jss_id:
+            if data_id == "barcode_1":
+                self.br._search_controller.entry_view.barcode_1_entry.insert(0, "barcode_1_num")
+                self.callback_barcode_2_saved()
+            if data_id == "barcode_2":
+                self.br._search_controller.entry_view.barcode_2_entry.insert(0, "barcode_2_num")
+                self.callback_asset_tag_saved()
+            if data_id == "asset_tag":
+                self.br._search_controller.entry_view.asset_entry.insert(0, "asset_tag_num")
+                self.callback_serial_saved()
+            if data_id == "serial_number":
+                self.callback_barcode_1_saved()
+            self.br._search_controller.proceed_operation()
+        else:
+            self.br._verify_controller.proceed_operation("jss")
+            self.br.terminate()
+
+    def dummy_restart(self):
+        pass
+
+    def dummy_save_offboard_config(self):
+        config = os.path.join(self.blade_runner_dir, "private/test/offboard_config_managed_true.xml")
+        self.br._offboard_config = user.xml_to_string(config)
+
+class TestServerGUIManual(TestBladeRunner):
+
+    def setUp(self):
+        super(TestServerGUIManual, self).setUp()
+
+    def test_manual(self):
+        self.br.run()
 
 
 if __name__ == '__main__':
@@ -612,7 +734,9 @@ if __name__ == '__main__':
                            # TestGUICombobox,
                            # TestGUISearchParams,
                            # TestGUIVerifyView
-                           TestGUIDualVerifyView
+                           # TestGUIDualVerifyView,
+                           TestGUIServer
+                           # TestServerGUIManual
                           ]
 
     loader = unittest.TestLoader()
