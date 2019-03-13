@@ -633,7 +633,7 @@ class TestGUIServer(TestBladeRunner):
         self.br.restart = self.dummy_restart
         self.br._user_defined_updates = lambda: None
         self.br.save_offboard_config = self.dummy_save_offboard_config
-        self.br._exception_messagebox = lambda: None
+        self.br._root.report_callback_exception = lambda: None
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
     def test_keep_jss_data_on_first_match(self):
@@ -713,9 +713,12 @@ class TestGUIServer(TestBladeRunner):
     def dummy_restart(self):
         pass
 
-    def dummy_save_offboard_config(self):
+    def dummy_save_offboard_config(self, dummy):
         config = os.path.join(self.blade_runner_dir, "private/test/offboard_config_managed_true.xml")
         self.br._offboard_config = user.xml_to_string(config)
+
+    def dummy_messagebox(self):
+        pass
 
 class TestServerGUIManual(TestBladeRunner):
 
