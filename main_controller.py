@@ -7,7 +7,7 @@
 #
 # Author: Thackery Archuletta
 # Creation Date: Oct 2018
-# Last Updated: Feb 2019
+# Last Updated: March 2019
 #
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby granted,
@@ -91,6 +91,10 @@ class MainController(Controller):
         self.verify_params = VerifyParams(verify_params)
         self.search_params = SearchParams(search_params)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Save Verify/SearchParams original input
+        self.verify_params_input = verify_params
+        self.search_params_input = search_params
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set path to private directory that contains the configuration files.
         self._private_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "private")
 
@@ -134,6 +138,27 @@ class MainController(Controller):
         # Make this window the main loop.
         self._main_view.mainloop()
 
+    def test_run(self, callback):
+        """Start Blade-Runner.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create the main view.
+        self._main_view = MainView(self._root, self)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set it to the middle of the screen.
+        self._set_to_middle(self._main_view)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Refocus on the window.
+        self.refocus()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Make this window the main loop.
+        self._main_view.after(1000, callback)
+        self._main_view.wait_window(self._main_view)
+
+
     def terminate(self):
         """Terminates Blade-Runner.
 
@@ -156,10 +181,10 @@ class MainController(Controller):
         self._computer = Computer()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create a new VerifyParams object.
-        self.verify_params = VerifyParams(self.verify_params.originals)
+        self.verify_params = VerifyParams(self.verify_params_input)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create a new SearchParams object.
-        self.search_params = SearchParams(self.search_params.originals)
+        self.search_params = SearchParams(self.search_params_input)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.info("Blade-Runner reset.")
 
@@ -170,20 +195,34 @@ class MainController(Controller):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get a list of the files in the private directory.
-        private_files = os.listdir(self._private_dir)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get all XML files .
-        offboard_configs = []
-        for file in private_files:
-            if file.endswith(".xml"):
-                offboard_configs.append(file)
+        # Get the XML config files from the private directory
+        offboard_configs = self._get_offboard_configs(self._private_dir)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Fill the main view's combobox with the XML files.
         self._main_view.combobox.config(values=offboard_configs)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the initial choice to the first XML file in the list.
         self._main_view.combobox.current(0)
+
+    def _get_offboard_configs(self, dir):
+        """Gets the offboard XML configuration files from a given directory.
+
+        Args:
+            dir (str): Path to config directory.
+
+        Returns:
+            list: XML configuration files.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get a list of the files in the private directory.
+        files = os.listdir(dir)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get all XML files in the directory.
+        offboard_configs = []
+        for file in files:
+            if file.endswith(".xml"):
+                offboard_configs.append(file)
+        return offboard_configs
 
     def save_offboard_config(self, offboard_config):
         """Save the offboard config as an XML string.
@@ -235,7 +274,7 @@ class MainController(Controller):
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open the search view for the input type.
-        self.open_search_view(input_type)
+        self._open_search_view(input_type)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # If the user canceled the search view, proceed will be false, Blade-Runner will restart, and function returns.
         if self._proceed is False:
@@ -243,7 +282,7 @@ class MainController(Controller):
             return
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Since the computer object has been filled with user input data for the input type, search the JSS.
-        self.dynamic_search(self._computer, input_type)
+        self._dynamic_search(self._computer, input_type)
         self.search_params.set_searched(input_type)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # If the search resulted in a match...
@@ -251,7 +290,7 @@ class MainController(Controller):
             # Set match
             self.search_params.set_match(input_type)
             # Open view  so user can verify inputted data against JSS data.
-            self.open_dual_verify_view()
+            self._open_dual_verify_view()
             # If user didn't cancel operation...
             if self._proceed:
                 # Get managed status of computer
@@ -270,7 +309,7 @@ class MainController(Controller):
         # Otherwise, if all input types have been searched...
         elif self.search_params.all_searched():
             # Open view  so user can verify inputted data.
-            self.open_verify_view()
+            self._open_verify_view()
             # If user didn't cancel operation...
             if self._proceed:
                 msg = "Enrolling because no JSS ID exists for this computer."
@@ -305,7 +344,7 @@ class MainController(Controller):
         # Display success message box.
         tkMessageBox.showinfo("Finished", "Blade-Runner successfully finished.")
 
-    def dynamic_search(self, computer, input_type):
+    def _dynamic_search(self, computer, input_type):
         """Dynamically search the JSS with the Computer attribute that matches the input type.
 
         Args:
@@ -331,7 +370,7 @@ class MainController(Controller):
         # Search the JSS.
         computer.jss_id = self._jss_server.match(search_param)
 
-    def open_search_view(self, input_type):
+    def _open_search_view(self, input_type):
         """Open the search view. Saves user input in computer object.
 
         Args:
@@ -355,7 +394,7 @@ class MainController(Controller):
         # If the user canceled the operation, proceed will be false.
         self._proceed = self._search_controller.proceed
 
-    def open_verify_view(self):
+    def _open_verify_view(self):
         """Opens a VerifyView window.
 
         Returns:
@@ -375,7 +414,7 @@ class MainController(Controller):
         # asset, and name fields of the computer object will be updated.
         self._proceed = self._verify_controller.proceed
 
-    def open_dual_verify_view(self):
+    def _open_dual_verify_view(self):
         """Opens a DualVerifyView window.
 
         Returns:
@@ -477,7 +516,7 @@ class MainController(Controller):
         # If document printing is enabled, print to the default printer.
         # TODO: Make print_doc part of some config.
         if print_doc:
-            doc.print_to_default()
+            doc.print_pdf_to_default()
 
     def send_slack_message(self, message):
         """Sends a Slack message to a specified channel and Slack url.
