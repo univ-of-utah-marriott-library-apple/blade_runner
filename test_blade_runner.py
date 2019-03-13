@@ -36,7 +36,7 @@ class TestBladeRunner(unittest.TestCase):
         self.verify_config = os.path.join(self.blade_runner_dir, "private/test/verify_params_config.plist")
         self.verify_data = plistlib.readPlist(self.verify_config)
 
-        self.search_params_config = os.path.join(self.blade_runner_dir, "private/test/search_params_config.plist")
+        self.search_params_config = os.path.join(self.blade_runner_dir, "private/test/search_params_config_all_enabled.plist")
         self.search_params = plistlib.readPlist(self.search_params_config)
 
         self.br = MainController(root, self.jss_server, self.slack_data, self.verify_data, self.search_params)
@@ -171,7 +171,7 @@ class TestGUISearchParams(TestBladeRunner):
 
     def callback_barcode_1_saved(self):
         self.br._main_view._next_btn.invoke()
-        self.br._main_view.after(1000, lambda: self.proceed_and_terminate("barcode_1"))
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("barcode_1"))
         self.br._main_view._barcode_1_btn.invoke()
 
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -182,7 +182,7 @@ class TestGUISearchParams(TestBladeRunner):
 
     def callback_barcode_2_saved(self):
         self.br._main_view._next_btn.invoke()
-        self.br._main_view.after(1000, lambda: self.proceed_and_terminate("barcode_2"))
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("barcode_2"))
         self.br._main_view._barcode_2_btn.invoke()
 
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -193,7 +193,7 @@ class TestGUISearchParams(TestBladeRunner):
 
     def callback_asset_tag_saved(self):
         self.br._main_view._next_btn.invoke()
-        self.br._main_view.after(1000, lambda: self.proceed_and_terminate("asset_tag"))
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("asset_tag"))
         self.br._main_view._asset_btn.invoke()
 
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -204,7 +204,7 @@ class TestGUISearchParams(TestBladeRunner):
 
     def callback_serial_saved(self):
         self.br._main_view._next_btn.invoke()
-        self.br._main_view.after(1000, lambda: self.proceed_and_terminate("serial_number"))
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("serial_number"))
         self.br._main_view._serial_btn.invoke()
 
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -230,6 +230,73 @@ class TestGUISearchParams(TestBladeRunner):
 
     def dummy_open_search_view(self, dummy):
         self.br._proceed = False
+
+
+class TestGUIVerifyView(TestBladeRunner):
+
+    def setUp(self):
+        super(TestGUIVerifyView, self).setUp()
+        self.br._jss_server.match = self.dummy_match
+        self.br.restart = self.dummy_restart
+
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def test_barcode_1_saved(self):
+        self.br.test_run(self.start_search_sequence)
+        self.assertTrue(self.br._computer.barcode_1)
+        self.assertTrue(self.br._computer.barcode_2)
+        self.assertTrue(self.br._computer.asset_tag)
+        self.assertTrue(self.br._computer.serial_number)
+        self.assertFalse(self.br.search_params.exists_match())
+        self.assertFalse(self.br._computer.jss_id)
+
+    def start_search_sequence(self):
+        self.br._main_view._next_btn.invoke()
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("barcode_1"))
+        self.br._main_view._barcode_1_btn.invoke()
+
+    def callback_barcode_1_saved(self):
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("barcode_1"))
+
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def callback_barcode_2_saved(self):
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("barcode_2"))
+
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def callback_asset_tag_saved(self):
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("asset_tag"))
+
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def callback_serial_saved(self):
+        self.br._main_view.after(500, lambda: self.proceed_and_terminate("serial_number"))
+
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+    def proceed_and_terminate(self, data_id):
+        if not self.br.search_params.all_searched():
+            if data_id == "barcode_1":
+                self.br._search_controller.entry_view.barcode_1_entry.insert(0, "barcode_1_num")
+                self.callback_barcode_2_saved()
+            if data_id == "barcode_2":
+                self.br._search_controller.entry_view.barcode_2_entry.insert(0, "barcode_2_num")
+                self.callback_asset_tag_saved()
+            if data_id == "asset_tag":
+                self.br._search_controller.entry_view.asset_entry.insert(0, "asset_tag_num")
+                self.callback_serial_saved()
+            if data_id == "serial_number":
+                self.callback_barcode_1_saved()
+            self.br._search_controller.proceed_operation()
+        else:
+            self.br.terminate()
+
+    def dummy_match(self, dummy):
+        return None
+
+    def dummy_restart(self):
+        pass
 
 
 class TestSearchSequence(TestBladeRunner):
@@ -399,11 +466,12 @@ class TestGetOffboardConfigs(TestBladeRunner):
 
 
 if __name__ == '__main__':
-    test_classes_to_run = [TestRestart,
-                           TestSearchSequence,
-                           TestDynamicSearch,
-                           TestGUICombobox,
-                           TestGUISearchParams]
+    test_classes_to_run = [#TestRestart,
+                           # TestSearchSequence,
+                           # TestDynamicSearch,
+                           # TestGUICombobox,
+                           # TestGUISearchParams,
+                           TestGUIVerifyView]
 
     loader = unittest.TestLoader()
 
