@@ -41,18 +41,6 @@ class TestBladeRunner(unittest.TestCase):
 
         self.br = MainController(root, jss_server, self.slack_data, self.verify_data, self.search_params)
 
-
-# class TestExceptionMessageBox(TestBladeRunner):
-#
-#     def setUp(self):
-#         super(TestExceptionMessageBox, self).setUp()
-#
-#     def test_exception(self):
-#         self.br.test_run(self.raise_exc)
-#
-#     def raise_exc(self, unused_input):
-#         pass
-
 class TestRestart(TestBladeRunner):
 
     def setUp(self):
@@ -614,9 +602,9 @@ class TestGetOffboardConfigs(TestBladeRunner):
             self.assertTrue(config in offboard_configs)
 
 
-class TestGUIServer(TestBladeRunner):
+class TestGUIServerDualVerifyViewInitiallyManaged(TestBladeRunner):
     def setUp(self):
-        super(TestGUIServer, self).setUp()
+        super(TestGUIServerDualVerifyViewInitiallyManaged, self).setUp()
 
         jss_id = self.br._jss_server.match(self.br._computer.get_serial())
         if not jss_id or self.br._jss_server.get_managed_status(jss_id) == "false":
@@ -632,12 +620,13 @@ class TestGUIServer(TestBladeRunner):
         self.br.restart()
         self.br.restart = self.dummy_restart
         self.br._user_defined_updates = lambda: None
-        self.br.save_offboard_config = self.dummy_save_offboard_config
         self.br._root.report_callback_exception = lambda: None
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-    def test_keep_jss_data_on_first_match(self):
+    def test_keep_jss_data_immediate_match(self):
         self.match = "barcode_1"
+        self.submit_btn_id = "jss"
+        self.br.save_offboard_config = lambda x: self.dummy_save_offboard_config(keep_managed=True)
         self.br.test_run(self.start_with_barcode_1)
 
         self.assertEqual("jss_barcode_1_num", self.br._computer.barcode_1)
@@ -652,16 +641,71 @@ class TestGUIServer(TestBladeRunner):
         self.assertEqual("jss_barcode_2_num", self.br._jss_server.get_barcode_2(jss_id))
         self.assertEqual("jss_asset_tag_num", self.br._jss_server.get_asset_tag(jss_id))
         self.assertEqual("jss_name_string", self.br._jss_server.get_name(jss_id))
+        managed = self.br._jss_server.get_managed_status(jss_id)
+        self.assertEqual("true", managed)
 
-    # def test_keep_jss_data_on_non_first_match(self):
-    #     self.match = "asset_tag"
-    #     self.br.test_run(lambda: self.start_with_barcode_1())
-    #     self.assertEqual("jss_barcode_1_num", self.br._computer.barcode_1)
-    #     self.assertEqual("jss_barcode_2_num", self.br._computer.barcode_2)
-    #     self.assertEqual("jss_asset_tag_num", self.br._computer.asset_tag)
-    #     self.assertEqual("jss_name_string", self.br._computer.name)
-    #     self.assertTrue(self.br.search_params.exists_match())
-    #     self.assertTrue(self.br._computer.jss_id)
+    def test_keep_jss_data_non_immediate_match(self):
+        self.match = "asset_tag"
+        self.submit_btn_id = "jss"
+        self.br.save_offboard_config = lambda x: self.dummy_save_offboard_config(keep_managed=True)
+        self.br.test_run(lambda: self.start_with_barcode_1())
+
+        self.assertEqual("jss_barcode_1_num", self.br._computer.barcode_1)
+        self.assertEqual("jss_barcode_2_num", self.br._computer.barcode_2)
+        self.assertEqual("jss_asset_tag_num", self.br._computer.asset_tag)
+        self.assertEqual("jss_name_string", self.br._computer.name)
+        self.assertTrue(self.br.search_params.exists_match())
+        jss_id = self.br._computer.jss_id
+        self.assertTrue(jss_id)
+
+        self.assertEqual("jss_barcode_1_num", self.br._jss_server.get_barcode_1(jss_id))
+        self.assertEqual("jss_barcode_2_num", self.br._jss_server.get_barcode_2(jss_id))
+        self.assertEqual("jss_asset_tag_num", self.br._jss_server.get_asset_tag(jss_id))
+        self.assertEqual("jss_name_string", self.br._jss_server.get_name(jss_id))
+        managed = self.br._jss_server.get_managed_status(jss_id)
+        self.assertEqual("true", managed)
+
+    def test_keep_user_data_immediate_match(self):
+        self.match = "barcode_1"
+        self.submit_btn_id = "user"
+        self.br.save_offboard_config = lambda x: self.dummy_save_offboard_config(keep_managed=True)
+        self.br.test_run(self.start_with_barcode_1)
+
+        self.assertEqual("barcode_1_num", self.br._computer.barcode_1)
+        self.assertEqual("barcode_2_num", self.br._computer.barcode_2)
+        self.assertEqual("asset_tag_num", self.br._computer.asset_tag)
+        self.assertEqual("name_string", self.br._computer.name)
+        self.assertTrue(self.br.search_params.exists_match())
+        jss_id = self.br._computer.jss_id
+        self.assertTrue(jss_id)
+
+        self.assertEqual("barcode_1_num", self.br._jss_server.get_barcode_1(jss_id))
+        self.assertEqual("barcode_2_num", self.br._jss_server.get_barcode_2(jss_id))
+        self.assertEqual("asset_tag_num", self.br._jss_server.get_asset_tag(jss_id))
+        self.assertEqual("name_string", self.br._jss_server.get_name(jss_id))
+        managed = self.br._jss_server.get_managed_status(jss_id)
+        self.assertEqual("true", managed)
+
+    def test_keep_user_data_non_immediate_match(self):
+        self.match = "asset_tag"
+        self.submit_btn_id = "user"
+        self.br.save_offboard_config = lambda x: self.dummy_save_offboard_config(keep_managed=True)
+        self.br.test_run(self.start_with_barcode_1)
+
+        self.assertEqual("barcode_1_num", self.br._computer.barcode_1)
+        self.assertEqual("barcode_2_num", self.br._computer.barcode_2)
+        self.assertEqual("asset_tag_num", self.br._computer.asset_tag)
+        self.assertEqual("name_string", self.br._computer.name)
+        self.assertTrue(self.br.search_params.exists_match())
+        jss_id = self.br._computer.jss_id
+        self.assertTrue(jss_id)
+
+        self.assertEqual("barcode_1_num", self.br._jss_server.get_barcode_1(jss_id))
+        self.assertEqual("barcode_2_num", self.br._jss_server.get_barcode_2(jss_id))
+        self.assertEqual("asset_tag_num", self.br._jss_server.get_asset_tag(jss_id))
+        self.assertEqual("name_string", self.br._jss_server.get_name(jss_id))
+        managed = self.br._jss_server.get_managed_status(jss_id)
+        self.assertEqual("true", managed)
 
     def start_with_barcode_1(self):
         self.br._main_view._next_btn.invoke()
@@ -707,39 +751,35 @@ class TestGUIServer(TestBladeRunner):
                 self.callback_barcode_1_saved()
             self.br._search_controller.proceed_operation()
         else:
-            self.br._verify_controller.proceed_operation("jss")
+            self.br._verify_controller.entry_view.name_entry.insert(0, "name_string")
+            self.br._verify_controller.proceed_operation(self.submit_btn_id)
             self.br.terminate()
 
     def dummy_restart(self):
         pass
 
-    def dummy_save_offboard_config(self, dummy):
-        config = os.path.join(self.blade_runner_dir, "private/test/offboard_config_managed_true.xml")
+    def dummy_save_offboard_config(self, keep_managed=True):
+        if keep_managed:
+            config = os.path.join(self.blade_runner_dir, "private/test/offboard_config_managed_true.xml")
+        else:
+            config = os.path.join(self.blade_runner_dir, "private/test/offboard_config.xml")
+
         self.br._offboard_config = user.xml_to_string(config)
 
     def dummy_messagebox(self):
         pass
 
-class TestServerGUIManual(TestBladeRunner):
-
-    def setUp(self):
-        super(TestServerGUIManual, self).setUp()
-
-    def test_manual(self):
-        self.br.run()
-
 
 if __name__ == '__main__':
     test_classes_to_run = [
-                           #TestRestart,
-                           # TestSearchSequence,
-                           # TestDynamicSearch,
-                           # TestGUICombobox,
-                           # TestGUISearchParams,
-                           # TestGUIVerifyView
-                           # TestGUIDualVerifyView,
-                           TestGUIServer
-                           # TestServerGUIManual
+                           TestRestart,
+                           TestSearchSequence,
+                           TestDynamicSearch,
+                           TestGUICombobox,
+                           TestGUISearchParams,
+                           TestGUIVerifyView,
+                           TestGUIDualVerifyView,
+                           TestGUIServerDualVerifyViewInitiallyManaged,
                           ]
 
     loader = unittest.TestLoader()
