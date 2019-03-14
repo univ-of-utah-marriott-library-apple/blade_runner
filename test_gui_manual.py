@@ -9,7 +9,7 @@ import Tkinter as tk
 from main_controller import MainController
 
 
-class TestBladeRunner(unittest.TestCase):
+class TestGUIManual(unittest.TestCase):
 
     def setUp(self):
         cf = inspect.currentframe()
@@ -33,12 +33,6 @@ class TestBladeRunner(unittest.TestCase):
         self.search_params = plistlib.readPlist(self.search_params_config)
 
         self.br = MainController(root, jss_server, self.slack_data, self.verify_data, self.search_params)
-
-
-class TestServerGUIManual(TestBladeRunner):
-
-    def setUp(self):
-        super(TestServerGUIManual, self).setUp()
 
     def test_manual(self):
         self.br.run()
