@@ -7,7 +7,7 @@
 #
 # Author: Thackery Archuletta
 # Creation Date: Oct 2018
-# Last Updated: Feb 2019
+# Last Updated: March 2019
 #
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby granted,
@@ -107,10 +107,10 @@ class MainView(tk.Toplevel):
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Switch to the options scene.
-        self.options_scene()
+        self.main_scene()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Bind the Return key to the input function.
-        self.bind('<Return>', lambda event: self.input_btn_clicked('serial_number'))
+        self.bind('<Return>', lambda event: self._input_btn_clicked('serial_number'))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Save the selected offboard configuration into the controller.
         self._controller.save_offboard_config(self.combobox.get())
@@ -137,9 +137,9 @@ class MainView(tk.Toplevel):
         # Calls the populate function in the controller. That function does the actual populating.
         self._controller.populate_config_combobox()
 
-    def options_scene(self):
+    def main_scene(self):
         """
-        Sets the options scene. This scene contains the available JSS search options in the form of buttons. Which
+        Sets the main scene. This scene contains the available JSS search options in the form of buttons. Which
         buttons are shown is determined by the SearchParams object. The SearchParams object is created from the search
         params configuration file in the MainController.
 
