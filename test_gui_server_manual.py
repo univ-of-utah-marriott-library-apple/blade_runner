@@ -9,7 +9,7 @@ import Tkinter as tk
 from main_controller import MainController
 
 
-class TestGUIManual(unittest.TestCase):
+class TestGUIServerManual(unittest.TestCase):
 
     def setUp(self):
         cf = inspect.currentframe()
