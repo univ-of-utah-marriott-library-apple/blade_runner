@@ -40,6 +40,8 @@ from dual_verify_controller import DualVerifyController
 from controller import Controller
 import tkMessageBox
 from stall_window import StallWindow
+import traceback as tb
+from secure_erase_window import SecureEraseWindow
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
 # TODO BUG: If spaces are entered in the asset/barcode inputs the program quits. Need to format spaces.
@@ -118,6 +120,8 @@ class MainController(Controller):
             tkMessageBox.showerror('Exception', message)
         except IndexError:
             tkMessageBox.showerror('Exception', value)
+        finally:
+            logger.error("".join(tb.format_exception(exc, value, traceback)))
 
     def run(self):
         """Start Blade-Runner.
@@ -139,7 +143,7 @@ class MainController(Controller):
         self._main_view.mainloop()
 
     def test_run(self, callback):
-        """Start Blade-Runner.
+        """Start Blade-Runner for testing.
 
         Returns:
             void
@@ -158,6 +162,17 @@ class MainController(Controller):
         self._main_view.after(1000, callback)
         self._main_view.wait_window(self._main_view)
 
+    def secure_erase(self):
+        cmd = ['-c', '/usr/bin/sudo python secure_erase_internals.py; echo "Return code: $?"']
+
+        window = SecureEraseWindow(cmd, self._main_view)
+        self._main_view.wait_window(window)
+        results = window.result
+
+        if not results.success:
+            tkMessageBox.showinfo("Secure Erase", "Secure erase command failed. \n{}".format(results.msg))
+        else:
+            tkMessageBox.showinfo("Secure Erase", "Secure erase successful. \n{}".format(results.msg))
 
     def terminate(self):
         """Terminates Blade-Runner.
@@ -470,7 +485,10 @@ class MainController(Controller):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Make sure managed status is false. If not, exit.
         if post_managed_status != 'false':
-            raise SystemExit("ERROR: Managed status is not false after offboarding.")
+            msg = "Managed status was not false after offboarding. Aborting."
+            logger.error(msg)
+            self.restart()
+            raise SystemError(msg)
 
     def _slack_handler(self, slack_data):
         """Handles all Slack related items: sends Slack message and starts Slackify daemon.
