@@ -606,9 +606,6 @@ logger.debug("{} logger started.".format(lbasename))
 
 
 def main():
-    # TODO uncomment sudo check for production
-    # if os.geteuid() != 0:
-    #     raise SystemExit("Must be run as root.")
     root = tk.Tk()
     root.withdraw()
 
