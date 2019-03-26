@@ -120,9 +120,9 @@ class MainController(Controller):
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             # Display a message box containing the exception's message.
             tkMessageBox.showerror('Exception', message)
-            logger.error("".join(tb.format_exception(exc, value, traceback)))
         except IndexError:
             tkMessageBox.showerror('Exception', value)
+        finally:
             logger.error("".join(tb.format_exception(exc, value, traceback)))
 
     def run(self):
