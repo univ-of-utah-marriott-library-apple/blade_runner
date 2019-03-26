@@ -7,7 +7,7 @@
 #
 # Author: Thackery Archuletta
 # Creation Date: Oct 2018
-# Last Updated: Feb 2019
+# Last Updated: March 2019
 #
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby granted,
@@ -85,7 +85,7 @@ class DualVerifyController(EntryController):
         if sender == "jss":
             self._store_jss_entries(self.computer, self._verify_params)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        self.proceed = True
+        self.set_proceed(True)
         self.entry_view.destroy()
 
     def cancel_operation(self):
@@ -97,6 +97,9 @@ class DualVerifyController(EntryController):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.proceed = False
         self.entry_view.destroy()
+
+    def set_proceed(self, proceed):
+        self.proceed = proceed
 
     def get_jss_data(self, computer, jss_server):
         """Get the JSS data for a computer object and store it in the computer object.
@@ -184,7 +187,7 @@ class DualVerifyController(EntryController):
         # Store data from the JSS entry for computer name
         elif input_type == "computer_name":
             if self.entry_view.jss_name_entry.get() != "":
-                computer._name = self.entry_view.jss_name_entry.get()
+                computer.name = self.entry_view.jss_name_entry.get()
 
         # Store data from the JSS entry for serial number
         elif input_type == "serial_number":
