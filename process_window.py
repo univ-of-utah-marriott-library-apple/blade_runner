@@ -1,6 +1,7 @@
 from Tkinter import *
 import subprocess
 
+
 class ProcessWindow(Toplevel):
 
     def __init__(self, cmd, master):
