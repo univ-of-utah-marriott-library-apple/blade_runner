@@ -20,14 +20,10 @@ def open_html(filepath):
         void
     """
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    logger.info("open_html: started")
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     try:# open HTML file in Safari.
         webbrowser.get('macosx').open("file://" + filepath)
     except Exception as e:
         logger.error("Couldn't open webrowser. {}".format(e))
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    logger.info("open_html: finished")
 
 
 def html_to_pdf(html):
@@ -37,18 +33,15 @@ def html_to_pdf(html):
         void
     """
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    logger.info("Converting HTML to PDF")
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     pdf = "{}.pdf".format(html)
 
     try:# convert HTML to PDF.
         with open(pdf, 'w+') as pdfout:
             subprocess.call(['/usr/sbin/cupsfilter', "-P", "1", html], stdout=pdfout,
                             stderr=subprocess.STDOUT)
+        return pdf
     except subprocess.CalledProcessError as e:
         logger.error(e.output)
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    logger.info("Converting HTML to PDF finished.")
 
 
 def print_pdf_to_default(pdf):
@@ -57,8 +50,6 @@ def print_pdf_to_default(pdf):
     Returns:
         void
     """
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    logger.info("print_pdf_to_default: started")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Build AppleScript to print PDF to default printer from Preview.
     script = r'''
@@ -84,8 +75,6 @@ def print_pdf_to_default(pdf):
     except subprocess.CalledProcessError as e:
         logger.error(str(e.output))
         logger.error("Document didn't print. Make sure a default printer has been configured.")
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    logger.info("print_pdf_to_default: finished")
 
 
 cf = inspect.currentframe()
