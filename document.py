@@ -33,7 +33,8 @@ def html_to_pdf(html):
         void
     """
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    pdf = "{}.pdf".format(html)
+    pre_ext = os.path.splitext(html)[0]
+    pdf = "{}.pdf".format(pre_ext)
 
     try:# convert HTML to PDF.
         with open(pdf, 'w+') as pdfout:
