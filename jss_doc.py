@@ -7,7 +7,7 @@
 #
 # Author: Thackery Archuletta
 # Creation Date: Oct 2018
-# Last Updated: Feb 2019
+# Last Updated: March 2019
 #
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby granted,
@@ -25,6 +25,7 @@ import inspect
 from management_tools import loggers
 import subprocess
 import webbrowser
+import document as doc
 
 
 class JssDoc(object):
@@ -43,9 +44,6 @@ class JssDoc(object):
         # Set computer and server.
         self.jss_server = jss_server
         self.computer = computer
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get home path.
-        self.home = os.path.expanduser("~")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get path to Python script.
         blade_runner_dir = os.path.dirname(abs_file_path)
@@ -68,18 +66,13 @@ class JssDoc(object):
             lbasename = ""
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the absolute path to the generated file without an extension
-        self.lbasename_abs = os.path.join(self.docs_dir, lbasename)
+        self.pre_ext = os.path.join(self.docs_dir, lbasename)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Append the extensions
-        self.html_doc = "{}.html".format(self.lbasename_abs)
-        self.pdf_doc = "{}.pdf".format(self.lbasename_abs)
+        self.html_doc = "{}.html".format(self.pre_ext)
+        self.pdf_doc = "{}.pdf".format(self.pre_ext)
 
-    def create_html(self):
-        """Creates an .html JSS document.
-
-        Returns:
-            void
-        """
+    def _build_html(self):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get the name from the previous computer name extension attribute.
         # TODO Remove. This is MacGroup only.
@@ -117,14 +110,6 @@ class JssDoc(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get serial number.
         serial_number = self.jss_server.get_serial(self.computer.jss_id)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Make directory for the generated JSS document if it doesn't exist.
-        try:
-            os.makedirs(self.docs_dir)
-        except OSError as e:
-            # Errno 17 is "Directory exists".
-            if e.errno != 17:
-                raise
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Lambda expression for filtering out None and replacing it with "".
         none_filter = lambda x : "" if x is None else x
@@ -196,10 +181,26 @@ class JssDoc(object):
             </font>
           </body>
         </html>"""
+        return file_content
+
+    def create_html(self):
+        """Creates an .html JSS document.
+
+        Returns:
+            void
+        """
+        file_content = self._build_html()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Make directory for the generated JSS document if it doesn't exist.
+        try:
+            os.makedirs(self.docs_dir)
+        except OSError as e:
+            # Errno 17 is "Directory exists".
+            if e.errno != 17:
+                raise
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create HTML document.
-        with open(self.html_doc, "w+") as f:
-            f.write(file_content)
+        doc.create_html(file_content, self.html_doc)
 
     def open_html(self):
         """Open the html file in Safari.
@@ -210,10 +211,7 @@ class JssDoc(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.info("open_html: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        try:# open HTML file in Safari.
-            webbrowser.get('macosx').open("file://" + self.html_doc)
-        except Exception as e:
-            logger.error("Couldn't open webrowser. {}".format(e))
+        doc.open_html(self.html_doc)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.info("open_html: finished")
 
@@ -226,12 +224,7 @@ class JssDoc(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.info("Converting HTML to PDF")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        try:# convert HTML to PDF.
-            with open(self.pdf_doc, 'w+') as pdfout:
-                subprocess.call(['/usr/sbin/cupsfilter', "-P", "1", self.html_doc], stdout=pdfout,
-                                stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output)
+        doc.html_to_pdf(self.html_doc)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.info("Converting HTML to PDF finished.")
 
@@ -244,29 +237,7 @@ class JssDoc(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.info("print_pdf_to_default: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Build AppleScript to print PDF to default printer from Preview.
-        script = r'''
-        set theFile to POSIX path of "{}"
-        do shell script("open " & theFile) 
-        tell application "Preview"
-            delay 2
-            print the front document
-        end tell
-                '''.format(self.pdf_doc)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Write AppleScript text to a bash file.
-        with open("/tmp/print.sh", "w+") as f:
-            f.write(script)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        try:# run the AppleScript with osascript.
-            cmd = ['/usr/bin/osascript', '/tmp/print.sh']
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            logger.info("Print successful.")
-            # Append file name with "printed".
-            os.rename(self.pdf_doc, "{}_printed.pdf".format(self.lbasename_abs))
-        except subprocess.CalledProcessError as e:
-            logger.error(str(e.output))
-            logger.error("Document didn't print. Make sure a default printer has been configured.")
+        doc.print_pdf_to_default(self.pdf_doc)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.info("print_pdf_to_default: finished")
 
