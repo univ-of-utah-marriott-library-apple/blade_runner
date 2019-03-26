@@ -1,7 +1,7 @@
 from Tkinter import *
 import pexpect
 import tkSimpleDialog
-
+import plistlib
 
 class SecureEraseWindow(Toplevel):
 
@@ -27,10 +27,10 @@ class SecureEraseWindow(Toplevel):
 
     def sudo_process(self, cmd, text):
         try:
-            child = pexpect.spawn('bash', cmd, use_poll=True)
+            child = pexpect.spawn('bash', cmd)
 
             while not self.result:
-                match = child.expect(['SECURE ERASE INTERNALS', 'attempts', pexpect.EOF, pexpect.TIMEOUT, 'Password:'])
+                match = child.expect(['SECURE ERASE INTERNALS', 'attempts', 'dummy', pexpect.TIMEOUT, 'Password:'])
                 if match == 4:
                     self.focus_force()
                     password = tkSimpleDialog.askstring("Password", "Enter admin password:", show='*', parent=self)
@@ -73,7 +73,6 @@ class SecureEraseWindow(Toplevel):
             result = child.expect(["\[[^K][^\]]*\]", "\n", "\[K"])
             if result == 0:
                 line = child.after
-                print(line)
                 pos = text.index("end-1c linestart")
                 text.delete(pos, END)
                 text.insert(END, "\n")
@@ -81,7 +80,6 @@ class SecureEraseWindow(Toplevel):
                 text.update()
                 text.see("end")
             elif result == 1:
-                print(child.before)
                 if prev_result == 0 or prev_result == 2:
                     text.insert(END, "\n")
                 line = child.before
