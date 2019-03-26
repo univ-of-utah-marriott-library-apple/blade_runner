@@ -16,6 +16,9 @@ import urllib2
 from management_tools.slack import IncomingWebhooksSender as IWS
 import plistlib
 import document as doc
+import tkMessageBox
+import Tkinter as tk
+from msg_box import MsgBox
 
 
 def firmware_pass_exists():
@@ -40,10 +43,10 @@ def firmware_pass_exists():
     return False
 
 
-def list_main_disks():
+def list_main_disks_deprecated():
     """Lists main disks, e.g. disk0, disk1, disk2, etc.
     """
-    cmd = ['diskutil','info','-all']
+    cmd = ['diskutil', 'info', '-all']
     # outputs a byte string
     disk_output = sp.check_output(cmd)
     byte_str_pattern = re.compile(b'/dev/disk\d+\n')
@@ -55,12 +58,19 @@ def list_main_disks():
     return main_disks
 
 
-def find_internal_disks(main_disks):
+def list_main_disks():
+    cmd = ['diskutil', 'list', '-plist']
+    disk_output = sp.check_output(cmd)
+    disks_info = plistlib.readPlistFromString(disk_output)
+    return disks_info['WholeDisks']
+
+
+def find_internal_disks_deprecated(main_disks):
     """Finds internal disks from a list of the main disks.
     """
     internal_disks = []
     for disk in main_disks:
-        cmd = ['diskutil','list','internal',disk]
+        cmd = ['diskutil', 'list', 'internal', disk]
         internal_status = sp.check_output(cmd)
         if internal_status.find(disk) != -1:
             internal_disks.append(disk)
@@ -69,14 +79,25 @@ def find_internal_disks(main_disks):
     return internal_disks
 
 
-def interactive(question, default=None):
+def find_internal_disks(main_disks):
+    internal_disks = []
+    for disk in main_disks:
+        cmd = ['diskutil', 'info', '-plist', disk]
+        disk_output = sp.check_output(cmd)
+        disk_info = plistlib.readPlistFromString(disk_output)
+        if disk_info['Internal']:
+            internal_disks.append(disk)
+    logger.debug("Internal Disks: " + str(internal_disks))
+    return internal_disks
 
+
+def interactive(question, default=None):
     if not sys.stdout.isatty():
         logger.debug("Not a tty.")
         return True
 
     response = None
-    while response not in ['y', 'n','yes','no']:
+    while response not in ['y', 'n', 'yes', 'no']:
         r = raw_input("{0} [y/n]: ".format(question))
         response = r.lower() if r else default
 
@@ -135,7 +156,7 @@ class VerifyErase(object):
         return False
 
 
-def is_virtual(disk):
+def is_virtual_deprecated(disk):
     cmd = ['diskutil', 'info', '-plist', disk]
     try:
         output = sp.check_output(cmd, stderr=sp.STDOUT)
@@ -153,7 +174,7 @@ def is_virtual(disk):
     logger.debug("Could not determine the state of {0}.".format(disk))
 
 
-def is_coreStorage(disk):
+def is_coreStorage_deprecated(disk):
     cmd = ['diskutil', 'info', '-plist', disk]
     try:
         output = sp.check_output(cmd, stderr=sp.STDOUT)
@@ -172,7 +193,7 @@ def is_coreStorage(disk):
         raise
 
 
-def get_lvgUUID(disk):
+def get_lvgUUID_deprecated(disk):
     cmd = ['diskutil', 'info', '-plist', disk]
     try:
         output = sp.check_output(cmd, stderr=sp.STDOUT)
@@ -184,6 +205,42 @@ def get_lvgUUID(disk):
     except sp.CalledProcessError as e:
         logger.info(e.output)
         logger.info("Couldn’t retrieve lvgUUID for {0}".format(disk))
+        raise
+    return lvgUUID
+
+
+def is_coreStorage(disk):
+    cmd = ["diskutil", "coreStorage", "info", "-plist", disk]
+    try:
+        output = sp.check_output(cmd, stderr=sp.STDOUT)
+        plistlib.readPlistFromString(output)['MemberOfCoreStorageLogicalVolumeGroup']
+        logger.debug("{0} is a CoreStorage".format(disk))
+        return True
+    except KeyError as e:
+        logger.debug("{0}".format(e))
+        logger.debug("{0} is not a CoreStorage".format(disk))
+        return False
+    except sp.CalledProcessError as e:
+        if str(e.output).find("is not a CoreStorage disk") != -1:
+            logger.debug("{0} is not a CoreStorage".format(disk))
+            return False
+        logger.debug(e.output)
+        raise
+
+
+def get_lvgUUID(disk):
+    cmd = ['diskutil', 'coreStorage', 'info', '-plist', disk]
+    try:
+        output = sp.check_output(cmd)
+        lvgUUID = plistlib.readPlistFromString(output)['MemberOfCoreStorageLogicalVolumeGroup']
+        logger.debug("{} lvgUUID is {}".format(disk, lvgUUID))
+    except KeyError as e:
+        logger.debug("{0}".format(e))
+        logger.debug("{0} is not a CoreStorage. Couldn't retrieve lvgUUID".format(disk))
+        return False
+    except sp.CalledProcessError as e:
+        logger.error(e.output)
+        logger.error("Couldn't retrieve lvgUUID for {0}".format(disk))
         raise
     return lvgUUID
 
@@ -214,7 +271,7 @@ def delete_corestorage(lvgUUID):
 
 
 def repair_volume(disk):
-    cmd = ['diskutil','repairVolume', disk]
+    cmd = ['diskutil', 'repairVolume', disk]
     try:
         output = sp.check_output(cmd, stderr=sp.STDOUT)
         logger.debug(output)
@@ -316,26 +373,33 @@ def main():
     if os.geteuid() != 0:
         raise SystemExit("Must be run as root.")
 
-    if firmware_pass_exists():
-        msg = "Firmware password is still enabled. Disable to continue."
-        logger.warn(msg)
-        raise SystemExit(msg)
-    else:
-        logger.info("Firmware password is not enabled. Continuing with procedure.")
-        diskutil_list()
-        main_disks = list_main_disks()
-        internal_disks = find_internal_disks(main_disks)
-        logger.info("Checking for CoreStorage.")
-        for disk in internal_disks:
-            try:
-                if is_virtual(disk):
-                    if is_coreStorage(disk):
-                            output = force_unmount(disk)
-                            lvgUUID = get_lvgUUID(disk)
-                            logger.info("Deleting CoreStorage on {0}".format(disk))
-                            delete_corestorage(lvgUUID)
-            except SystemExit as e:
-                logger.info(e)
+    try:
+        if firmware_pass_exists():
+            msg = "Firmware password is still enabled. Disable to continue."
+            logger.warn(msg)
+            raise SystemExit(msg)
+    except OSError as e:
+        msg = ("The current OS is < 10.10. This means the existence of a firmware password \n"
+               "can only be verified by booting to the recovery drive. If you know the firmware \n"
+               "password has been disabled, continue. Otherwise, cancel.")
+        msgbox = MsgBox(msg)
+        if not msgbox.proceed:
+            raise SystemExit("User canceled.")
+
+    logger.info("Firmware password is not enabled. Continuing with procedure.")
+    diskutil_list()
+    main_disks = list_main_disks()
+    internal_disks = find_internal_disks(main_disks)
+    logger.info("Checking for CoreStorage.")
+    for disk in internal_disks:
+        try:
+            if is_coreStorage(disk):
+                output = force_unmount(disk)
+                lvgUUID = get_lvgUUID(disk)
+                logger.info("Deleting CoreStorage on {0}".format(disk))
+                delete_corestorage(lvgUUID)
+        except SystemExit as e:
+            logger.info(e)
 
         main_disks = list_main_disks()
         internal_disks = find_internal_disks(main_disks)
@@ -375,7 +439,7 @@ def main():
                 <b>SECURE ERASED</b>
                 <br>
                 <br>
-                <br>       
+                <br>	   
                 <b><font color="red">READY FOR SURPLUS </font></b>
                 <p>
                 </font>
@@ -417,15 +481,4 @@ if __name__ == "__main__":
     current_ip = socket.gethostbyname(socket.gethostname())
     bot = IWS(slack_data["slack_url"], bot_name=current_ip, channel=slack_data["slack_channel"])
     main()
-
-
-
-
-
-
-
-
-
-
-
 
