@@ -7,7 +7,7 @@
 #
 # Author: Thackery Archuletta
 # Creation Date: Oct 2018
-# Last Updated: Feb 2019
+# Last Updated: March 2019
 #
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby granted,
@@ -133,7 +133,7 @@ class SearchParams(Params):
         self.search_status = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the matched status of the enabled search params.
-        self.matches = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
+        self.match_status = self._invert_bool_values(self._remove_keys_with_value(False, params_dict))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the search count.
         self.search_count = 0
@@ -178,8 +178,8 @@ class SearchParams(Params):
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set params matched status to True.
-        if param in self.matches:
-            self.matches[param] = True
+        if param in self.match_status:
+            self.match_status[param] = True
 
     def exists_match(self):
         """Return whether or not a match has been found for any of the search parameters.
@@ -188,7 +188,7 @@ class SearchParams(Params):
             True if match exists, False otherwise.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        return any(self.matches.values())
+        return any(self.match_status.values())
 
     def all_searched(self):
         """Returns status on whether or not all the search parameters have been searched.
