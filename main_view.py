@@ -75,6 +75,8 @@ class MainView(tk.Toplevel):
         self._barcode_2_btn = tk.Button(self, text="Enter Barcode 2", command=lambda: self._input_btn_clicked('barcode_2'))
 
         self._asset_btn = tk.Button(self, text="Enter Asset Number", command=lambda: self._input_btn_clicked('asset_tag'))
+
+        self._secure_erase_btn = tk.Button(self, text="Secure Erase Internal Disks", command=lambda: self._secure_erase_btn_clicked())
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Bind the return key to the serial button
         self.bind('<Return>', lambda event: self._next_btn_clicked())
@@ -114,6 +116,9 @@ class MainView(tk.Toplevel):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Save the selected offboard configuration into the controller.
         self._controller.save_offboard_config(self.combobox.get())
+
+    def _secure_erase_btn_clicked(self):
+        self._controller.secure_erase()
 
     def _exit_btn_clicked(self):
         """
@@ -170,6 +175,8 @@ class MainView(tk.Toplevel):
 
         if 'asset_tag' in self._controller.search_params.enabled:
             self._asset_btn.grid(row=5, column=0, sticky='EW')
+
+        self._secure_erase_btn.grid(row=6, column=0, sticky='EW')
 
 
 
