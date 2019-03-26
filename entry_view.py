@@ -7,7 +7,7 @@
 #
 # Author: Thackery Archuletta
 # Creation Date: Oct 2018
-# Last Updated: Feb 2019
+# Last Updated: March 2019
 #
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby granted,
@@ -106,8 +106,8 @@ class EntryView(tk.Toplevel):
         self.serial_entry = tk.Entry(content_frame)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Submit button
-        self._user_submit_btn = tk.Button(content_frame, text='Submit', command=self._submit_btn_clicked)
-        self._user_submit_btn.grid(row=6, column=1)
+        self._submit_btn = tk.Button(content_frame, text='Submit', command=self._submit_btn_clicked)
+        self._submit_btn.grid(row=6, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Grid the frames.
         header_frame.grid(row=0)
