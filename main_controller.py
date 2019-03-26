@@ -41,7 +41,9 @@ from controller import Controller
 import tkMessageBox
 from stall_window import StallWindow
 import traceback as tb
+import passwd_prompt
 from secure_erase_window import SecureEraseWindow
+
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
 # TODO BUG: If spaces are entered in the asset/barcode inputs the program quits. Need to format spaces.
@@ -118,9 +120,9 @@ class MainController(Controller):
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             # Display a message box containing the exception's message.
             tkMessageBox.showerror('Exception', message)
+            logger.error("".join(tb.format_exception(exc, value, traceback)))
         except IndexError:
             tkMessageBox.showerror('Exception', value)
-        finally:
             logger.error("".join(tb.format_exception(exc, value, traceback)))
 
     def run(self):
@@ -163,13 +165,17 @@ class MainController(Controller):
         self._main_view.wait_window(self._main_view)
 
     def secure_erase(self):
-        cmd = ['-c', '/usr/bin/sudo python secure_erase_internals.py; echo "Return code: $?"']
+        this_dir = os.path.dirname(os.path.abspath(__file__))
+        secure_erase_path = os.path.join(this_dir, "secure_erase_internals.py")
+        cmd = ['-c', '/usr/bin/sudo python {}; echo "Return code: $?"'.format(secure_erase_path)]
 
         window = SecureEraseWindow(cmd, self._main_view)
         self._main_view.wait_window(window)
         results = window.result
 
-        if not results.success:
+        if not results:
+            tkMessageBox.showinfo("Secure Erase", "Secure erase command failed. \n")
+        elif not results.success:
             tkMessageBox.showinfo("Secure Erase", "Secure erase command failed. \n{}".format(results.msg))
         else:
             tkMessageBox.showinfo("Secure Erase", "Secure erase successful. \n{}".format(results.msg))
@@ -417,7 +423,8 @@ class MainController(Controller):
         """
         message = "JSS doesn't record exist. Please verify\nthe following fields before submitting\nthem to the JSS.\n"
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        self._verify_controller = VerificationController(self._main_view, self._computer, self.verify_params, self.search_params)
+        self._verify_controller = VerificationController(self._main_view, self._computer, self.verify_params,
+                                                         self.search_params)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Configure message to be displayed.
         self._verify_controller.entry_view.text_lbl.config(text=message)
@@ -584,7 +591,7 @@ class MainController(Controller):
         select_window = ['/usr/bin/osascript', '-e',
                          'tell application "Finder" to set frontmost of process "Python" to true']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        try: # set focus to the main view.
+        try:  # set focus to the main view.
             subprocess.check_output(select_window)
         except subprocess.CalledProcessError:
             logger.debug("Setting frontmost of process Python to true failed.")
@@ -623,7 +630,7 @@ def main():
     search_params = plistlib.readPlist(search_params_config)
 
     # Run the application
-    app = MainController(root, jss_server, slack_data, verify_data, search_params)
+    app = MainController(root, jss_server, slack_data, verify_data, search_params, print_enabled=False)
     app.run()
 
 
