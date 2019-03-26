@@ -18,7 +18,6 @@ import plistlib
 import document as doc
 
 
-
 def firmware_pass_exists():
     cmd = ['firmwarepasswd', '-check']
     try:
@@ -264,40 +263,43 @@ def secure_erase_internal_disks(internal_disks):
     if proceed:
         logger.warn("Proceeding with secure erase.")
         for disk in internal_disks:
-            cmd = ['diskutil', 'secureErase', '0', disk]
-            try:
-                logger.warn("SECURE ERASING " + disk)
-                erase_output = sp.check_output(cmd, stderr=sp.STDOUT)
-                logger.warn('{0} successfully erased.'.format(disk))
-                erased_status.append(True)
-            except sp.CalledProcessError as exc:
-                logger.warn("{1}: Failure in erasing {0}.".format(disk, exc.output))
-                try:
-                    logger.info("Attemping to force unmount " + disk)
-                    cmd = ['diskutil', 'unmountDisk', 'force', disk]
-                    unmount_output = sp.check_output(cmd, stderr=sp.STDOUT)
-                    logger.info(unmount_output)
+            if not disk.isspace():
+                cmd = ['diskutil', 'secureErase', '0', disk]
 
-                    logger.warn("SECOND ATTEMPT AT SECURE ERASING " + disk)
+                try:
                     logger.warn("SECURE ERASING " + disk)
-                    cmd = ['diskutil', 'secureErase', '0', disk]
-                    erase_output = sp.check_output(cmd, stderr=sp.STDOUT)
-                    logger.info(erase_output)
+                    sp.Popen(cmd, stderr=sp.STDOUT).wait()
                     logger.warn('{0} successfully erased.'.format(disk))
                     erased_status.append(True)
-                except sp.CalledProcessError as e:
-                    logger.info(e)
+                except sp.CalledProcessError as exc:
+                    logger.warn("{1}: Failure in erasing {0}.".format(disk, exc.output))
                     try:
-                        logger.debug("Attempting to repair {0}".format(disk))
-                        output = repair_volume(disk)
-                        logger.debug(output)
-                        logger.debug("Repair of {0} was successful.".format(disk))
-                        logger.debug("Last attempt to secure erase {0}.".format(disk))
-                        was_erased = secure_erase(disk)
-                        erased_status.append(was_erased)
+                        logger.info("Attemping to force unmount " + disk)
+                        cmd = ['diskutil', 'unmountDisk', 'force', disk]
+                        unmount_output = sp.check_output(cmd, stderr=sp.STDOUT)
+                        logger.info(unmount_output)
+
+                        logger.warn("SECOND ATTEMPT AT SECURE ERASING " + disk)
+                        logger.warn("SECURE ERASING " + disk)
+
+                        cmd = ['diskutil', 'secureErase', '0', disk]
+                        sp.Popen(cmd, stderr=sp.STDOUT).wait()
+
+                        logger.warn('{0} successfully erased.'.format(disk))
+                        erased_status.append(True)
                     except sp.CalledProcessError as e:
-                        logger.info(e.output)
-                        erased_status.append(False)
+                        logger.info(e)
+                        try:
+                            logger.debug("Attempting to repair {0}".format(disk))
+                            output = repair_volume(disk)
+                            logger.debug(output)
+                            logger.debug("Repair of {0} was successful.".format(disk))
+                            logger.debug("Last attempt to secure erase {0}.".format(disk))
+                            was_erased = secure_erase(disk)
+                            erased_status.append(was_erased)
+                        except sp.CalledProcessError as e:
+                            logger.info(e.output)
+                            erased_status.append(False)
 
     else:
         logger.info('Operation aborted. Secure erase not performed.')
@@ -389,9 +391,11 @@ def main():
             else:
                 logger.warn("SECURE ERASE FAILED")
                 bot.send_message("SECURE ERASE FAILED")
+                raise SystemExit("SECURE ERASE FAILED")
         else:
             logger.warn("SECURE ERASE FAILED")
             bot.send_message("SECURE ERASE FAILED")
+            raise SystemExit("SECURE ERASE FAILED")
 
 
 cf = inspect.currentframe()
