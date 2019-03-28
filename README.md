@@ -196,6 +196,25 @@ The available search parameters are `barcode 1`, `barcode 2`, `asset tag`, and
 ```
 
 ### Verification Parameters Configuration
+The verification parameters config (`verify_config.plist`) determines which 
+search parameters need to be verified when a match for a computer in JAMF is
+found. Here's a short example scenario:
+
+* User searches for a computer using barcode 1:
+  * No match found in JAMF.
+    * User then searches for a computer using the asset tag:
+      * Match found.
+        * If barcode 1 is enabled in `verify_config.plist`, Blade-Runner will ask the 
+  user to verify the information entered for barcode 1 against JAMF's record
+  for barcode 1.
+
+It is generally the case that any keys enabled in `search_params_config.plist`
+should also be enabled in `verify_config.plist`.
+
+Also, Blade-Runner's GUI dynamically updates according to which verification 
+parameters are enabled.
+
+
 
 
 
