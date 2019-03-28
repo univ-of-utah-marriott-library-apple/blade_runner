@@ -67,8 +67,11 @@ keys:
   * Location of `jamf` binary on computer. This is the primary `jamf` binary
   that will be used to enroll computers.
 * jamf_binary_2
-  * Secondary `jamf` binary. Intended to be located on an external drive in the
-  case that the computer being enrolled doesn't have a `jamf` binary.
+  * Secondary `jamf` binary location. Intended to be a location on an external
+  hard drive in the case that the computer being enrolled doesn't have a `jamf` 
+  binary.
+
+
 
 
 
