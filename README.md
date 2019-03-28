@@ -9,15 +9,15 @@ channels of Blade-Runner's progress.
 
 # Contents
 
-* [Features](#features)
+* [Features Overview](#features-overview)
 * [System Requirements](#system-requirements)
 * [Configuration](#configuration)
 
-# Features
+# Features Overview
 
 ### *JAMF Integration*
 * Manage/unmanage computer.
-* Off-board computer.
+* Offboard computer.
 * Update computer record.
 * Delete computer record.
 
@@ -49,7 +49,7 @@ range.
 # Configuration
 Blade-Runner is configured through plists and XML files. These configuration
 files are used for JAMF, Slack, and Blade-Runner. The configuration files
-are located in `blade-runner/private`. All of them must be configured before
+are located in `private`. All of them must be configured before
 running Blade-runner.
 
 ### JAMF Configuration
@@ -200,13 +200,13 @@ The verification parameters config (`verify_config.plist`) determines which
 search parameters need to be verified when a match for a computer in JAMF is
 found. Here's a short example scenario:
 
-* User searches for a computer using barcode 1:
+* User searches for a computer using `barcode 1`:
   * No match found in JAMF.
-    * User then searches for a computer using the asset tag:
+    * User then searches for a computer using the `asset tag`:
       * Match found.
-        * If barcode 1 is enabled in `verify_config.plist`, Blade-Runner will ask the 
-  user to verify the information entered for barcode 1 against JAMF's record
-  for barcode 1.
+        * If `barcode 1` is enabled in `verify_config.plist`, Blade-Runner will 
+          ask the user to verify the information entered for barcode 1 against 
+          JAMF's record for `barcode 1`.
 
 It is generally the case that any keys enabled in `search_params_config.plist`
 should also be enabled in `verify_config.plist`.
