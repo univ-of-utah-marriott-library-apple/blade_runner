@@ -15,28 +15,28 @@ channels of Blade-Runner's progress.
 
 # Features
 
-### JAMF Integration
+### *JAMF Integration*
 * Manage/unmanage computer.
 * Off-board computer.
 * Update computer record.
 * Delete computer record.
 
-### Secure Erase
+### *Secure Erase*
 * Secure erase all internal disks.
 
-### Auto-Generate Documents
+### *Auto-Generate Documents*
 * Create a document populated with JAMF data for a given computer.
 
-### Auto-Print Documents
+### *Auto-Print Documents*
 * Print auto-generated documents to the default printer.
 
-### Slack Integration
+### *Slack Integration*
 * Send Slack notifications on Blade-Runner's progress. Channel, URL, and
 message are configurable.
 * "Reminder of completion" daemon that sends Slack notifications on a given 
 time interval after Blade-Runner has finished.
 
-### Plist/XML Configuration
+### *Plist/XML Configuration*
 * JAMF config.
 * Slack config.
 
@@ -57,18 +57,18 @@ The JAMF configuration plist (`jss_server_config.plist`) contains the informatio
 needed for Blade-Runner to run JAMF related tasks. The config contains the 
 following keys:
 
-* username
+* *username*
   * JAMF login username that will be used to make API calls to the JAMF server. 
-* password
+* *password*
   * JAMF login password that will be used to make API calls to the JAMF server.
-* jss_url
+* *jss_url*
   * URL of the JAMF server to be queried.
-* invite
+* *invite*
   * Invitation code used to enroll a computer into the JAMF server. 
-* jamf_binary_1
+* *jamf_binary_1*
   * Location of `jamf` binary on computer. This is the primary `jamf` binary
   that will be used to enroll computers.
-* jamf_binary_2
+* *jamf_binary_2*
   * Secondary `jamf` binary location. Intended to be a location on an external
   hard drive, e.g., `/Volumes/my_external_drive/jamf` in the case that the 
   computer being enrolled doesn't have a `jamf` binary.
