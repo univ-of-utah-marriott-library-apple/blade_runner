@@ -9,8 +9,9 @@ channels of Blade-Runner's progress.
 
 # Contents
 
-* [Features](#features) - What can Blade-Runner do?
+* [Features](#features)
 * [System Requirements](#system-requirements)
+* [Configuration](#configuration)
 
 # Features
 
@@ -52,8 +53,9 @@ are located in `blade-runner/private`. All of them must be configured before
 running Blade-runner.
 
 ### JAMF Configuration
-The JAMF configuration plist (`jss_server_config.plist`) contains the following
-keys:
+The JAMF configuration plist (`jss_server_config.plist`) contains the information
+needed for Blade-Runner to run JAMF related tasks. The config contains the 
+following keys:
 
 * username
   * JAMF login username that will be used to make API calls to the JAMF server. 
@@ -95,10 +97,10 @@ keys:
 ```
 
 ### Offboarding Configurations
-Offboard configurations are `XML` files that contain the information to be sent
-to the JAMF server when offboarding. Upon starting Blade-Runner, an offboard
-configuration selection will be shown to the user. All XML files in `private`
-will be avialable for selection.
+Offboard configurations can have any name but must be `XML` files. These configs
+contain the information to be sent to the JAMF server when offboarding. Upon 
+starting Blade-Runner, an offboard configuration selection will be shown to the 
+user. All XML files in `private` will be avialable for selection.
 
 **The XML file must represent a valid string for JAMF's XML API calls.** The best
 way to check this is to go to `https://my.jamf.server.domain:portnumber/api`,
@@ -108,7 +110,7 @@ only contain tags that exist in `XML Response Body`.
 
 #### Examples
 
-Offboard configuration that only sets management status to false:
+* Offboard configuration that only sets management status to false:
 ```
 <computer>
   <general>
@@ -119,8 +121,8 @@ Offboard configuration that only sets management status to false:
 </computer>
 ```
 
-Offboard configuration that sets management status to false and clears all
-location fields:
+* Offboard configuration that sets management status to false and clears all
+  location fields:
 ```
 <computer>
   <general>
@@ -143,8 +145,8 @@ location fields:
 </computer>
 ```
 
-Offboard configuration that sets management status to false and updates an
-extension attribute (extension attributes differ between JAMF servers).
+* Offboard configuration that sets management status to false and updates an
+  extension attribute (extension attributes differ between JAMF servers):
 ```
 <computer>
   <general>
@@ -164,7 +166,37 @@ extension attribute (extension attributes differ between JAMF servers).
 </computer>
 ```
 
+### Search Parameters Configuration
+The search parameters config (`search_params_config.plist`) determines the 
+search parameters to be used in searching for a computer in JAMF. The 
+Blade-Runner GUI will dynamically update according to these search parameters 
+by only showing buttons that correspond to the enabled search parameters.
 
+The available search parameters are `barcode 1`, `barcode 2`, `asset tag`, and 
+`serial number`.
+
+#### Example
+* Config that updates Blade-Runner GUI to show `barcode 1`, `asset_tag`, and 
+  `serial number` buttons and allows the user to search JAMF for a computer 
+  using those search parameters:
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>barcode_1</key>
+	<string>True</string>
+	<key>barcode_2</key>
+	<string>False</string>
+	<key>asset_tag</key>
+	<string>True</string>
+	<key>serial_number</key>
+	<string>True</string>
+</dict>
+</plist>
+```
+
+### Verification Parameters Configuration
 
 
 
