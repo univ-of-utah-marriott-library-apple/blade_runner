@@ -150,7 +150,6 @@ only contain tags that exist in `XML Response Body`.
 ```
 <computer>
   <general>
-    <name>[STOR]-</name>
     <remote_management>
       <managed>false</managed>
     </remote_management>
