@@ -254,7 +254,7 @@ Internal disk detection is done through `diskutil info -plist disk#`.
 A plist is returned containing information about the disk. One of the keys
 in the plist is `Internal`, denoting the internal status of the disk.
 
-### Verification Tests of Erasure
+### Secure Erase Verification Tests
 A series of four tests is performed on every disk that is erased.
 
 * `disktutil verifyDisk disk#`
