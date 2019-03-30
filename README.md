@@ -1,17 +1,17 @@
 Blade-Runner
 ===========
 
-Blade-Runner is a Python application that manages Mac computer systems through
-API calls to a JAMF server. It has the ability to manage, off-board, update, and delete
-JAMF records for a given computer, auto-generate documents populated
-with data from the JAMF server, secure erase all internal disks, and notify Slack
-channels of Blade-Runner's progress.
+Blade-Runner is a JAMF based application that manages Mac computer systems 
+through automated offboarding, enrolling, and record updating. It also automates 
+secure erasing all internal disks, document generation, document printing, and 
+Slack integration.
 
 # Contents
 
 * [Features Overview](#features-overview)
 * [System Requirements](#system-requirements)
 * [Configuration](#configuration)
+* [Features in Detail](#features-in-detail)
 
 # Features Overview
 
@@ -23,6 +23,7 @@ channels of Blade-Runner's progress.
 
 ### *Secure Erase*
 * Secure erase all internal disks.
+* CoreStorage detection and deletion.
 
 ### *Auto-Generate Documents*
 * Create a document populated with JAMF data for a given computer.
@@ -211,11 +212,59 @@ found. Here's a short example scenario:
 It is generally the case that any keys enabled in `search_params_config.plist`
 should also be enabled in `verify_config.plist`.
 
-Also, Blade-Runner's GUI dynamically updates according to which verification 
+Blade-Runner's GUI will dynamically update according to which verification 
 parameters are enabled.
 
+# Features in Detail
 
+### JAMF Integration
 
+# How to use
+
+# Secure Erase
+
+The secure erase functionality contains the following features:
+
+* Firmware password detection.
+* Detection and erasure of internal disks.
+* Verification tests to ensure disk was erased.
+* Detection and dismantling of CoreStorage volumes comprised of 
+  internal disks.
+* Rectifies failed secure erase attempts by force ejecting or repairing disk
+  before attempting another secure erase.
+* Slack notifications indicating the start, end, and any errors in the process.
+* Automatic document generation and printing.
+
+### Firmware Password Detection
+Blade-Runner uses the `firmwarepasswd` command to check for the existence 
+of a firmware password before secure erasing. This is done to ensure that
+the firmware password has been removed in the scenario that the computer
+will be put in storage or sold to another user.
+
+If Blade-Runner is unable to find `firmwarepasswd`, a pop up will display
+alerting 
+
+NOTE: `firmwarepasswd` command only exists on macOS 10.10 and above. If 
+Blade-Runner is unable to find `firmwarepasswd`, a pop up will display
+asking the user to disable the firmware password before continuing. The user
+can then proceed with the secure erase at their own discretion.
+
+### Internal Disks Detection
+Internal disk detection is done through `diskutil info -plist disk#`.
+A plist is returned containing information about the disk. One of the keys
+in the plist is `Internal`, denoting the internal status of the disk.
+
+### Verification Tests of Erasure
+A series of four tests is performed on every disk that is erased.
+
+* `disktutil verifyDisk disk#`
+  * Test 1: If output contains "Nonexistent", "unknown", or "damaged", test passes.
+* `diskutil info -plist disk#`
+  * Test 2: If the value of `Content` key is `''`, test passes.
+  * Test 3: If the length of `AllDisks` key value is `1`, test passes.
+  * Test 4: If the length of `VolumesFromDisks` key value is `0`, test passes.
+
+If all four tests pass, the disk has been secure erased.
 
 
 
