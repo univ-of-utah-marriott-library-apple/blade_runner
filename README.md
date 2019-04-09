@@ -1,10 +1,10 @@
 Blade-Runner
 ===========
 
-Blade-Runner is a JAMF based application that manages Mac computer systems 
-through automated offboarding, enrolling, and record updating. It also automates 
-secure erasing all internal disks, document generation, document printing, and 
-Slack integration.
+Blade Runner is a JAMF based application that manages Mac computer systems
+through offboarding, enrolling, and updating JAMF records. It also secure erases 
+internal disks, generates docuements from JAMF data, prints documents, and
+sends progress updates through Slack.
 
 # Contents
 
