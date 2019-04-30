@@ -308,13 +308,11 @@ def secure_erase_internal_disks(internal_disks):
     host disk.
     """
     disk_output = diskutil_list()
-    # logger.info("List of disks using diskutil list: \n" + disk_output)
     logger.warn("***************************************************************")
     logger.warn("You are about to secure erase the following internal disk(s):")
     for disk in internal_disks:
         logger.warn("" + disk)
     logger.warn("***************************************************************")
-    # proceed = interactive('Do you want to proceed?')
     proceed = True
     erased_status = []
     if proceed:
