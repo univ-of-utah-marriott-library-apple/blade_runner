@@ -23,9 +23,8 @@
 import os
 import inspect
 from management_tools import loggers
-import subprocess
-import webbrowser
 import document as doc
+import user_actions
 
 
 class JssDoc(object):
@@ -71,12 +70,13 @@ class JssDoc(object):
         # Append the extensions
         self.html_doc = "{}.html".format(self.pre_ext)
         self.pdf_doc = "{}.pdf".format(self.pre_ext)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the HTML font size
+        self.font_size = 5
 
     def _build_html(self):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get the name from the previous computer name extension attribute.
-        # TODO Remove. This is MacGroup only.
-        prev_name = self.jss_server.get_prev_name(self.computer.jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get the name of the computer.
         name = self.jss_server.get_name(self.computer.jss_id)
@@ -148,40 +148,54 @@ class JssDoc(object):
             review_content = ""
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Build HTML string
-        file_content = """
-        <!DOCTYPE HTML PUBLIC " -//W3C//DTD HTML 4.01 Transition//EN" 
-        "http://www.w3.org/TR/htm14/loose.dtd">
-        <html>
-          <head>
-            <title>Inventory</title>
-            <link rel="stylesheet" href="myCs325Style.css" type="text/css"/>
-          </head>
-          <body>
-            <font size="5">
-            <b>New Name: </b> """ + name + """
-            <p>
-            <b>Previous Name: </b> """ + prev_name + """
-            <p>
-            <b>Barcode 1: </b> """ + barcode_1 + """
-            <p>
-            <b>Barcode 2: </b> """ + barcode_2 + """
-            <p>
-            <b>Asset: </b> """ + asset_tag + """
-            <p>
-            <b>JSS ID: </b> """ + self.computer.jss_id + """    <b>Managed: </b> """ + managed + """
-            <p>
-            <b>Serial Number: </b> """ + serial_number + """
-            <p>
-            <b>Model: </b> """ + computer_model + """
-            <p>
-            <b>SSD: </b> """ + has_ssd + """    <b>RAM: </b> """ + ram_total + """
-            <b>Storage: </b> """ + drive_capacity + """
-            <p>
-            """ + review_content + """
-            </font>
-          </body>
-        </html>"""
+        start_content = """
+         <!DOCTYPE HTML PUBLIC " -//W3C//DTD HTML 4.01 Transition//EN"
+         "http://www.w3.org/TR/htm14/loose.dtd">
+         <html>
+           <head>
+             <title>Inventory</title>
+             <link rel="stylesheet" href="myCs325Style.css" type="text/css"/>
+           </head>
+           <body>
+             <font size=\"""" + str(self.font_size) + """\">
+         """
+
+        items = [("Name", name),
+                ("Barcode 1", barcode_1),
+                ("Barcode 2", barcode_2),
+                ("Asset Tag", asset_tag),
+                ("JAMF ID", self.computer.jss_id, "Managed", managed),
+                ("Serial Number", serial_number),
+                ("Model", computer_model),
+                ("SSD", has_ssd, "RAM", ram_total),
+                ("Storage", drive_capacity)]
+
+        user_actions.modify_items(self, items)
+        mid_content = self._build_data(items)
+
+        end_content = review_content + """
+             </font>
+           </body>
+         </html>"""
+
+        file_content = start_content + mid_content + end_content
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
         return file_content
+
+    def _build_data(self, items):
+        data_content = ""
+        for pair in items:
+            for i, val in enumerate(pair):
+                if i > 2:
+                    data_content += " &nbsp;&nbsp; "
+
+                if i % 2 == 1:
+                    data_content += "<b>" + str(pair[i - 1]) + ": </b> " + str(pair[i])
+
+            data_content += "\n<p>\n"
+
+        return data_content
 
     def create_html(self):
         """Creates an .html JSS document.
