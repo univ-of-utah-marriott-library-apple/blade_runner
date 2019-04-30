@@ -32,7 +32,7 @@ from computer import Computer
 import socket
 from management_tools.slack import IncomingWebhooksSender as IWS
 from jss_doc import JssDoc
-import user_xml_updater as user
+import user_actions
 from params import SearchParams, VerifyParams
 from search_controller import SearchController
 from verification_controller import VerificationController
@@ -41,8 +41,8 @@ from controller import Controller
 import tkMessageBox
 from stall_window import StallWindow
 import traceback as tb
-import passwd_prompt
 from secure_erase_window import SecureEraseWindow
+import xml.etree.cElementTree as ET
 
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
@@ -255,8 +255,15 @@ class MainController(Controller):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Save the XML file as an XML string.
-        self._offboard_config = user.xml_to_string(os.path.join(self._private_dir, offboard_config))
+        # Parse XML file into an XML tree.
+        xml_file = os.path.join(self._private_dir, offboard_config)
+        xml_tree = ET.parse(xml_file)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get the root of the tree.
+        xml_root = xml_tree.getroot()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create offboard xml string and store it.
+        self._offboard_config = ET.tostring(xml_root)
 
     def search_sequence(self, input_type):
         """Determines the search window sequence based on the input type and previous search params.
@@ -457,22 +464,6 @@ class MainController(Controller):
         # Store exit status of the view.
         self._proceed = self._verify_controller.proceed
 
-    def _user_defined_updates(self):
-        """User defines implementation. Meant to update the computer's JSS record with extra information before
-        offboarding.
-        """
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # TODO Remove this for open source version. MacGroup only.
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Append the computer name with the serial number.
-        self._offboard_config = user.append_name(self._computer.get_serial(), self._offboard_config)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Add a timestamp to the additional notes attribute.
-        self._offboard_config = user.timestamp_note(self._offboard_config)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Set the previous computer name extension attribute.
-        self._offboard_config = user.set_previous_computer_name(self._computer.name, self._offboard_config)
-
     def _offboard(self):
         """Offboard computer object with the offboard config.
 
@@ -481,7 +472,7 @@ class MainController(Controller):
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Update the JSS record according to the implementation of the user.
-        self._user_defined_updates()
+        user_actions.pre_offboard_record_update(self)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Push the offboard config to the JSS to offboard the computer.
         self._jss_server.push_xml_str(self._offboard_config, self._computer.jss_id)
