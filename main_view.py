@@ -53,35 +53,69 @@ class MainView(tk.Toplevel):
         # The main views controller
         self._controller = controller
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self._github_url = "<INSERT GITHUB REPO>"
+
         # Creating components
         self.text_font = ("Avenir Next","14")
 
-        self.selection_lbl = tk.Label(self)
+        self.frame = tk.Frame(self)
+        self.combobox_frame = tk.Frame(self)
+        self.bottom_frame = tk.Frame(self)
 
-        self.choose_lbl = tk.Label(self, text="Select an offboard configuration file below.", font=self.text_font)
-        self.choose_lbl.grid(row=2)
+        self.selection_lbl = tk.Label(self.combobox_frame)
 
-        self.combobox = ttk.Combobox(self, width=30)
-        self.combobox.grid(row=3, column=0)
+        self._version_lbl = tk.Label(self, text="v1.0.0", font=("Avenir Next", "8"))
+        self._version_lbl.grid(row=1, padx=(8,0), sticky='w')
 
-        self._next_btn = tk.Button(self, text="Next", foreground='blue', command=lambda: self._next_btn_clicked(),
+        self.choose_lbl = tk.Label(self.combobox_frame, text="Select an offboard configuration file below.", font=self.text_font)
+
+        self.combobox = ttk.Combobox(self.combobox_frame, width=25)
+
+        self._next_btn = tk.Button(self.frame, text="Next", foreground='blue', command=lambda: self._next_btn_clicked(),
                                    width=30, font=self.text_font)
-        self._next_btn.grid(row=4, column=0)
 
-        self._serial_btn = tk.Button(self, text="Get Serial Number", fg='blue',
+        self._offboard_btn = tk.Button(self.frame, text="Offboard", command=lambda: self._offboard_btn_clicked(self.curr_scene),
+                                   width=25, font=self.text_font)
+
+        self._quit_btn = tk.Button(self.bottom_frame, text="Quit", command=lambda: self._exit_btn_clicked(),
+                                   font=self.text_font)
+
+        self._back_btn = tk.Button(self.bottom_frame, text="Back", command=lambda: self._back_btn_clicked(),
+                                   font=self.text_font)
+
+        self._help_btn = tk.Button(self.bottom_frame, text="Help", command=lambda: self._help_btn_clicked(self.curr_scene),
+                                   font=self.text_font)
+
+        self._about_btn = tk.Button(self.frame, text="About", command=lambda: self._about_btn_clicked(), font=self.text_font, width=25)
+        self._about_text_box = tk.Text(self.frame)
+        self._about_scroll_bar = tk.Scrollbar(self.frame, command=self._about_text_box.yview)
+
+        self._how_to_btn = tk.Button(self.frame, text="How To", command=lambda: self._how_to_btn_clicked(), font=self.text_font, width=25)
+
+        self._github_btn = tk.Button(self.frame, text="Github", command=lambda: self._github_btn_clicked(), font=self.text_font, width=25)
+        self._github_lbl = tk.Label(self.frame, font=self.text_font)
+        self._github_entry = tk.Entry(self.frame, width=len(self._github_url), justify='center', font=('Avenir Next','14','bold'))
+
+        self._about_lbl = tk.Label(self.frame, justify='left', font=self.text_font)
+        self._how_to_lbl = tk.Label(self.frame, justify='left', font=self.text_font)
+
+        self._serial_btn = tk.Button(self.frame, text="Serial Number", fg='blue',
                                      command=lambda: self._input_btn_clicked('serial_number'), width=25, font=self.text_font)
 
-        self._barcode_1_btn = tk.Button(self, text="Enter Barcode 1",
+        self._barcode_1_btn = tk.Button(self.frame, text="Barcode 1",
                                         command=lambda: self._input_btn_clicked('barcode_1'), width=25, font=self.text_font)
 
-        self._barcode_2_btn = tk.Button(self, text="Enter Barcode 2",
+        self._barcode_2_btn = tk.Button(self.frame, text="Barcode 2",
                                         command=lambda: self._input_btn_clicked('barcode_2'), width=25, font=self.text_font)
 
-        self._asset_btn = tk.Button(self, text="Enter Asset Number",
+        self._asset_btn = tk.Button(self.frame, text="Asset Tag",
                                     command=lambda: self._input_btn_clicked('asset_tag'), width=25, font=self.text_font)
 
-        self._secure_erase_btn = tk.Button(self, text="Secure Erase Internal Disks",
+        self._secure_erase_btn = tk.Button(self.frame, text="Secure Erase Internal Disks",
                                            command=lambda: self._secure_erase_btn_clicked(), width=25, font=self.text_font)
+
+        self._separator = ttk.Separator(self, orient='horizontal')
+        self._separator_2 = ttk.Separator(self, orient='horizontal')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Bind the return key to the serial button
         self.bind('<Return>', lambda event: self._next_btn_clicked())
@@ -242,6 +276,25 @@ class MainView(tk.Toplevel):
         self.asset_label['image'] = self.asset_photoimage
         self.asset_label.grid(row=0)
 
+        self.frame.grid(row=3, padx=10, pady=(10, 15), sticky='ew')
+        self._separator.grid(row=5, sticky='ew')
+        self.bottom_frame.grid(row=6, padx=10, pady=(10, 10), sticky='ew')
+
+
+        # Give any extra space to column 0. See this page for details:
+        # https://stackoverflow.com/questions/45847313/what-does-weight-do-in-tkinter
+        self.frame.columnconfigure(0, weight=1)
+        self.bottom_frame.columnconfigure(0, weight=1)
+
+        self.selection_scene()
+
+        self.prev_scene = None
+        self.curr_scene = "selection_scene"
+
+        self._quit_btn.grid(row=0, column=2, sticky='e')
+        self._back_btn.grid(row=0, column=1, sticky='e')
+        self._help_btn.grid(row=0, column=0, sticky='w')
+
     def _input_btn_clicked(self, identifier):
         """
         Takes the identifier of the button pressed and passes it to the controller. The controller then acts
@@ -254,6 +307,9 @@ class MainView(tk.Toplevel):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Save the selected offboard configuration into the controller.
+        self._controller.save_offboard_config(self.combobox.get())
+        # Start the search sequence.
         self._controller.search_sequence(identifier)
 
     def _next_btn_clicked(self):
@@ -288,6 +344,43 @@ class MainView(tk.Toplevel):
         # Destroys the main view and master/root Tk window.
         self._controller.terminate()
 
+    def _back_btn_clicked(self):
+        if self.curr_scene == "offboard_scene":
+            self._grid_forget_offboard_scene()
+            self.selection_scene()
+
+        elif self.curr_scene == "help_scene":
+            self._grid_forget_help_scene()
+            if self.prev_scene == "selection_scene":
+                self.selection_scene()
+            elif self.prev_scene == "offboard_scene":
+                self.offboard_scene()
+
+        elif self.curr_scene == "github_scene":
+            self._grid_forget_github_scene()
+            self._help_scene()
+
+        elif self.curr_scene == "about_scene":
+            self._grid_forget_about_scene()
+            self._help_scene()
+
+    def _help_btn_clicked(self, curr_scene):
+        self.prev_scene = curr_scene
+        self._help_scene()
+
+    def _offboard_btn_clicked(self, curr_scene):
+        self.prev_scene = curr_scene
+        self.offboard_scene()
+
+    def _how_to_btn_clicked(self):
+        self._how_to_scene()
+
+    def _about_btn_clicked(self):
+        self._about_scene()
+
+    def _github_btn_clicked(self):
+        self._github_scene()
+
     def populate_combobox(self):
         """
         Populates the combobox with the available offboard configurations (xml files).
@@ -298,6 +391,114 @@ class MainView(tk.Toplevel):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Calls the populate function in the controller. That function does the actual populating.
         self._controller.populate_config_combobox()
+
+    def _help_scene(self):
+        self.curr_scene = "help_scene"
+        self._grid_forget_scenes()
+
+        self._about_btn.grid(row=0)
+        self._how_to_btn.grid(row=1)
+        self._github_btn.grid(row=2)
+
+    def _how_to_scene(self):
+        self.curr_scene = "how_to_scene"
+        self._grid_forget_help_scene()
+
+        self._about_text_box.grid(row=0)
+        self._about_scroll_bar.grid(row=0, column=1, sticky='nsew')
+        self._about_text_box.config(yscroll=self._about_scroll_bar.set)
+
+        self._about_text_box.insert('insert', "<NEED TO PUT SOME TEXT HERE>")
+        self._about_text_box.config(state='disabled')
+
+    def _about_scene(self):
+        self.curr_scene = "about_scene"
+        self._grid_forget_help_scene()
+
+        text = ("Blade Runner is a JAMF based application that manages Mac computer systems "
+                "through offboarding, enrolling, and updating JAMF records. It also "
+                "secure erases internal disks, generates documents from JAMF data, prints those documents, and "
+                "sends progress updates through Slack.")
+        self._about_lbl.config(text=text, wraplength=self.frame.winfo_width())
+        self._about_lbl.grid(row=0, padx=5)
+
+    def _github_scene(self):
+        self.curr_scene = "github_scene"
+        self._grid_forget_help_scene()
+
+        self._github_lbl.grid(row=0)
+        text = """To view the source code, submit bugs, or ask questions, visit Blade Runner's Github page at:"""
+        self._github_lbl.config(text=text, wraplength=self.frame.winfo_width()*.90, justify="left")
+
+        self._github_entry.grid(row=1)
+        self._github_entry.insert("insert", self._github_url)
+        self._github_entry.config(state='readonly', relief='flat', highlightthickness=0)
+
+    def selection_scene(self):
+        self.curr_scene = "selection_scene"
+        self._offboard_btn.grid(row=0)
+        self._secure_erase_btn.grid(row=1)
+
+    def _grid_forget_scenes(self):
+        self._grid_forget_help_scene()
+        self._grid_forget_selection_scene()
+        self._grid_forget_offboard_scene()
+
+    def _grid_forget_github_scene(self):
+        self._github_lbl.grid_forget()
+        self._github_entry.grid_forget()
+
+    def _grid_forget_about_scene(self):
+        self._about_lbl.grid_forget()
+
+    def _grid_forget_how_to_scene(self):
+        raise NotImplemented
+
+    def _grid_forget_help_scene(self):
+        self._about_btn.grid_forget()
+        self._how_to_btn.grid_forget()
+        self._github_btn.grid_forget()
+
+    def _grid_forget_offboard_scene(self):
+        self.selection_lbl.grid_forget()
+        self.choose_lbl.grid_forget()
+        self.combobox.grid_forget()
+        self._serial_btn.grid_forget()
+        self._asset_btn.grid_forget()
+        self._barcode_1_btn.grid_forget()
+        self._barcode_2_btn.grid_forget()
+        self.combobox_frame.grid_forget()
+
+    def _grid_forget_selection_scene(self):
+        self._offboard_btn.grid_forget()
+        self._secure_erase_btn.grid_forget()
+
+    def offboard_scene(self):
+        self.curr_scene = "offboard_scene"
+        self._grid_forget_selection_scene()
+
+        self.combobox_frame.grid(row=2)
+        # Add and configure the selection label.
+        self.selection_lbl.grid(row=0, column=0)
+        self.selection_lbl.config(text="Select an offboard configuration:", font=self.text_font)
+
+        self.choose_lbl.grid(row=2, pady=(10, 0))
+        self.choose_lbl.config(text="Search for computer's JAMF record by:")
+
+        self.combobox.grid(row=1, column=0)
+
+        if 'serial_number' in self._controller.search_params.enabled:
+            self._serial_btn.grid(row=3, column=0)
+
+        if 'barcode_1' in self._controller.search_params.enabled:
+            self._barcode_1_btn.grid(row=4, column=0)
+
+        if 'barcode_2' in self._controller.search_params.enabled:
+            self._barcode_2_btn.grid(row=5, column=0)
+
+        if 'asset_tag' in self._controller.search_params.enabled:
+            self._asset_btn.grid(row=6, column=0)
+
 
     def main_scene(self):
         """
