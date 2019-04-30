@@ -78,7 +78,7 @@ class DualVerifyView(tk.Toplevel):
         self._controller = controller
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the window's title.
-        self.title("Create New JSS Record")
+        self.title("Verify JAMF Record")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create two frames inside the window.
         header_frame = tk.Frame(self)
@@ -90,7 +90,7 @@ class DualVerifyView(tk.Toplevel):
         # Creating and adding widgets to subframes
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Text header component
-        self.text_lbl = tk.Label(header_frame, text="No JSS record exists for this computer.\n"
+        self.text_lbl = tk.Label(header_frame, text="No JAMF record exists for this computer.\n"
                                                     "Create the new record by filling in the\n"
                                                     "following fields:\n")
         self.text_lbl.grid(row=0)
