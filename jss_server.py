@@ -213,6 +213,38 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return ext_attrs
 
+    def get_extension_attribute(self, jss_id, name=None, id=None):
+        """Gets an extensions attribute by extension attribute name or ID.
+
+        Args:
+            jss_id (str): JSS ID of computer.
+            name (str): Extension attribute name.
+            id (str): Extension attribute ID.
+
+        Returns:
+            Value of extension attribute.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_extension_attribute: started")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get extension attributes
+        ext_attrs = self.get_extension_attributes(jss_id)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Search for extension attribute's name or ID.
+        for attribute in ext_attrs:
+            if name:
+                if attribute['name'] == name:
+                    ext_attr_val = attribute['value']
+                    return ext_attr_val
+            elif id:
+                if attribute['id'] == id:
+                    ext_attr_val = attribute['value']
+                    return ext_attr_val
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        logger.debug("get_extension_attribute: finished")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        return None
+
     def get_location_data(self, jss_id):
         """Gets location data for computer corresponding to JSS ID from the JSS.
 
@@ -297,35 +329,6 @@ class JssServer(object):
         logger.debug("get_subsets_data: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return xml_string
-
-    # TODO Remove for public version. MacGroup only.
-    def get_prev_name(self, jss_id):
-        """Gets previous name of computer corresponding to JSS ID.
-
-        Notes:
-            Previous name is an extension attribute.
-
-        Args:
-            jss_id (str): JSS ID of computer.
-
-        Returns:
-            Previous name of the computer (str).
-        """
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_prev_name: started")
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get extension attributes
-        ext_attrs = self.get_extension_attributes(jss_id)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Search for the previous computer name extension attribute and return it.
-        for attribute in ext_attrs:
-            if attribute['name'] == 'Previous Computer Names':
-                prev_name = attribute['value']
-                return prev_name
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_prev_name: finished")
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        return ""
 
     def delete_record(self, jss_id):
         """Delete the JSS record corresponding to the JSS ID.
