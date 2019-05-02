@@ -20,8 +20,14 @@
 # implied warranties of any kind.
 ################################################################################
 
-import Tkinter as tk
-import ttk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
+try:
+    import ttk
+except ImportError:
+    from tkinter import ttk
 
 
 class MainView(tk.Toplevel):
@@ -53,6 +59,8 @@ class MainView(tk.Toplevel):
         # The main views controller
         self._controller = controller
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self.resizable(False, False)
+
         self._github_url = "<INSERT GITHUB REPO>"
 
         # Creating components
@@ -71,11 +79,8 @@ class MainView(tk.Toplevel):
 
         self.combobox = ttk.Combobox(self.combobox_frame, width=25)
 
-        self._next_btn = tk.Button(self.frame, text="Next", foreground='blue', command=lambda: self._next_btn_clicked(),
-                                   width=30, font=self.text_font)
-
-        self._offboard_btn = tk.Button(self.frame, text="Offboard", command=lambda: self._offboard_btn_clicked(self.curr_scene),
-                                   width=25, font=self.text_font)
+        self._offboard_btn = tk.Button(self.frame, text="Offboard", fg="blue", command=lambda: self._offboard_btn_clicked(self.curr_scene),
+                                       width=25, font=self.text_font)
 
         self._quit_btn = tk.Button(self.bottom_frame, text="Quit", command=lambda: self._exit_btn_clicked(),
                                    font=self.text_font)
@@ -87,8 +92,8 @@ class MainView(tk.Toplevel):
                                    font=self.text_font)
 
         self._about_btn = tk.Button(self.frame, text="About", command=lambda: self._about_btn_clicked(), font=self.text_font, width=25)
-        self._about_text_box = tk.Text(self.frame)
-        self._about_scroll_bar = tk.Scrollbar(self.frame, command=self._about_text_box.yview)
+        self._how_to_text_box = tk.Text(self.frame)
+        self._how_to_scroll_bar = tk.Scrollbar(self.frame, command=self._how_to_text_box.yview)
 
         self._how_to_btn = tk.Button(self.frame, text="How To", command=lambda: self._how_to_btn_clicked(), font=self.text_font, width=25)
 
@@ -117,12 +122,11 @@ class MainView(tk.Toplevel):
         self._separator = ttk.Separator(self, orient='horizontal')
         self._separator_2 = ttk.Separator(self, orient='horizontal')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Bind the return key to the serial button
-        self.bind('<Return>', lambda event: self._next_btn_clicked())
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # After the window loads, the function is fired. This is the Map event, or when the window has finished being
         # constructed.
         self.bind('<Map>', lambda event: self.populate_combobox())
+
+        self.return_id = self.bind('<Return>', lambda event: self._offboard_btn_clicked())
 
         # define the image
 
@@ -286,7 +290,7 @@ class MainView(tk.Toplevel):
         self.frame.columnconfigure(0, weight=1)
         self.bottom_frame.columnconfigure(0, weight=1)
 
-        self.selection_scene()
+        self._selection_scene()
 
         self.prev_scene = None
         self.curr_scene = "selection_scene"
@@ -312,24 +316,6 @@ class MainView(tk.Toplevel):
         # Start the search sequence.
         self._controller.search_sequence(identifier)
 
-    def _next_btn_clicked(self):
-        """
-        When the next button is clicked, the selected offboard configuration is saved in the controller and the main
-        view changes to the 'options scene'. This scene gives the available ways to search the JSS.
-
-        Returns:
-            void
-        """
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Switch to the options scene.
-        self.main_scene()
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Bind the Return key to the input function.
-        self.bind('<Return>', lambda event: self._input_btn_clicked('serial_number'))
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Save the selected offboard configuration into the controller.
-        self._controller.save_offboard_config(self.combobox.get())
-
     def _secure_erase_btn_clicked(self):
         self._controller.secure_erase()
 
@@ -347,12 +333,12 @@ class MainView(tk.Toplevel):
     def _back_btn_clicked(self):
         if self.curr_scene == "offboard_scene":
             self._grid_forget_offboard_scene()
-            self.selection_scene()
+            self._selection_scene()
 
         elif self.curr_scene == "help_scene":
             self._grid_forget_help_scene()
             if self.prev_scene == "selection_scene":
-                self.selection_scene()
+                self._selection_scene()
             elif self.prev_scene == "offboard_scene":
                 self.offboard_scene()
 
@@ -362,6 +348,10 @@ class MainView(tk.Toplevel):
 
         elif self.curr_scene == "about_scene":
             self._grid_forget_about_scene()
+            self._help_scene()
+
+        elif self.curr_scene == "how_to_scene":
+            self._grid_forget_how_to_scene()
             self._help_scene()
 
     def _help_btn_clicked(self, curr_scene):
@@ -400,16 +390,22 @@ class MainView(tk.Toplevel):
         self._how_to_btn.grid(row=1)
         self._github_btn.grid(row=2)
 
+        self.unbind('<Return>', self.return_id)
+        self.return_id = self.bind('<Return>', lambda event: None)
+
     def _how_to_scene(self):
         self.curr_scene = "how_to_scene"
         self._grid_forget_help_scene()
 
-        self._about_text_box.grid(row=0)
-        self._about_scroll_bar.grid(row=0, column=1, sticky='nsew')
-        self._about_text_box.config(yscroll=self._about_scroll_bar.set)
+        self._how_to_text_box.grid(row=0)
+        self._how_to_scroll_bar.grid(row=0, column=1, sticky='nsew')
+        self._how_to_text_box.config(yscroll=self._how_to_scroll_bar.set)
 
-        self._about_text_box.insert('insert', "<NEED TO PUT SOME TEXT HERE>")
-        self._about_text_box.config(state='disabled')
+        self._how_to_text_box.insert('insert', "<NEED TO PUT SOME TEXT HERE>")
+        self._how_to_text_box.config(state='disabled')
+
+        self.unbind('<Return>', self.return_id)
+        self.return_id = self.bind('<Return>', lambda event: None)
 
     def _about_scene(self):
         self.curr_scene = "about_scene"
@@ -421,6 +417,9 @@ class MainView(tk.Toplevel):
                 "sends progress updates through Slack.")
         self._about_lbl.config(text=text, wraplength=self.frame.winfo_width())
         self._about_lbl.grid(row=0, padx=5)
+
+        self.unbind('<Return>', self.return_id)
+        self.return_id = self.bind('<Return>', lambda event: None)
 
     def _github_scene(self):
         self.curr_scene = "github_scene"
@@ -434,44 +433,16 @@ class MainView(tk.Toplevel):
         self._github_entry.insert("insert", self._github_url)
         self._github_entry.config(state='readonly', relief='flat', highlightthickness=0)
 
-    def selection_scene(self):
+        self.unbind('<Return>', self.return_id)
+        self.return_id = self.bind('<Return>', lambda event: None)
+
+    def _selection_scene(self):
         self.curr_scene = "selection_scene"
         self._offboard_btn.grid(row=0)
         self._secure_erase_btn.grid(row=1)
 
-    def _grid_forget_scenes(self):
-        self._grid_forget_help_scene()
-        self._grid_forget_selection_scene()
-        self._grid_forget_offboard_scene()
-
-    def _grid_forget_github_scene(self):
-        self._github_lbl.grid_forget()
-        self._github_entry.grid_forget()
-
-    def _grid_forget_about_scene(self):
-        self._about_lbl.grid_forget()
-
-    def _grid_forget_how_to_scene(self):
-        raise NotImplemented
-
-    def _grid_forget_help_scene(self):
-        self._about_btn.grid_forget()
-        self._how_to_btn.grid_forget()
-        self._github_btn.grid_forget()
-
-    def _grid_forget_offboard_scene(self):
-        self.selection_lbl.grid_forget()
-        self.choose_lbl.grid_forget()
-        self.combobox.grid_forget()
-        self._serial_btn.grid_forget()
-        self._asset_btn.grid_forget()
-        self._barcode_1_btn.grid_forget()
-        self._barcode_2_btn.grid_forget()
-        self.combobox_frame.grid_forget()
-
-    def _grid_forget_selection_scene(self):
-        self._offboard_btn.grid_forget()
-        self._secure_erase_btn.grid_forget()
+        self.unbind('<Return>', self.return_id)
+        self.return_id = self.bind('<Return>', lambda event: self._offboard_btn_clicked(self.curr_scene))
 
     def offboard_scene(self):
         self.curr_scene = "offboard_scene"
@@ -499,42 +470,43 @@ class MainView(tk.Toplevel):
         if 'asset_tag' in self._controller.search_params.enabled:
             self._asset_btn.grid(row=6, column=0)
 
+        self.unbind('<Return>', self.return_id)
+        self.return_id = self.bind('<Return>', lambda event: self._input_btn_clicked("serial_number"))
 
-    def main_scene(self):
-        """
-        Sets the main scene. This scene contains the available JSS search options in the form of buttons. Which
-        buttons are shown is determined by the SearchParams object. The SearchParams object is created from the search
-        params configuration file in the MainController.
+    def _grid_forget_scenes(self):
+        self._grid_forget_help_scene()
+        self._grid_forget_selection_scene()
+        self._grid_forget_offboard_scene()
 
-        Returns:
-            void
-        """
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Remove the next button from the view.
-        self._next_btn.grid_forget()
+    def _grid_forget_github_scene(self):
+        self._github_lbl.grid_forget()
+        self._github_entry.grid_forget()
+
+    def _grid_forget_about_scene(self):
+        self._about_lbl.grid_forget()
+
+    def _grid_forget_how_to_scene(self):
+        self._how_to_lbl.grid_forget()
+        self._how_to_scroll_bar.grid_forget()
+        self._how_to_text_box.grid_forget()
+
+    def _grid_forget_help_scene(self):
+        self._about_btn.grid_forget()
+        self._how_to_btn.grid_forget()
+        self._github_btn.grid_forget()
+
+    def _grid_forget_offboard_scene(self):
+        self.selection_lbl.grid_forget()
+        self.choose_lbl.grid_forget()
         self.combobox.grid_forget()
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Add and configure the selection label.
-        self.selection_lbl.grid(row=1)
-        self.selection_lbl.config(text="Current configuration file: " + self.combobox.get(), font=self.text_font)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Reconfigure the choose label.
-        self.choose_lbl.config(text="Choose one of the following options:", font=self.text_font)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Determine which buttons to show according to the enabled search params. These search params are
-        # read from the search params config file and stored in a SearchParams object.
-        if 'serial_number' in self._controller.search_params.enabled:
-            self._serial_btn.grid(row=3, column=0)
+        self._serial_btn.grid_forget()
+        self._asset_btn.grid_forget()
+        self._barcode_1_btn.grid_forget()
+        self._barcode_2_btn.grid_forget()
+        self.combobox_frame.grid_forget()
 
-        if 'barcode_1' in self._controller.search_params.enabled:
-            self._barcode_1_btn.grid(row=4, column=0)
-
-        if 'barcode_2' in self._controller.search_params.enabled:
-            self._barcode_2_btn.grid(row=5, column=0)
-
-        if 'asset_tag' in self._controller.search_params.enabled:
-            self._asset_btn.grid(row=6, column=0)
-
-        self._secure_erase_btn.grid(row=7, column=0)
+    def _grid_forget_selection_scene(self):
+        self._offboard_btn.grid_forget()
+        self._secure_erase_btn.grid_forget()
 
 

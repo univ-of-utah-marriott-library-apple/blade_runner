@@ -20,7 +20,10 @@
 # implied warranties of any kind.
 ################################################################################
 
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 import inspect
 import os
 from management_tools import loggers
@@ -106,13 +109,14 @@ class EntryView(tk.Toplevel):
         self.serial_entry = tk.Entry(content_frame)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Submit button
-        self._submit_btn = tk.Button(content_frame, text='Submit', command=self._submit_btn_clicked)
+        self._submit_btn = tk.Button(content_frame, text='Submit', fg="blue", command=self._submit_btn_clicked)
         self._submit_btn.grid(row=6, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Grid the frames.
         header_frame.grid(row=0)
         content_frame.grid(row=1)
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>^
+        self.resizable(False, False)
 
     def _close_button_clicked(self):
         logger.debug("Close button clicked.")

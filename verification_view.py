@@ -20,7 +20,10 @@
 # implied warranties of any kind.
 ################################################################################
 
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 
 
 class VerifyView(tk.Toplevel):
@@ -95,6 +98,7 @@ class VerifyView(tk.Toplevel):
         header_frame.grid(row=0)
         content_frame.grid(row=1)
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>^
+        self.resizable(False, False)
 
     def _close_button_clicked(self):
         """Cancels the operation when the close button is clicked.

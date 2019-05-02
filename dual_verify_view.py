@@ -20,7 +20,10 @@
 # implied warranties of any kind.
 ################################################################################
 
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 
 
 class DualVerifyView(tk.Toplevel):
@@ -83,9 +86,6 @@ class DualVerifyView(tk.Toplevel):
         # Create two frames inside the window.
         header_frame = tk.Frame(self)
         content_frame = tk.Frame(self)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Bind Return key to the user submit button
-        self.bind('<Return>', lambda event: self._user_submit_btn_clicked())
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Creating and adding widgets to subframes
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
@@ -152,6 +152,7 @@ class DualVerifyView(tk.Toplevel):
         header_frame.grid(row=0)
         content_frame.grid(row=1)
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>^
+        self.resizable(False, False)
 
     def _close_button_clicked(self):
         self._controller.cancel_operation()
