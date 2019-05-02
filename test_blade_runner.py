@@ -11,7 +11,10 @@ import os
 import plistlib
 from jss_server import JssServer
 import inspect
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 from main_controller import MainController
 from params import SearchParams, VerifyParams
 import user_xml_updater as user
@@ -302,7 +305,7 @@ class TestGUIServerDualVerifyViewInitiallyManaged(TestBladeRunner):
 
         self.br.restart()
         self.br.restart = self.dummy_restart
-        self.br._user_defined_updates = lambda: None
+        self.br._user_defined_actions = lambda: None
         self.br._root.report_callback_exception = lambda: None
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 

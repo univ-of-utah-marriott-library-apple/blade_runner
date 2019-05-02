@@ -21,7 +21,10 @@
 ################################################################################
 
 from main_view import MainView
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 import subprocess
 import inspect
 from management_tools import loggers
@@ -472,7 +475,7 @@ class MainController(Controller):
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Update the JSS record according to the implementation of the user.
-        user_actions.pre_offboard_record_update(self)
+        user_actions.update_offboard_config(self)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Push the offboard config to the JSS to offboard the computer.
         self._jss_server.push_xml_str(self._offboard_config, self._computer.jss_id)

@@ -17,7 +17,10 @@ from management_tools.slack import IncomingWebhooksSender as IWS
 import plistlib
 import document as doc
 import tkMessageBox
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 from msg_box import MsgBox
 
 

@@ -5,7 +5,10 @@ import os
 import plistlib
 from jss_server import JssServer
 import inspect
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 from main_controller import MainController
 
 
