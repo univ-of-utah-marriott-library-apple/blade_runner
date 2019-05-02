@@ -258,10 +258,26 @@ in `JssDoc` and `MainController`.
 
 #### JssDoc
 
-Placed right before the body of the HTML file is generated is 
-`user_actions.modify_items()`. `modify_items()` takes the `JssDoc`'s `self`
-as the first parameter and a list of tuples as the second parameter. Each tuple
-in the list contains the name and value of the data to be added to the document.
+In JssDoc there is a function call to an uimplemented function in `user_actions.py` called `modify_items()`. This function appears right before the body of the HTML file is generated. Its purpose is to allow the user to modify the data that will appear in the document. `modify_items()` takes the `JssDoc`'s `self` as the first parameter and a list of tuples as the second parameter. `self` provides access to JAMF Pro. Each tuple in the list contains the name and value of the data to be added to the document.
+
+An implementation to remove one of the standard data tuples might look like this:
+
+```
+# user_actions.py
+
+def modify_items(self, items):
+    # Remove second tuple in list
+    items.pop(2)
+```
+
+An implementation to add a custom data tuple might look like this:
+
+```
+# user_actions.py
+
+def modify_items(self, items):
+    
+```
 
 If there is a data tuple that you don't care about, use `items.pop(index)`. If
 there is data you want to add, use `items.insert(index, the_data_tuple)`. If
