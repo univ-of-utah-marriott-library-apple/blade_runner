@@ -266,7 +266,7 @@ modify the data that will appear in the document. `modify_items()` takes the
 parameter. `self` provides access to JAMF Pro. Each tuple in the list contains 
 the name and value of the data to be added to the document.
 
-An implementation to remove one of the standard data tuples might look like 
+An implementation to **remove** one of the standard data tuples might look like 
 this:
 
 ```
@@ -277,7 +277,7 @@ def modify_items(self, items):
     items.pop(2)
 ```
 
-An implementation to add a some custom data tuples might look like this:
+An implementation to **add** some custom data tuples might look like this:
 
 ```
 # user_actions.py
@@ -422,8 +422,7 @@ dependency.
 ## Auto Document Generation/Printing
 
 Auto document generation is done in `jss_doc.py` by the `JssDoc` class. This 
-class generates a document by querying JAMF Pro for the following fields related 
-to the computer:
+class generates a document by querying JAMF Pro for the following data:
 
     * Name
     * Barcode 1
@@ -435,6 +434,11 @@ to the computer:
     * SSD
     * RAM
     * Storage
+
+On the code side of things, these fields are represented by tuples, in which the 
+first parameter is the data name and the second parameter is the data value. 
+This is important to know if you plan on [adding to](#jssdoc) or 
+[removing from](#jssdoc) the data above.
 
 In the case that inconsistencies are found between the user entered data and the 
 pre-offboard computer record, those inconsistencies will be added to the document
@@ -450,7 +454,7 @@ The intent of this is to help track down and correct other mangled/incorrect
 computer records.
 
 Modification of the document is left up to the user (you), and is best done
-by implementing `modify_items()` in `user_actions.py`. 
+by implementing [modify_items()](#jssdoc) in [user_actions.py](#user-defined-actions). 
 
 # Uninstallation
 
