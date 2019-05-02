@@ -48,6 +48,7 @@ class DualVerifyController(EntryController):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.proceed = False
         self._verify_params = verify_params
+        self._jss_server = jss_server
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Determine which widgets to show based off the verify params
         self._grid_user_widgets(verify_params)
@@ -126,19 +127,19 @@ class DualVerifyController(EntryController):
 
     def _store_conflicts(self, computer):
         # Check to see what fields changed after the user updated the fields through the entry view window.
-        if computer.barcode_1 != computer.jss_barcode_1:
+        if computer.barcode_1 and computer.barcode_1 != computer.jss_barcode_1:
             computer.incorrect_barcode_1 = computer.jss_barcode_1
             logger.debug("barcode_1 {} is incorrect.".format(computer.incorrect_barcode_1))
 
-        if computer.barcode_2 != computer.jss_barcode_2:
+        if computer.barcode_2 and computer.barcode_2 != computer.jss_barcode_2:
             computer.incorrect_barcode_2 = computer.jss_barcode_2
             logger.debug("barcode_2 {} is incorrect.".format(computer.incorrect_barcode_2))
 
-        if computer.asset_tag != computer.jss_asset_tag:
+        if computer.asset_tag and computer.asset_tag != computer.jss_asset_tag:
             computer.incorrect_asset = computer.jss_asset_tag
             logger.debug("asset_tag {} is incorrect.".format(computer.incorrect_asset))
 
-        if computer.jss_serial_number != computer.get_serial():
+        if computer.serial_number and computer.jss_serial_number != computer.get_serial():
             computer.serial_number = computer.get_serial()
             computer.incorrect_serial = self._jss_server.get_serial(computer.jss_id)
             logger.debug("JSS serial {} is incorrect.".format(computer.incorrect_serial))
