@@ -19,7 +19,7 @@ def modify_items(self, items):
     items.insert(1, ("Prev Name", prev_name))
 
 
-def pre_offboard_record_update(self):
+def update_offboard_config(self):
     """User defines implementation. Meant to update the computer's JSS record with extra information before
     offboarding.
     """
