@@ -79,7 +79,7 @@ are located in `private` and all must be configured before running Blade-runner.
 * [Verification Parameters Configuration](#verification-parameters-configuration)
 * [User Defined Actions](#user-defined-actions)
 
-### JAMF Configuration
+## JAMF Configuration
 
 The JAMF configuration plist (`jss_server_config.plist`) contains the information
 needed for Blade-Runner to run JAMF related tasks. The config contains the 
@@ -101,7 +101,7 @@ following keys:
   hard drive, e.g., `/Volumes/my_external_drive/jamf` in the case that the 
   computer being enrolled doesn't have a `jamf` binary.
 
-#### Example
+### Example
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -124,7 +124,7 @@ following keys:
 </plist>
 ```
 
-### Offboard Configuration
+## Offboard Configuration
 
 Offboard configurations can have any name but must be `XML` files. These configs
 contain the information to be sent to the JAMF server when offboarding. Upon 
@@ -137,7 +137,7 @@ click on `computers>computers/id>Try it out!`, and look at the available
 data in `XML Response Body`. Your configuration file's tags and structure should
 only contain tags that exist in `XML Response Body`.
 
-#### Examples
+### Examples
 
 * Offboard configuration that only sets management status to false:
 ```
@@ -194,7 +194,7 @@ only contain tags that exist in `XML Response Body`.
 </computer>
 ```
 
-### Search Parameters Configuration
+## Search Parameters Configuration
 
 The search parameters config (`search_params_config.plist`) determines the 
 search parameters to be used in searching for a computer in JAMF. The 
@@ -204,7 +204,7 @@ by only showing buttons that correspond to the enabled search parameters.
 The available search parameters are `barcode 1`, `barcode 2`, `asset tag`, and 
 `serial number`.
 
-#### Example
+### Example
 
 * Config that updates Blade-Runner GUI to show `barcode 1`, `asset_tag`, and 
   `serial number` buttons and allows the user to search JAMF for a computer 
@@ -226,7 +226,7 @@ The available search parameters are `barcode 1`, `barcode 2`, `asset tag`, and
 </plist>
 ```
 
-### Verification Parameters Configuration
+## Verification Parameters Configuration
 
 The verification parameters config (`verify_config.plist`) determines which 
 search parameters need to be verified when a match for a computer in JAMF is
@@ -246,21 +246,28 @@ should also be enabled in `verify_config.plist`.
 Blade-Runner's GUI will dynamically update according to which verification 
 parameters are enabled.
 
-### User Defined Actions
+## User Defined Actions
 
 There are areas in *Blade-Runner*'s codebase where a custom implementation of a
-process is needed. In such circumstances, a configuration file isn't sufficient
-and code needs to be added.
+process may be needed. In such circumstances, a configuration file isn't sufficient
+the code needs to be supplemented.
 
 To facilitate "knowing" where to put code, `user_actions.py` is provided. It
 contains two unimplemented functions that are called in *Blade Runner*, namely
 in `JssDoc` and `MainController`.
 
-#### JssDoc
+### JssDoc
 
-In JssDoc there is a function call to an uimplemented function in `user_actions.py` called `modify_items()`. This function appears right before the body of the HTML file is generated. Its purpose is to allow the user to modify the data that will appear in the document. `modify_items()` takes the `JssDoc`'s `self` as the first parameter and a list of tuples as the second parameter. `self` provides access to JAMF Pro. Each tuple in the list contains the name and value of the data to be added to the document.
+In JssDoc there is a function call to an uimplemented function in 
+`user_actions.py` called `modify_items()`. This function appears right before 
+the body of the HTML file is generated. Its purpose is to allow the user to 
+modify the data that will appear in the document. `modify_items()` takes the 
+`JssDoc`'s `self` as the first parameter and a list of tuples as the second 
+parameter. `self` provides access to JAMF Pro. Each tuple in the list contains 
+the name and value of the data to be added to the document.
 
-An implementation to remove one of the standard data tuples might look like this:
+An implementation to remove one of the standard data tuples might look like 
+this:
 
 ```
 # user_actions.py
@@ -270,19 +277,38 @@ def modify_items(self, items):
     items.pop(2)
 ```
 
-An implementation to add a custom data tuple might look like this:
+An implementation to add a some custom data tuples might look like this:
 
 ```
 # user_actions.py
 
 def modify_items(self, items):
+    # Getting an extension attribute by its name from the server.
+    estimated_age = self.jss_server.get_extension_attribute(self.computer.jss_id, name="Estimated Age")
     
+    # Getting an extension attribute by its ID from the server.
+    prev_name = self.jss_server.get_extension_attribute(self.computer.jss_id, id="46")
+    
+    items.insert(1, ("Estimated Age", estimated_age))
+    items.insert(2, ("Previous Name", prev_name))
 ```
 
-If there is a data tuple that you don't care about, use `items.pop(index)`. If
-there is data you want to add, use `items.insert(index, the_data_tuple)`. If
-you're adding data, it is likely that you're trying to add data from an 
-`extension_attribute` .....STILL NOT DONE HERE
+### MainController
+
+`MainController` is one of the last places where offboarding fields are processed before being sent to JAMF Pro. Because of this, `user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before `MainController` sends the data. Its purpose is to make custom changes to the offboard data before it is sent.
+
+As an example, say you want to set the name of any computer that is offboarded to the computer's serial number. Instead of rummaging through the codebase to figure out where to do that, you could implement `update_offboard_config()` like this:
+
+```
+# user_actions.py
+
+def update_offboard_config(self):
+    """User defines implementation. Meant to update the computer's JSS record with extra information before
+    offboarding.
+    """
+    # Change name of computer to serial number
+    self._offboard_config = my_custom_functions.xml_replace_name(self._computer.get_serial(), self._offboard_config)
+```
 
 # How It Works
 
