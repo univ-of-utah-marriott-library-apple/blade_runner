@@ -63,8 +63,8 @@ time interval after Blade-Runner has finished.
 
 # System Requirements
 
-Blade-Runner requires Python 2.7.9 or higher, and is compatible on macOS 10.9 
-(Mavericks) - 10.12 (Sierra). It has not been tested on OSes outside that 
+Blade-Runner requires Python 2.X.X >= Python 2.7.9, and is compatible on macOS 10.9 
+(Mavericks) through 10.12 (Sierra). It has not been tested on OSes outside that 
 range.
 
 # Configuration
@@ -256,7 +256,7 @@ To facilitate "knowing" where to put code, `user_actions.py` is provided. It
 contains two unimplemented functions that are called in *Blade Runner*, namely
 in `JssDoc` and `MainController`.
 
-### JssDoc
+### JssDoc: modify_items()
 
 In JssDoc there is a function call to an uimplemented function in 
 `user_actions.py` called `modify_items()`. This function appears right before 
@@ -293,7 +293,7 @@ def modify_items(self, items):
     items.insert(2, ("Previous Name", prev_name))
 ```
 
-### MainController
+### MainController: update_offboard_config()
 
 `MainController` is one of the last places where offboarding fields are processed before being sent to JAMF Pro. Because of this, `user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before `MainController` sends the data. Its purpose is to make custom changes to the offboard data before it is sent.
 
