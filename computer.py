@@ -37,7 +37,7 @@ class Computer(object):
         barcode_2 (str): Barcode 2 of the computer
         asset_tag (str): Asset tag of the computer
         name (str): Name of the computer
-        prev_name (str): JSS extension attribute
+        jss_name (str): JSS extension attribute
         incorrect_barcode_1 (str): Incorrect barcode 1
         incorrect_barcode_2 (str): Incorrect barcode 2
         incorrect_asset (str): Incorrect asset tag
@@ -59,7 +59,6 @@ class Computer(object):
         self.barcode_2 = None
         self.asset_tag = None
         self.name = None
-        self.prev_name = None
         self.incorrect_barcode_1 = None
         self.incorrect_barcode_2 = None
         self.incorrect_asset = None
@@ -68,6 +67,7 @@ class Computer(object):
         self.jss_barcode_2 = None
         self.jss_asset_tag = None
         self.jss_serial_number = None
+        self.jss_name = None
 
     def get_serial(self):
         """Gets and returns serial number from the computer"""

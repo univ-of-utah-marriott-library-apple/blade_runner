@@ -117,13 +117,13 @@ class DualVerifyController(EntryController):
         computer.jss_barcode_2 = jss_server.get_barcode_2(computer.jss_id)
         computer.jss_asset_tag = jss_server.get_asset_tag(computer.jss_id)
         computer.jss_serial_number = jss_server.get_serial(computer.jss_id)
-        computer.prev_name = jss_server.get_name(computer.jss_id)
+        computer.jss_name = jss_server.get_name(computer.jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("Previous barcode_1: {}".format(computer.jss_barcode_1))
         logger.debug("Previous barcode_2: {}".format(computer.jss_barcode_2))
         logger.debug("Previous asset_tag: {}".format(computer.jss_asset_tag))
         logger.debug("Previous serial_number: {}".format(computer.jss_serial_number))
-        logger.debug("Previous name: {}".format(computer.prev_name))
+        logger.debug("Previous name: {}".format(computer.jss_name))
 
     def _store_conflicts(self, computer):
         # Check to see what fields changed after the user updated the fields through the entry view window.
@@ -276,7 +276,7 @@ class DualVerifyController(EntryController):
 
         # Fill computer name entry
         elif data_id == 'computer_name':
-            self.entry_view.jss_name_entry.insert(0, "{}".format(none_filter(computer.prev_name)))
+            self.entry_view.jss_name_entry.insert(0, "{}".format(none_filter(computer.jss_name)))
 
         # Fill serial number entry
         elif data_id == 'serial_number':

@@ -31,4 +31,4 @@ def pre_offboard_record_update(self):
     self._offboard_config = user_xml_updater.timestamp_note(self._offboard_config)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set the previous computer name extension attribute.
-    self._offboard_config = user_xml_updater.set_previous_computer_name(self._computer.prev_name, self._offboard_config)
+    self._offboard_config = user_xml_updater.set_previous_computer_name(self._computer.jss_name, self._offboard_config)
