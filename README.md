@@ -256,7 +256,7 @@ To facilitate "knowing" where to put code, `user_actions.py` is provided. It
 contains two unimplemented functions that are called in *Blade Runner*, namely
 in `JssDoc` and `MainController`.
 
-### JssDoc: modify_items()
+### modify_items
 
 In JssDoc there is a function call to an uimplemented function in 
 `user_actions.py` called `modify_items()`. This function appears right before 
@@ -293,7 +293,7 @@ def modify_items(self, items):
     items.insert(2, ("Previous Name", prev_name))
 ```
 
-### MainController: update_offboard_config()
+### update_offboard_config
 
 `MainController` is one of the last places where offboarding fields are processed before being sent to JAMF Pro. Because of this, `user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before `MainController` sends the data. Its purpose is to make custom changes to the offboard data before it is sent.
 
@@ -437,8 +437,8 @@ class generates a document by querying JAMF Pro for the following data:
 
 On the code side of things, these fields are represented by tuples, in which the 
 first parameter is the data name and the second parameter is the data value. 
-This is important to know if you plan on [adding to](#jssdoc) or 
-[removing from](#jssdoc) the data above.
+This is important to know if you plan on [adding to](#modify_items) or 
+[removing from](#modify_items) the data above.
 
 In the case that inconsistencies are found between the user entered data and the 
 pre-offboard computer record, those inconsistencies will be added to the document
@@ -454,7 +454,7 @@ The intent of this is to help track down and correct other mangled/incorrect
 computer records.
 
 Modification of the document is left up to the user (you), and is best done
-by implementing [modify_items()](#jssdoc) in [user_actions.py](#user-defined-actions). 
+by implementing [modify_items()](#modify_items) in [user_actions.py](#user-defined-actions). 
 
 # Uninstallation
 
