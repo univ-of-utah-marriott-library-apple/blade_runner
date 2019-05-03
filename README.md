@@ -333,7 +333,7 @@ def update_offboard_config(self):
         v. Secure Erase Error Recovery
     4. Auto Document Generation & Printing
     5. Slack Notifications
-        i. Slack Reminder Daemon
+        i. Slackify Reminder Daemon
     
 ## Offboard
 
@@ -432,6 +432,11 @@ Slack notifications can be used to indicate the start and end of the process
 along with any errors that occur in the process in the process. Currently,
 Slack notifications are reliant on `management_tools`, which is an included
 dependency.
+
+There is also a Slack reminder daemon that is launched when *Blade Runner* 
+finishes offboarding a computer. Only one of these daemons will be launched a 
+single computer, and it will send a notification on a daily basis until the 
+offboarded computer is turned off or the daemon is killed manually.
 
 ## Auto Document Generation and Printing
 
