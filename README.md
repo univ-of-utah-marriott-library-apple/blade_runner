@@ -1,9 +1,9 @@
 Blade Runner
 ===========
 
-*Blade Runner* is a JAMF Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating JAMF records. It also has the ability to secure erase the computer's internal disks, generate and print documents with data retreived from JAMF Pro, display inconsistencies in JAMF records against user entered data, and send progress updates through Slack. 
+*Blade Runner* is a JAMF Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating JAMF records, as well as secure erasing the computer's internal disks, generating and printing documents with data retreived from JAMF Pro, displaying inconsistencies in JAMF records against user entered data, and sending progress updates through Slack.
 
-*Blade Runner* is configured through plists and XML files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used/verified to locate/update a computer's JAMF record.
+It is configured through plists and XML files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used/verified to locate/update a computer's JAMF record.
 
 # Contents
 
@@ -25,8 +25,9 @@ Blade Runner
         * [Internal CoreStorage Detection & Dismantling](#internal-corestorage-detection-and-dismantling)
         * [Secure Erase Error Recovery](#secure-erase-error-recovery)
     * [Slack Notifications](#slack-notifications)
+        * [Slack Reminder Daemon](#slack-notifications)   
     * [Auto Document Generation and Printing](#auto-document-generation-and-printing)
-        * [Inconsistencies in JAMF Record](#jamf-record-inconsistencies) 
+        * [Displays Inconsistencies in JAMF Record](#jamf-record-inconsistencies) 
 * [Uninstallation](#uninstallation)
   * [Supporting Files](#files)
 * [Contact](#contact)
