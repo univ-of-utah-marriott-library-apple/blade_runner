@@ -26,6 +26,7 @@ Blade Runner
         * [Secure Erase Error Recovery](#secure-erase-error-recovery)
     * [Slack Notifications](#slack-notifications)
     * [Auto Document Generation and Printing](#auto-document-generation-and-printing)
+        * [Inconsistencies in JAMF Record](#jamf-record-inconsistencies) 
 * [Uninstallation](#uninstallation)
   * [Supporting Files](#files)
 * [Contact](#contact)
@@ -473,7 +474,17 @@ The intent of this is to help track down and correct other mangled/incorrect
 computer records.
 
 Modification of the document is left up to the user (you), and is best done
-by implementing [modify_items()](#modify_items) in [user_actions.py](#user-defined-actions). 
+by implementing [modify_items()](#modify_items) in [user_actions.py](#user-defined-actions).
+
+### Jamf Record Inconsistencies
+
+If there are any inconsistencies in the data that the user enters versus the 
+data that is already stored in JAMF Pro, they will be displayed on the generated
+document. *Blade Runner* checks for inconsistencies with the barcode, asset tag,
+and serial number data.
+
+The purpose of this is to help track down and fix incorrect data on other 
+computer records that may be linked to the one being offboarded.
 
 # Uninstallation
 
