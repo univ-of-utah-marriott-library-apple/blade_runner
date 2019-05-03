@@ -220,23 +220,35 @@ parameters are enabled.
 
 ## User Defined Actions
 
-There are areas in **Blade Runner**'s codebase where a custom implementation of a
+There are areas in *Blade Runner*'s codebase where a custom implementation of a
 process may be needed. In such circumstances, a configuration file isn't sufficient
-the code needs to be supplemented.
+and the code needs to be supplemented.
 
-To facilitate "knowing" where to put code, `user_actions.py` is provided. It
-contains two unimplemented functions that are called in *Blade Runner*, namely
-in `JssDoc` and `MainController`.
+To facilitate "knowing" where to put this code, `user_actions.py` is provided. It
+contains two unimplemented functions that are called in `JssDoc` and `MainController`.
 
 ### modify_items
 
-In JssDoc there is a function call to an uimplemented function in 
+In `JssDoc` there is a function call to an uimplemented function in 
 `user_actions.py` called `modify_items()`. This function appears right before 
-the body of the HTML file is generated. Its purpose is to allow the user to 
-modify the data that will appear in the document. `modify_items()` takes the 
+the body of the document is generated. Its purpose is to allow the user to 
+modify the data that appears in the document. `modify_items()` takes the 
 `JssDoc`'s `self` as the first parameter and a list of tuples as the second 
 parameter. `self` provides access to JAMF Pro. Each tuple in the list contains 
 the name and value of the data to be added to the document.
+
+The standard data tuples represent the following:
+
+    * Name
+    * Barcode 1
+    * Barcode 2
+    * Asset Tag
+    * JAMF ID
+    * Serial Number
+    * Model
+    * SSD
+    * RAM
+    * Storage
 
 An implementation to **remove** one of the standard data tuples might look like 
 this:
@@ -245,9 +257,21 @@ this:
 # user_actions.py
 
 def modify_items(self, items):
-    # Remove second tuple in list
-    items.pop(2)
+    # Remove Name tuple from the list
+    items.pop(0)
 ```
+
+which results in:
+
+    * Barcode 1
+    * Barcode 2
+    * Asset Tag
+    * JAMF ID
+    * Serial Number
+    * Model
+    * SSD
+    * RAM
+    * Storage
 
 An implementation to **add** some custom data tuples might look like this:
 
@@ -264,6 +288,21 @@ def modify_items(self, items):
     items.insert(1, ("Estimated Age", estimated_age))
     items.insert(2, ("Previous Name", prev_name))
 ```
+
+which results in:
+
+    * Name
+    * Estimated Age
+    * Previous Name
+    * Barcode 1
+    * Barcode 2
+    * Asset Tag
+    * JAMF ID
+    * Serial Number
+    * Model
+    * SSD
+    * RAM
+    * Storage
 
 ### update_offboard_config
 
