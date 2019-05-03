@@ -1,22 +1,32 @@
-Blade-Runner
+Blade Runner
 ===========
 
-Blade Runner is a JAMF based application that manages Mac computer systems
-through offboarding, enrolling, and updating JAMF records. It also secure erases 
-internal disks, generates documents from JAMF data, prints those documents, and
-sends progress updates through Slack.
+*Blade Runner* is a JAMF Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating JAMF records. It also has the ability to secure erase the computer's internal disks, generate and print documents with data retreived from JAMF Pro, display inconsistencies in JAMF records against user entered data, and send progress updates through Slack. 
+
+*Blade Runner* is configured through plists and XML files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used/verified to locate/update a computer's JAMF record.
 
 # Contents
 
 * [Download](#download)
-* [Features Overview](#features-overview)
+* [Features](#features)
 * [System Requirements](#system-requirements)
 * [Configuration](#configuration)
     * [JAMF Configuration](#jamf-configuration)
     * [Offboard Configuration](#offboard-configuration)
     * [Search Parameters Configuration](#search-parameters-configuration)
     * [Verification Parameters Configuration](#verification-parameters-configuration)
+    * [User Defined Actions](#user-defined-actions)
 * [How It Works](#How It Works)
+    * [Offboard](#offboard)
+    * [Enroll](#enroll)
+    * [Secure Erase](#secure-erase)
+        * [Firmware Password Detection](#firmware-password-detection)
+        * [Internal Disks Detection & Erasure](#internal-disks-detection-and-erasure)
+        * [Secure Erase Verification Tests](#secure-erase-verification-tests)
+        * [Internal CoreStorage Detection & Dismantling](#internal-corestorage-detection-and-dismantling)
+        * [Secure Erase Error Recovery](#secure-erase-error-recovery)
+    * [Slack Notifications](#slack-notifications)
+    * [Auto Document Generation and Printing](#auto-document-generation-and-printing)
 * [Uninstallation](#uninstallation)
   * [Supporting Files](#files)
 * [Contact](#contact)
@@ -27,49 +37,49 @@ sends progress updates through Slack.
 The latest release is available for download [here](../../releases). 
 Uninstallation instructions are provided [below](#uninstallation). 
 
-# Features Overview
+# Features
 
 ### *JAMF Integration*
 
-* Manage/unmanage computer.
-* Offboard computer.
-* Update computer record.
-* Delete computer record.
+* Manage/unmanage, offboard, and update JAMF record.
 
 ### *Secure Erase*
 
 * Secure erase all internal disks.
 * CoreStorage detection and deletion.
+* Error recovery.
 
-### *Auto-Generate Documents*
+### *Auto Document Generation and Printing*
 
 * Create a document populated with JAMF data for a given computer.
 
-### *Auto-Print Documents*
+### *Display JAMF Record Inconsistencies*
 
-* Print auto-generated documents to the default printer.
+* Compares user entered data against data in JAMF Pro.
 
 ### *Slack Integration*
 
-* Send Slack notifications on Blade-Runner's progress. Channel, URL, and
+* Send Slack notifications on *Blade Runner*'s progress. Channel, URL, and
 message are configurable.
 * "Reminder of completion" daemon that sends Slack notifications on a given 
-time interval after Blade-Runner has finished.
+time interval after *Blade Runner* has finished.
 
 ### *Plist/XML Configuration*
 
-* JAMF config.
-* Slack config.
+* [JAMF configuration](#jamf-configuration).
+* [Slack configuration](#slack-configuration)
+* [Search parameters configuration](#search-parameters-configuration).
+* [Verification parameters configuration](#verification-parameters-configuration).
 
 # System Requirements
 
-Blade-Runner requires Python 2.X.X >= Python 2.7.9, and is compatible on macOS 10.9 
+*Blade Runner* requires Python 2.X.X >= Python 2.7.9, and is compatible on macOS 10.9 
 (Mavericks) through 10.12 (Sierra). It has not been tested on OSes outside that 
 range.
 
 # Configuration
 
-Blade-Runner is configured through plists and XML files. These configuration
+Blade Runner is configured through plists and XML files. These configuration
 files are used for JAMF, Slack, and Blade-Runner. The configuration files
 are located in `private` and all must be configured before running Blade-runner.
 
@@ -369,7 +379,7 @@ Blade-Runner is unable to find `firmwarepasswd`, a pop up will display
 asking the user to disable the firmware password before continuing. The user
 can then proceed with the secure erase at their own discretion.
 
-### Internal Disks Detection/Erase
+### Internal Disks Detection and Erasure
 
 Internal disk detection is done through `diskutil info -plist disk#`.
 A plist is returned containing information about the disk. One of the keys
@@ -391,7 +401,7 @@ use `diskutil` output to determine if a disk was erased successfully.
 
 If all four tests pass, the disk has been secure erased.
 
-### Internal CoreStorage Detection/Dismantling
+### Internal CoreStorage Detection and Dismantling
 
 Internal CoreStorage detection is done through `diskutil coreStorage info -plist disk#`
 and testing for the existence of the `MemberOfCoreStorageLogicalVolumeGroup`
@@ -412,14 +422,14 @@ In these situations, *Blade-Runner* first performs a force unmount with
 this fails, an attempt is made to repair the disk with `diskutil repairVolume disk#` 
 before trying to secure erase a final time.
 
-### Slack Notifications
+## Slack Notifications
 
 Slack notifications can be used to indicate the start and end of the process
 along with any errors that occur in the process in the process. Currently,
 Slack notifications are reliant on `management_tools`, which is an included
 dependency.
 
-## Auto Document Generation/Printing
+## Auto Document Generation and Printing
 
 Auto document generation is done in `jss_doc.py` by the `JssDoc` class. This 
 class generates a document by querying JAMF Pro for the following data:
