@@ -286,13 +286,34 @@ def modify_items(self, items):
 
 #### Example 1:
 
-An implementation to set the name of any computer that is offboarded to the computer's serial number might look like this:
+Given an offboard config like this:
+
+    <computer>
+        <general>
+            <name></name>
+            <remote_management>
+                <managed>false</managed>
+            </remote_management>
+        </general>
+    </computer>
+    
+an implementation to always change the name to the serial number would look like this:
+
 ```
 # user_actions.py
+import xml.etree.cElementTree as ET
 
 def update_offboard_config(self):
-    # Change name of computer to serial number
-    self._offboard_config = my_custom_functions.xml_replace_name(self._computer.get_serial(), self._offboard_config)
+    # Parse the XML string into an XML tree and get the root.
+    xml_root = ET.fromstring(self._offboard_config)
+
+    # Find the "name" tag in "general" and replace its value with the serial number.
+    for general_element in xml_root.findall("./general"):
+        name_element = general_element.find('name')
+        name_element.text = self._computer.serial_number
+
+    # Save the new XML string.
+    self._offboard_config = ET.tostring(xml_root)
 ```
 
 # Features and How They Work
