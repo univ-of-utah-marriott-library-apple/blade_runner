@@ -3,7 +3,9 @@ Blade Runner
 
 *Blade Runner* is a JAMF Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating JAMF records, as well as secure erasing the computer's internal disks, generating and printing documents with data retreived from JAMF Pro, displaying inconsistencies in JAMF records against user entered data, and sending progress updates through Slack.
 
-It is configured through plists and XML files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used/verified to locate/update a computer's JAMF record.
+It is configured through plists and XML files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
+
+For a list of features, see [Features & How They Work](#features-and-how-they-work).
 
 # Contents
 
@@ -282,8 +284,9 @@ def modify_items(self, items):
 
 `user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before *Blade Runner* sends the offboard config to JAMF Pro. Its purpose is to make custom changes to the offboard data before it is sent.
 
-As an example, say you want to set the name of any computer that is offboarded to the computer's serial number. To do so, you could implement `update_offboard_config()` like this:
+#### Example 1:
 
+An implementation to set the name of any computer that is offboarded to the computer's serial number might look like this:
 ```
 # user_actions.py
 
