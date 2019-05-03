@@ -207,14 +207,12 @@ The verification parameters config (`verify_config.plist`) determines which
 search parameters need to be verified when a match in JAMF Pro is found. Here's a short example scenario:
 
 * User searches for a computer using `barcode 1`:
-  * No match found in JAMF.
-    * User then searches for a computer using the `asset tag`:
+  * No match found.
+    * User then searches for a computer using `asset tag`:
       * Match found.
-        * If `barcode 1` is enabled in `verify_config.plist`, *Blade Runner* will 
-          ask the user to verify the information entered for barcode 1 against 
-          JAMF's record for `barcode 1`.
+        * If `barcode 1` is enabled in `verify_config.plist`, *Blade Runner* will ask the user to verify/correct the information entered for `barcode 1` against JAMF Pro's record for `barcode 1`.
 
-It is generally the case that any keys enabled in `search_params_config.plist`
+It is generally the case that any keys enabled in [search_params_config.plist](#search-parameters-configuration)
 should also be enabled in `verify_config.plist`.
 
 *Blade Runner*'s GUI will dynamically update according to which verification 
