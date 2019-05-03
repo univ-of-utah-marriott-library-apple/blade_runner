@@ -183,8 +183,7 @@ The available search parameters are `barcode 1`, `barcode 2`, `asset tag`, and
 ### Example Config
 
 * Config that updates *Blade Runner* GUI to show `barcode 1`, `asset_tag`, and 
-  `serial number` buttons and allows the user to search JAMF for a computer 
-  using those search parameters:
+  `serial number` buttons and allows the user to search JAMF Pro using those search parameters:
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -205,8 +204,7 @@ The available search parameters are `barcode 1`, `barcode 2`, `asset tag`, and
 ## Verification Parameters Configuration
 
 The verification parameters config (`verify_config.plist`) determines which 
-search parameters need to be verified when a match for a computer in JAMF is
-found. Here's a short example scenario:
+search parameters need to be verified when a match in JAMF Pro is found. Here's a short example scenario:
 
 * User searches for a computer using `barcode 1`:
   * No match found in JAMF.
