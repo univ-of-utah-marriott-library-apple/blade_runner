@@ -229,7 +229,7 @@ contains two unimplemented functions that are called in `JssDoc` and `MainContro
 
 ### modify_items
 
-In `JssDoc` there is a function call to an uimplemented function in 
+In [jss_doc.py](#auto-document-generation-and-printing) there is a function call to an uimplemented function in 
 `user_actions.py` called `modify_items()`. This function appears right before 
 the body of the document is generated. Its purpose is to allow the user to 
 modify the data that appears in the document. `modify_items()` takes the 
@@ -237,7 +237,7 @@ modify the data that appears in the document. `modify_items()` takes the
 parameter. `self` provides access to JAMF Pro. Each tuple in the list contains 
 the name and value of the data to be added to the document.
 
-The standard data tuples represent the following:
+The first parameters of the standard data tuples are the following:
 
     * Name
     * Barcode 1
@@ -250,8 +250,8 @@ The standard data tuples represent the following:
     * RAM
     * Storage
 
-An implementation to **remove** one of the standard data tuples might look like 
-this:
+#### Example 1:  
+An implementation to **remove** the Name tuple would look like this:
 
 ```
 # user_actions.py
@@ -261,18 +261,7 @@ def modify_items(self, items):
     items.pop(0)
 ```
 
-which results in:
-
-    * Barcode 1
-    * Barcode 2
-    * Asset Tag
-    * JAMF ID
-    * Serial Number
-    * Model
-    * SSD
-    * RAM
-    * Storage
-
+#### Example 2:
 An implementation to **add** some custom data tuples might look like this:
 
 ```
@@ -289,41 +278,23 @@ def modify_items(self, items):
     items.insert(2, ("Previous Name", prev_name))
 ```
 
-which results in:
-
-    * Name
-    * Estimated Age
-    * Previous Name
-    * Barcode 1
-    * Barcode 2
-    * Asset Tag
-    * JAMF ID
-    * Serial Number
-    * Model
-    * SSD
-    * RAM
-    * Storage
-
 ### update_offboard_config
 
-`MainController` is one of the last places where offboarding fields are processed before being sent to JAMF Pro. Because of this, `user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before `MainController` sends the data. Its purpose is to make custom changes to the offboard data before it is sent.
+`user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before *Blade Runner* sends the offboard config to JAMF Pro. Its purpose is to make custom changes to the offboard data before it is sent.
 
-As an example, say you want to set the name of any computer that is offboarded to the computer's serial number. Instead of rummaging through the codebase to figure out where to do that, you could implement `update_offboard_config()` like this:
+As an example, say you want to set the name of any computer that is offboarded to the computer's serial number. To do so, you could implement `update_offboard_config()` like this:
 
 ```
 # user_actions.py
 
 def update_offboard_config(self):
-    """User defines implementation. Meant to update the computer's JSS record with extra information before
-    offboarding.
-    """
     # Change name of computer to serial number
     self._offboard_config = my_custom_functions.xml_replace_name(self._computer.get_serial(), self._offboard_config)
 ```
 
 # Features and How They Work
 
-*Blade Runner* essentially performs 6 tasks:
+*Blade Runner* essentially performs 5 tasks:
 
     1. Offboard
     2. Enroll
@@ -335,28 +306,27 @@ def update_offboard_config(self):
         v. Secure Erase Error Recovery
     4. Auto Document Generation & Printing
     5. Slack Notifications
-        i. Slackify Reminder Daemon
+        i. Slack Reminder Daemon
     
 ## Offboard
 
-Offboarding is done through API calls made by *Blade Runner* to a JAMF server.
+Offboarding is done through API calls made by *Blade Runner* to JAMF Pro.
 The user selects an offboarding configuration file and that file is sent to
-the JAMF server as an `XML` string.
+JAMF Pro as an XML string.
 
 ## Enroll
 
 The purpose of enrolling before offboarding is to:
 
-1. create a record for a computer if it doesn't already exist in JAMF.
-2. change the managed status of an existing computer record from false to true.
-This enables modification of the computer record, allowing us to modify any
-fields that need to be offboarded.
+1. create a record for a computer if it doesn't already exist in JAMF Pro.
+2. change the managed status of an existing computer from false to true.
+This enables modification of the computer record.
 
 Enrolling is done through the `jamf` binary with an invitation code: 
 
     jamf enroll -invitation 1234567891234567891234567891234567890 -noPolicy -noManage -verbose
 
-The invitation code is set in the JAMF configuration.
+The invitation code is set in the [JAMF Pro configuration](#jamf-configuration).
 
 ## Secure Erase
 
@@ -377,10 +347,7 @@ of a firmware password before secure erasing. This is done to ensure that
 the firmware password has been removed in the scenario that the computer
 will be put in storage or sold to another user.
 
-If *Blade Runner* is unable to find `firmwarepasswd`, a pop up will display
-alerting 
-
-NOTE: `firmwarepasswd` command only exists on macOS 10.10 and above. If 
+**NOTE:** `firmwarepasswd` command only exists on macOS 10.10 and above. If 
 *Blade Runner* is unable to find `firmwarepasswd`, a pop up will display
 asking the user to disable the firmware password before continuing. The user
 can then proceed with the secure erase at their own discretion.
@@ -423,7 +390,7 @@ two commons problems that prevent a secure erase are:
 1. Inability to unmount disk
 2. Inability to work with a disk that needs to be repaired
 
-In these situations, **Blade Runner** first performs a force unmount with
+In these situations, *Blade Runner* first performs a force unmount with
 `diskutil unmountDisk force disk#` before attempting another secure erase. If 
 this fails, an attempt is made to repair the disk with `diskutil repairVolume disk#` 
 before trying to secure erase a final time.
@@ -431,13 +398,13 @@ before trying to secure erase a final time.
 ## Slack Notifications
 
 Slack notifications can be used to indicate the start and end of the process
-along with any errors that occur in the process in the process. Currently,
+along with any errors that occur in the process. Currently,
 Slack notifications are reliant on `management_tools`, which is an included
 dependency.
 
 There is also a Slack reminder daemon that is launched when *Blade Runner* 
-finishes offboarding a computer. Only one of these daemons will be launched a 
-single computer, and it will send a notification on a daily basis until the 
+finishes offboarding a computer. Only one of these daemons can be launched on a 
+computer at a time, and it will send a notification on a daily basis until the 
 offboarded computer is turned off or the daemon is killed manually.
 
 ## Auto Document Generation and Printing
@@ -459,9 +426,9 @@ class generates a document by querying JAMF Pro for the following data:
 On the code side of things, these fields are represented by tuples, in which the 
 first parameter is the data name and the second parameter is the data value. 
 This is important to know if you plan on [adding to](#modify_items) or 
-[removing from](#modify_items) the data above.
+[removing from](#modify_items) the data above to customize the document.
 
-In the case that inconsistencies are found between the user entered data and the 
+In the case that [JAMF record inconsistencies](#jamf-record-inconsistencies) exist between user entered data and the 
 pre-offboard computer record, those inconsistencies will be added to the document
 for the user to review later if they so wish. The reported inconsistencies are
 as follows:
@@ -473,9 +440,6 @@ as follows:
 
 The intent of this is to help track down and correct other mangled/incorrect 
 computer records.
-
-Modification of the document is left up to the user (you), and is best done
-by implementing [modify_items()](#modify_items) in [user_actions.py](#user-defined-actions).
 
 ### Jamf Record Inconsistencies
 
