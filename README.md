@@ -8,7 +8,6 @@ Blade Runner
 # Contents
 
 * [Download](#download)
-* [Features](#features)
 * [System Requirements](#system-requirements)
 * [Configuration](#configuration)
     * [JAMF Configuration](#jamf-configuration)
@@ -16,7 +15,7 @@ Blade Runner
     * [Search Parameters Configuration](#search-parameters-configuration)
     * [Verification Parameters Configuration](#verification-parameters-configuration)
     * [User Defined Actions](#user-defined-actions)
-* [How It Works](#How It Works)
+* [Features & How They Work](#features-and-how-they-work)
     * [Offboard](#offboard)
     * [Enroll](#enroll)
     * [Secure Erase](#secure-erase)
@@ -320,16 +319,21 @@ def update_offboard_config(self):
     self._offboard_config = my_custom_functions.xml_replace_name(self._computer.get_serial(), self._offboard_config)
 ```
 
-# How It Works
+# Features and How They Work
 
 *Blade Runner* essentially performs 6 tasks:
 
     1. Offboard
-    2. JAMF Enroll
+    2. Enroll
     3. Secure Erase
-    4. Auto Generate Documents
-    5. Auto Print Documents
-    6. Slack Notifications
+        i. Firmware Password Detection
+       ii. Internal Disks Detection & Erasure
+      iii. Secure Erase Verification Tests
+       iv. Internal CoreStorage Detection & Dismantling
+        v. Secure Erase Error Recovery
+    4. Auto Document Generation & Printing
+    5. Slack Notifications
+        i. Slack Reminder Daemon
     
 ## Offboard
 
