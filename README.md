@@ -10,7 +10,7 @@ It is configured through plists and XML files, allowing for multiple offboarding
 * [Download](#download)
 * [System Requirements](#system-requirements)
 * [Configuration](#configuration)
-    * [JAMF Configuration](#jamf-configuration)
+    * [JAMF Pro Configuration](#jamf-pro-configuration)
     * [Offboard Configuration](#offboard-configuration)
     * [Search Parameters Configuration](#search-parameters-configuration)
     * [Verification Parameters Configuration](#verification-parameters-configuration)
@@ -38,40 +38,6 @@ It is configured through plists and XML files, allowing for multiple offboarding
 The latest release is available for download [here](../../releases). 
 Uninstallation instructions are provided [below](#uninstallation). 
 
-# Features
-
-### *JAMF Integration*
-
-* Manage/unmanage, offboard, and update JAMF record.
-
-### *Secure Erase*
-
-* Secure erase all internal disks.
-* CoreStorage detection and deletion.
-* Error recovery.
-
-### *Auto Document Generation and Printing*
-
-* Create a document populated with JAMF data for a given computer.
-
-### *Display JAMF Record Inconsistencies*
-
-* Compares user entered data against data in JAMF Pro.
-
-### *Slack Integration*
-
-* Send Slack notifications on *Blade Runner*'s progress. Channel, URL, and
-message are configurable.
-* "Reminder of completion" daemon that sends Slack notifications on a given 
-time interval after *Blade Runner* has finished.
-
-### *Plist/XML Configuration*
-
-* [JAMF configuration](#jamf-configuration).
-* [Slack configuration](#slack-configuration)
-* [Search parameters configuration](#search-parameters-configuration).
-* [Verification parameters configuration](#verification-parameters-configuration).
-
 # System Requirements
 
 *Blade Runner* requires Python 2.X.X >= Python 2.7.9, and is compatible on macOS 10.9 
@@ -80,9 +46,9 @@ range.
 
 # Configuration
 
-Blade Runner is configured through plists and XML files. These configuration
-files are used for JAMF, Slack, and Blade-Runner. The configuration files
-are located in `private` and all must be configured before running Blade-runner.
+*Blade Runner* is configured through plists and XML files. These configuration
+files are used for JAMF Pro access, Slack notifications, and *Blade Runner*. The configuration files
+are located in `private` and all must be configured before running *Blade Runner*.
 
 * [JAMF Configuration](#jamf-configuration)
 * [Offboard Configuration](#offboard-configuration)
@@ -90,29 +56,29 @@ are located in `private` and all must be configured before running Blade-runner.
 * [Verification Parameters Configuration](#verification-parameters-configuration)
 * [User Defined Actions](#user-defined-actions)
 
-## JAMF Configuration
+## JAMF Pro Configuration
 
 The JAMF configuration plist (`jss_server_config.plist`) contains the information
-needed for Blade-Runner to run JAMF related tasks. The config contains the 
+needed for *Blade Runner* to run JAMF related tasks. The config contains the 
 following keys:
 
-* *username*
-  * JAMF login username that will be used to make API calls to the JAMF server. 
-* *password*
-  * JAMF login password that will be used to make API calls to the JAMF server.
-* *jss_url*
-  * URL of the JAMF server to be queried.
-* *invite*
-  * Invitation code used to enroll a computer into the JAMF server. 
-* *jamf_binary_1*
+* **username**
+  * JAMF Pro login username that will be used to make API requests to JAMF Pro. 
+* **password**
+  * JAMF Pro login password that will be used to make API requests to the JAMF Pro.
+* **jss_url**
+  * JAMF Pro url.
+* **invite**
+  * Invitation code used to enroll a computer into JAMF Pro. 
+* **jamf_binary_1**
   * Location of `jamf` binary on computer. This is the primary `jamf` binary
   that will be used to enroll computers.
-* *jamf_binary_2*
+* **jamf_binary_2**
   * Secondary `jamf` binary location. Intended to be a location on an external
   hard drive, e.g., `/Volumes/my_external_drive/jamf` in the case that the 
   computer being enrolled doesn't have a `jamf` binary.
 
-### Example
+### Example Config
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -137,9 +103,8 @@ following keys:
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be `XML` files. These configs
-contain the information to be sent to the JAMF server when offboarding. Upon 
-starting Blade-Runner, an offboard configuration selection will be shown to the 
+Offboard configurations can have any name but must be XML files. These configs
+contain the information to be sent to JAMF Pro when offboarding. When offboarding with *Blade Runner*, an offboard configuration selection will be shown to the 
 user. All XML files in `private` will be avialable for selection.
 
 **The XML file must represent a valid string for JAMF's XML API calls.** The best
@@ -148,7 +113,7 @@ click on `computers>computers/id>Try it out!`, and look at the available
 data in `XML Response Body`. Your configuration file's tags and structure should
 only contain tags that exist in `XML Response Body`.
 
-### Examples
+### Example Configs
 
 * Offboard configuration that only sets management status to false:
 ```
@@ -208,16 +173,16 @@ only contain tags that exist in `XML Response Body`.
 ## Search Parameters Configuration
 
 The search parameters config (`search_params_config.plist`) determines the 
-search parameters to be used in searching for a computer in JAMF. The 
-Blade-Runner GUI will dynamically update according to these search parameters 
+search parameters to be used in searching for a computer record in JAMF Pro. The 
+*Blade Runner* GUI will dynamically update according to these search parameters 
 by only showing buttons that correspond to the enabled search parameters.
 
 The available search parameters are `barcode 1`, `barcode 2`, `asset tag`, and 
 `serial number`.
 
-### Example
+### Example Config
 
-* Config that updates Blade-Runner GUI to show `barcode 1`, `asset_tag`, and 
+* Config that updates *Blade Runner* GUI to show `barcode 1`, `asset_tag`, and 
   `serial number` buttons and allows the user to search JAMF for a computer 
   using those search parameters:
 ```
@@ -247,19 +212,19 @@ found. Here's a short example scenario:
   * No match found in JAMF.
     * User then searches for a computer using the `asset tag`:
       * Match found.
-        * If `barcode 1` is enabled in `verify_config.plist`, Blade-Runner will 
+        * If `barcode 1` is enabled in `verify_config.plist`, *Blade Runner* will 
           ask the user to verify the information entered for barcode 1 against 
           JAMF's record for `barcode 1`.
 
 It is generally the case that any keys enabled in `search_params_config.plist`
 should also be enabled in `verify_config.plist`.
 
-Blade-Runner's GUI will dynamically update according to which verification 
+*Blade Runner*'s GUI will dynamically update according to which verification 
 parameters are enabled.
 
 ## User Defined Actions
 
-There are areas in *Blade-Runner*'s codebase where a custom implementation of a
+There are areas in **Blade Runner**'s codebase where a custom implementation of a
 process may be needed. In such circumstances, a configuration file isn't sufficient
 the code needs to be supplemented.
 
@@ -372,16 +337,16 @@ The secure erase functionality contains the following features:
 
 ### Firmware Password Detection
 
-Blade-Runner uses the `firmwarepasswd` command to check for the existence 
+*Blade Runner* uses the `firmwarepasswd` command to check for the existence 
 of a firmware password before secure erasing. This is done to ensure that
 the firmware password has been removed in the scenario that the computer
 will be put in storage or sold to another user.
 
-If Blade-Runner is unable to find `firmwarepasswd`, a pop up will display
+If *Blade Runner* is unable to find `firmwarepasswd`, a pop up will display
 alerting 
 
 NOTE: `firmwarepasswd` command only exists on macOS 10.10 and above. If 
-Blade-Runner is unable to find `firmwarepasswd`, a pop up will display
+*Blade Runner* is unable to find `firmwarepasswd`, a pop up will display
 asking the user to disable the firmware password before continuing. The user
 can then proceed with the secure erase at their own discretion.
 
@@ -423,7 +388,7 @@ two commons problems that prevent a secure erase are:
 1. Inability to unmount disk
 2. Inability to work with a disk that needs to be repaired
 
-In these situations, *Blade-Runner* first performs a force unmount with
+In these situations, **Blade Runner** first performs a force unmount with
 `diskutil unmountDisk force disk#` before attempting another secure erase. If 
 this fails, an attempt is made to repair the disk with `diskutil repairVolume disk#` 
 before trying to secure erase a final time.
