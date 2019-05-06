@@ -1,4 +1,5 @@
-*private
+private/*/*.plist
+private/*/*.xml
 *.pyc
 .idea
 .DS_Store
