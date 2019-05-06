@@ -41,7 +41,7 @@ def slackify_reminder():
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set up.
     python_bin = '/usr/bin/python'
-    script_path = os.path.join(script_dir, 'slackify.py')
+    script_path = os.path.join(blade_runner_dir, 'blade_runner/slack/slackify.py')
     channel = slack_data['slack_channel']
     message = 'Reminder: Blade-Runner finished.'
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -76,10 +76,12 @@ def run_daemon():
 if __name__ == "__main__":
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set path to script .
-    script_dir = os.path.dirname(os.path.abspath(__file__))
+    blade_runner_dir = os.path.dirname(os.path.abspath(__file__))
+    for i in range(3):
+        blade_runner_dir = os.path.dirname(blade_runner_dir)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set path to Slack config plist.
-    slack_plist = os.path.join(script_dir, "private/slack_config.plist")
+    slack_plist = os.path.join(blade_runner_dir, "private/slack_configs/slack.plist")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Convert Slack config to a dictionary.
     slack_data = plistlib.readPlist(slack_plist)
