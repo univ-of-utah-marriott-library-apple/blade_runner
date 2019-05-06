@@ -1,5 +1,9 @@
 private/*/*.plist
 private/*/*.xml
+test/private/*/*.plist
+test/private/*/*.xml
+docs/*/*.html
+docs/*/*.pdf
 *.pyc
 .idea
 .DS_Store
