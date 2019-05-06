@@ -17,7 +17,7 @@ except ImportError:
     import tkinter as tk
 from main_controller import MainController
 from params import SearchParams, VerifyParams
-import user_xml_updater as user
+import xml_updater as user
 
 
 class TestBladeRunner(unittest.TestCase):

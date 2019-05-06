@@ -10,7 +10,7 @@ try:
 except ImportError:
     import tkinter as tk
 from main_controller import MainController
-import user_xml_updater as user
+import xml_updater as user
 
 
 class TestBladeRunner(unittest.TestCase):
