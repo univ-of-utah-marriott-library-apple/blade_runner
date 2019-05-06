@@ -21,6 +21,7 @@
 ################################################################################
 
 import os
+import sys
 import socket
 import inspect
 import plistlib
@@ -32,6 +33,8 @@ try:
 except ImportError:
     import tkinter as tk
 import xml.etree.cElementTree as ET
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "blade_runner/dependencies"))
 
 from controller import Controller
 from management_tools import loggers
@@ -103,7 +106,13 @@ class MainController(Controller):
         self.search_params_input = search_params
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set path to private directory that contains the configuration files.
-        self._private_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "private")
+
+        private_path = os.path.abspath(__file__)
+        for i in range(3):
+            private_path = os.path.dirname(private_path)
+        self._private_dir = os.path.join(private_path, "private")
+
+        self._offboard_configs_dir = os.path.join(self._private_dir, "offboard_configs")
 
     def _exception_messagebox(self, exc, value, traceback):
         """Displays a message box with the accompanying exception message whenver an exception occurs.
@@ -220,7 +229,7 @@ class MainController(Controller):
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get the XML config files from the private directory
-        offboard_configs = self._get_offboard_configs(self._private_dir)
+        offboard_configs = self._get_offboard_configs(self._offboard_configs_dir)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Fill the main view's combobox with the XML files.
         self._main_view.combobox.config(values=offboard_configs)
@@ -259,7 +268,7 @@ class MainController(Controller):
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Parse XML file into an XML tree.
-        xml_file = os.path.join(self._private_dir, offboard_config)
+        xml_file = os.path.join(self._offboard_configs_dir, offboard_config)
         xml_tree = ET.parse(xml_file)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get the root of the tree.
@@ -604,20 +613,23 @@ def main():
     root.withdraw()
 
     # Read from jss config plist and set up the JSS server
-    blade_runner_dir = os.path.dirname(abs_file_path)
-    jss_server_plist = os.path.join(blade_runner_dir, "private/jss_server_config.plist")
+    blade_runner_dir = abs_file_path
+    for i in range(3):
+        blade_runner_dir = os.path.dirname(blade_runner_dir)
+
+    jss_server_plist = os.path.join(blade_runner_dir, "private/jamf_pro_configs/jamf_pro.plist")
     jss_server_data = plistlib.readPlist(jss_server_plist)
     jss_server = JssServer(**jss_server_data)
     logger.debug(jss_server._jss_url)
 
     # Read from Slack config plist to set up Slack notifications
-    slack_plist = os.path.join(blade_runner_dir, "private/slack_config.plist")
+    slack_plist = os.path.join(blade_runner_dir, "private/slack_configs/slack.plist")
     slack_data = plistlib.readPlist(slack_plist)
 
-    verify_config = os.path.join(blade_runner_dir, "private/verify_config.plist")
+    verify_config = os.path.join(blade_runner_dir, "private/verify_params_configs/verify_params.plist")
     verify_data = plistlib.readPlist(verify_config)
 
-    search_params_config = os.path.join(blade_runner_dir, "private/search_params_config.plist")
+    search_params_config = os.path.join(blade_runner_dir, "private/search_params_configs/search_params.plist")
     search_params = plistlib.readPlist(search_params_config)
 
     # Run the application
