@@ -20,12 +20,13 @@
 # implied warranties of any kind.
 ################################################################################
 
+import os
+import inspect
 try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-import inspect
-import os
+
 from management_tools import loggers
 
 

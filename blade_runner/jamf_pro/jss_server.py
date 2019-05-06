@@ -20,16 +20,17 @@
 # implied warranties of any kind.
 ################################################################################
 
-import os
-import subprocess
-from management_tools import loggers
-import urllib2
-import base64
-import json
 import re
-import inspect
-import xml.etree.cElementTree as ET
+import os
 import sys
+import json
+import base64
+import inspect
+import urllib2
+import subprocess
+import xml.etree.cElementTree as ET
+
+from management_tools import loggers
 
 
 class JssServer(object):

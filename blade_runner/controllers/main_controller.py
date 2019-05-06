@@ -20,33 +20,33 @@
 # implied warranties of any kind.
 ################################################################################
 
-from main_view import MainView
+import os
+import socket
+import inspect
+import plistlib
+import subprocess
+import tkMessageBox
+import traceback as tb
 try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-import subprocess
-import inspect
-from management_tools import loggers
-import os
-from jss_server import JssServer
-import plistlib
-from computer import Computer
-import socket
-from management_tools.slack import IncomingWebhooksSender as IWS
-from jss_doc import JssDoc
-import user_actions
-from params import SearchParams, VerifyParams
-from search_controller import SearchController
-from verification_controller import VerificationController
-from dual_verify_controller import DualVerifyController
-from controller import Controller
-import tkMessageBox
-from stall_window import StallWindow
-import traceback as tb
-from secure_erase_window import SecureEraseWindow
 import xml.etree.cElementTree as ET
 
+from controller import Controller
+from management_tools import loggers
+from search_controller import SearchController
+from blade_runner.jamf_pro.jss_doc import JssDoc
+from blade_runner.views.main_view import MainView
+from blade_runner.user_actions import user_actions
+from blade_runner.jamf_pro.computer import Computer
+from blade_runner.jamf_pro.jss_server import JssServer
+from dual_verify_controller import DualVerifyController
+from blade_runner.windows.stall_window import StallWindow
+from verification_controller import VerificationController
+from management_tools.slack import IncomingWebhooksSender as IWS
+from blade_runner.jamf_pro.params import SearchParams, VerifyParams
+from blade_runner.windows.secure_erase_window import SecureEraseWindow
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
 # TODO BUG: If spaces are entered in the asset/barcode inputs the program quits. Need to format spaces.

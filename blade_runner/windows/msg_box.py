@@ -24,7 +24,8 @@ try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-from controller import Controller
+
+from blade_runner.controllers.controller import Controller
 
 
 class MsgBox(Controller):

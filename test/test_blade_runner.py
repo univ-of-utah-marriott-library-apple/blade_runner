@@ -6,18 +6,19 @@
 
 '''
 
-import unittest
 import os
-import plistlib
-from jss_server import JssServer
 import inspect
+import unittest
+import plistlib
 try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-from main_controller import MainController
-from params import SearchParams, VerifyParams
-import xml_updater as user
+
+from blade_runner.controllers.main_controller import MainController
+from blade_runner.jamf_pro.params import SearchParams, VerifyParams
+from blade_runner.user_actions import xml_updater as user
+from blade_runner.jamf_pro.jss_server import JssServer
 
 
 class TestBladeRunner(unittest.TestCase):

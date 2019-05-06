@@ -20,16 +20,17 @@
 # implied warranties of any kind.
 ################################################################################
 
-from daemon import daemon
-import time
-import subprocess
 import os
 import sys
+import time
 import plistlib
-from management_tools import filelock
+import subprocess
 
+from management_tools import filelock
+from blade_runner.dependencies.daemon import daemon
 
 # TODO Create config plist that specifies frequency and whether or not the daemon is enabled.
+
 
 def slackify_reminder():
     """Sends a message to a Slack channel during a specified time period on a specified interval.

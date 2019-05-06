@@ -20,8 +20,8 @@
 # implied warranties of any kind.
 ################################################################################
 
+from blade_runner.dependencies import pexpect
 from Tkinter import *
-import pexpect
 import tkSimpleDialog
 
 

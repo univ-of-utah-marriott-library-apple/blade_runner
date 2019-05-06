@@ -1,15 +1,19 @@
 #!/usr/bin/python
 
-import unittest
 import os
-import plistlib
-from jss_server import JssServer
+import sys
 import inspect
+import unittest
+import plistlib
 try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-from main_controller import MainController
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "blade_runner/dependencies"))
+from blade_runner.jamf_pro.jss_server import JssServer
+from blade_runner.controllers.main_controller import MainController
 
 
 class TestGUIServerManual(unittest.TestCase):
@@ -21,7 +25,7 @@ class TestGUIServerManual(unittest.TestCase):
         root.withdraw()
 
         abs_file_path = inspect.getframeinfo(cf).filename
-        self.blade_runner_dir = os.path.dirname(abs_file_path)
+        self.blade_runner_dir = os.path.dirname(os.path.dirname(abs_file_path))
         jss_server_plist = os.path.join(self.blade_runner_dir, "private/test/jss_server_config.plist")
         jss_server_data = plistlib.readPlist(jss_server_plist)
         jss_server = JssServer(**jss_server_data)

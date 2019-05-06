@@ -20,11 +20,12 @@
 # implied warranties of any kind.
 ################################################################################
 
-from entry_controller import EntryController
-import inspect
-from management_tools import loggers
 import os
-from verification_view import VerifyView
+import inspect
+
+from management_tools import loggers
+from entry_controller import EntryController
+from blade_runner.views.verification_view import VerifyView
 
 
 class VerificationController(EntryController):

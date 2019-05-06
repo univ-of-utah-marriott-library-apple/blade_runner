@@ -20,8 +20,8 @@
 # implied warranties of any kind.
 ################################################################################
 
-import xml.etree.cElementTree as ET
 import datetime
+import xml.etree.cElementTree as ET
 
 
 def xml_file_append_name(string, xml_file):

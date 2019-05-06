@@ -5,23 +5,23 @@
 folder on the external HD.
 """
 
-import subprocess as sp
 import re
-from management_tools import loggers
 import os
 import sys
-import inspect
 import socket
-import urllib2
-from management_tools.slack import IncomingWebhooksSender as IWS
+import inspect
 import plistlib
-import document as doc
-import tkMessageBox
+import urllib2
+import subprocess as sp
 try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-from msg_box import MsgBox
+
+from management_tools import loggers
+from blade_runner.document import document as doc
+from management_tools.slack import IncomingWebhooksSender as IWS
+from blade_runner.windows.msg_box import MsgBox
 
 
 def firmware_pass_exists():

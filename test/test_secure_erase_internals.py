@@ -5,12 +5,14 @@
 "python test_secure_erase_internals.py"
 '''
 
-import unittest
-import secure_erase_internals as sei
-import subprocess as sp
-import os
 import re
+import os
 import sys
+import unittest
+import subprocess as sp
+
+from blade_runner.secure_erase import secure_erase_internals as sei
+
 global test_disk
 
 home = os.path.expanduser("~")

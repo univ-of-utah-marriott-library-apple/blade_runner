@@ -20,11 +20,11 @@
 # implied warranties of any kind.
 ################################################################################
 
-from entry_controller import EntryController
+import os
 import inspect
 from management_tools import loggers
-import os
-from dual_verify_view import DualVerifyView
+from entry_controller import EntryController
+from blade_runner.views.dual_verify_view import DualVerifyView
 
 
 class DualVerifyController(EntryController):

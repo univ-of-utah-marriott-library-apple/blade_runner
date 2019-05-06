@@ -1,13 +1,11 @@
 
-import xml.etree.cElementTree as ET
 import os
-import re
-from jss_server import JssServer
 import plistlib
-from computer import Computer
-from pprint import pformat, pprint
-import json
 import xml.dom.minidom
+import xml.etree.cElementTree as ET
+
+from blade_runner.jamf_pro.computer import Computer
+from blade_runner.jamf_pro.jss_server import JssServer
 
 
 # Set up the server

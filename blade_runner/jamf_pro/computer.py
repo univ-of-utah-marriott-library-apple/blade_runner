@@ -20,11 +20,12 @@
 # implied warranties of any kind.
 ################################################################################
 
-import os
-import subprocess
-from management_tools import loggers
 import re
+import os
 import inspect
+import subprocess
+
+from management_tools import loggers
 
 
 class Computer(object):

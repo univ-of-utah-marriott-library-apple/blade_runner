@@ -20,13 +20,14 @@
 # implied warranties of any kind.
 ################################################################################
 
-from management_tools.slack import IncomingWebhooksSender as IWS
-import socket
-import subprocess
-import sys
 import re
 import os
+import sys
+import socket
 import plistlib
+import subprocess
+
+from management_tools.slack import IncomingWebhooksSender as IWS
 
 # TODO: Upload this version of Slackify to the slackify repo.
 

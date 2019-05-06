@@ -1,8 +1,9 @@
 import os
 import inspect
-from management_tools import loggers
 import subprocess
 import webbrowser
+
+from management_tools import loggers
 
 
 def create_html(content, filepath):

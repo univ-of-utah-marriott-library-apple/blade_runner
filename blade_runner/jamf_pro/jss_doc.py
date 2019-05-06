@@ -22,9 +22,10 @@
 
 import os
 import inspect
+
 from management_tools import loggers
-import document as doc
-import user_actions
+from blade_runner.document import document as doc
+from blade_runner.user_actions import user_actions
 
 
 class JssDoc(object):
