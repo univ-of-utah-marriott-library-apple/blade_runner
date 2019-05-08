@@ -1,0 +1,7 @@
+private/*/*.plist
+private/*/*.xml
+docs/*/*.html
+docs/*/*.pdf
+*.pyc
+.idea
+.DS_Store
