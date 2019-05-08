@@ -86,13 +86,15 @@ class DualVerifyView(tk.Toplevel):
         # Create two frames inside the window.
         header_frame = tk.Frame(self)
         content_frame = tk.Frame(self)
+        button_frame = tk.Frame(self)
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Creating and adding widgets to subframes
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Text header component
-        self.text_lbl = tk.Label(header_frame, text="No JAMF record exists for this computer.\n"
-                                                    "Create the new record by filling in the\n"
-                                                    "following fields:\n")
+        self.text_lbl = tk.Label(header_frame, text="A JAMF Pro record exists for this computer. "
+                                                    "Update the record by filling in the \n"
+                                                    "following fields. Any fields left blank will not be updated.\n",
+                                 justify="left")
         self.text_lbl.grid(row=0)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # User header
@@ -142,16 +144,16 @@ class DualVerifyView(tk.Toplevel):
         self.jss_serial_entry = tk.Entry(content_frame)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Submit button for user entered data
-        self._user_submit_btn = tk.Button(content_frame, text='Submit from User', command=self._user_submit_btn_clicked)
-        self._user_submit_btn.grid(row=6, column=1)
-        # Submit button for JSS entered data
-        self._jss_submit_btn = tk.Button(content_frame, text='Keep JSS Data', command=self._jss_submit_btn_clicked)
-        self._jss_submit_btn.grid(row=6, column=3)
+        self._user_submit_btn = tk.Button(button_frame, text='Update & Send', command=self._user_submit_btn_clicked)
+        self._user_submit_btn.grid()
+
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Grid the frames.
-        header_frame.grid(row=0)
-        content_frame.grid(row=1)
+        header_frame.grid(row=0, padx=10, pady=(10, 0))
+        content_frame.grid(row=1, padx=10)
+        button_frame.grid(row=2, padx=10, pady=(5,10))
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>^
+        self.bind('<Return>', lambda event: self._user_submit_btn_clicked())
         self.resizable(False, False)
 
     def _close_button_clicked(self):
@@ -159,7 +161,4 @@ class DualVerifyView(tk.Toplevel):
 
     def _user_submit_btn_clicked(self):
         self._controller.proceed_operation("user")
-
-    def _jss_submit_btn_clicked(self):
-        self._controller.proceed_operation("jss")
 
