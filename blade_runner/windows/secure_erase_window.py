@@ -20,9 +20,10 @@
 # implied warranties of any kind.
 ################################################################################
 
-from blade_runner.dependencies import pexpect
 from Tkinter import *
 import tkSimpleDialog
+
+from blade_runner.dependencies import pexpect
 
 
 class SecureEraseWindow(Toplevel):
