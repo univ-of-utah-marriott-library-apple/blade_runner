@@ -25,11 +25,8 @@ import sys
 import time
 import plistlib
 import subprocess
-
-from management_tools import filelock
+from blade_runner.dependencies.management_tools import filelock
 from blade_runner.dependencies.daemon import daemon
-
-# TODO Create config plist that specifies frequency and whether or not the daemon is enabled.
 
 
 def slackify_reminder():
@@ -38,23 +35,23 @@ def slackify_reminder():
     Returns:
         void
     """
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>9
     # Set up.
     python_bin = '/usr/bin/python'
-    script_path = os.path.join(blade_runner_dir, 'blade_runner/slack/slackify.py')
     channel = slack_data['slack_channel']
-    message = 'Reminder: Blade-Runner finished.'
+    message = slack_data['slackify_daemon_message']
+    sys.path.insert(0, os.path.join(blade_runner_dir, "slack"))
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Start the message loop
     while True:
+        # Sleep for a day.
+        time.sleep(24*3600)
         # Get the current hour.
         hour = time.localtime().tm_hour
         # If hour is between these times, send the message.
         if 9 <= hour < 18:
-            cmd = [python_bin, script_path, channel, message]
-            subprocess.Popen(cmd, stderr=subprocess.STDOUT)
-        # Sleep for a day.
-        time.sleep(24*3600)
+            cmd = [python_bin, "-m", "blade_runner.slack.slackify", channel, message]
+            subprocess.Popen(cmd, stderr=subprocess.STDOUT, cwd=app_root_dir)
 
 
 def run_daemon():
@@ -76,7 +73,10 @@ def run_daemon():
 if __name__ == "__main__":
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set path to script .
-    blade_runner_dir = os.path.dirname(os.path.abspath(__file__))
+    blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
+    app_root_dir = os.path.dirname(blade_runner_dir)
+    blade_runner_dir = os.path.abspath(__file__)
+
     for i in range(3):
         blade_runner_dir = os.path.dirname(blade_runner_dir)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
