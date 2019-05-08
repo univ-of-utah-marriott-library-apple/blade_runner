@@ -12,6 +12,8 @@ except ImportError:
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "blade_runner/dependencies"))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "blade_runner/slack"))
+
 from blade_runner.jamf_pro.jss_server import JssServer
 from blade_runner.controllers.main_controller import MainController
 
