@@ -183,11 +183,10 @@ class MainController(Controller):
         self._main_view.wait_window(self._main_view)
 
     def secure_erase(self):
-        this_dir = os.path.dirname(os.path.abspath(__file__))
-        secure_erase_path = os.path.join(this_dir, "secure_erase_internals.py")
-        cmd = ['-c', '/usr/bin/sudo python {}; echo "Return code: $?"'.format(secure_erase_path)]
+        package = "blade_runner.secure_erase.secure_erase_internals"
+        cmd = ['-c', '/usr/bin/sudo python -m ' + package + '; echo "Return code: $?"']
 
-        window = SecureEraseWindow(cmd, self._main_view)
+        window = SecureEraseWindow(cmd, self._main_view, cwd=self.app_root_dir)
         self._main_view.wait_window(window)
         results = window.result
 
