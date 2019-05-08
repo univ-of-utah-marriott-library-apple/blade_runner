@@ -35,7 +35,7 @@ class StallWindow(tk.Toplevel):
     prevents the parent window from being interacted with, and closes itself after the callback has finished.
     """
 
-    def __init__(self, master, callback, msg):
+    def __init__(self, master, callback, msg, process=False):
         """Initializes a stall window.
 
         Args:
@@ -79,10 +79,15 @@ class StallWindow(tk.Toplevel):
         content_frame.grid(row=0)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # After 2 seconds, run run_callback(callback).
-        master.after(2000, lambda: self._run_callback(callback))
+        if process:
+            master.after(2000, lambda: self._run_process(callback))
+        else:
+            master.after(2000, lambda: self._run_callback(callback))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the window to the middle of the screen
         self._set_to_middle(self)
+        # Prevent the window from resizing when a widget inside of it changes size.
+        self.grid_propagate(False)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Wait for the window to be closed.
         self.wait_window()
@@ -97,8 +102,28 @@ class StallWindow(tk.Toplevel):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Run the callback function
+        # Run the callback function.
         callback()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Destroy the StallWindow.
+        self._destroy()
+
+    def _run_process(self, callback):
+        """Runs the process and updates the window's text with the output of the process.
+
+        Args:
+            callback (func): Callback that will start a process when called.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Run the callback function and print its output.
+        proc = callback()
+        while proc.poll() is None:
+            line = proc.stdout.readline()
+            self._text_lbl.config(text=line)
+            self.update()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Destroy the StallWindow.
         self._destroy()
