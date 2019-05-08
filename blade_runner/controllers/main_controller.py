@@ -34,11 +34,14 @@ except ImportError:
     import tkinter as tk
 import xml.etree.cElementTree as ET
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "blade_runner/dependencies"))
+blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
+sys.path.insert(0, os.path.join(blade_runner_dir, "slack"))
+sys.path.insert(0, blade_runner_dir)
 
-from controller import Controller
-from management_tools import loggers
-from search_controller import SearchController
+from blade_runner.controllers.controller import Controller
+from blade_runner.dependencies.management_tools import loggers
+from blade_runner.controllers.search_controller import SearchController
 from blade_runner.jamf_pro.jss_doc import JssDoc
 from blade_runner.views.main_view import MainView
 from blade_runner.user_actions import user_actions
@@ -107,11 +110,14 @@ class MainController(Controller):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set path to private directory that contains the configuration files.
 
-        private_path = os.path.abspath(__file__)
+        app_root_dir = os.path.abspath(__file__)
         for i in range(3):
-            private_path = os.path.dirname(private_path)
-        self._private_dir = os.path.join(private_path, "private")
+            app_root_dir = os.path.dirname(app_root_dir)
 
+        self.app_root_dir = app_root_dir
+        self._private_dir = os.path.join(self.app_root_dir, "private")
+        self._blade_runner_dir = os.path.join(self.app_root_dir, "blade_runner")
+        self._slack_dir = os.path.join(self._blade_runner_dir, "slack")
         self._offboard_configs_dir = os.path.join(self._private_dir, "offboard_configs")
 
     def _exception_messagebox(self, exc, value, traceback):
@@ -342,7 +348,7 @@ class MainController(Controller):
                     msg = "Enrolling to change managed status to true to enable modification of JSS record."
                     logger.debug(msg)
                     # Open a stall window, enroll the computer, and close the stall window.
-                    StallWindow(self._main_view, self._jss_server.enroll_computer, msg)
+                    StallWindow(self._main_view, self._jss_server.enroll_computer, msg, process=True)
             else:
                 return
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -463,12 +469,8 @@ class MainController(Controller):
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open DualVerifyWindow/Controller
-        message = "JSS record exists. Please verify/correct\n the following fields."
         self._verify_controller = DualVerifyController(self._main_view, self._computer, self.verify_params,
                                                        self._jss_server)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Configure message to be displayed.
-        self._verify_controller.entry_view.text_lbl.config(text=message)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Wait for entry view window to close.
         self._main_view.wait_window(window=self._verify_controller.entry_view)
@@ -512,11 +514,13 @@ class MainController(Controller):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Notify slack channel that offboard tool has finished.
         if slack_data['slack_enabled'] == "True":
-            # TODO add this to a config (slack message).
-            self.send_slack_message("Offboarding complete. Serial {}".format(self._computer.serial_number))
+            message = slack_data['default_message']
+            message = user_actions.update_slack_message(self, message)
+            self.send_slack_message(message)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Start Slackify daemon
         if slack_data['slackify_daemon_enabled'] == 'True':
+            logger.debug("Starting Slackify reminder daemon.")
             self.start_slackify_reminder_dameon()
 
     def _jss_doc_handler(self, computer, jss_server, print_doc=False):
@@ -576,11 +580,8 @@ class MainController(Controller):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get the script directory
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set up and run the command.
-        cmd = ['/usr/bin/python', os.path.join(script_dir, 'slackify_reminder_daemon.py')]
+        cmd = ['/usr/bin/python', '-m', 'blade_runner.slack.slackify_reminder_daemon']
         subprocess.Popen(cmd, stderr=subprocess.STDOUT)
 
     def refocus(self):
@@ -598,6 +599,19 @@ class MainController(Controller):
             subprocess.check_output(select_window)
         except subprocess.CalledProcessError:
             logger.debug("Setting frontmost of process Python to true failed.")
+
+    def open_config(self, config_id):
+        if config_id == "slack":
+            path = "slack_configs/slack.plist"
+        elif config_id == "offboard":
+            path = "offboard_configs/"
+        elif config_id == "verify":
+            path = "verify_params_configs/verify_params.plist"
+        elif config_id == "search":
+            path = "search_params_configs/search_params.plist"
+        elif config_id == "private":
+            path = ""
+        subprocess.check_output(["open", os.path.join(self._private_dir, path)])
 
 
 cf = inspect.currentframe()
