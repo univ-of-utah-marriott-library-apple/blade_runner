@@ -101,3 +101,35 @@ def update_offboard_config(self):
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set the previous computer name extension attribute.
     self._offboard_config = xml_updater.set_previous_computer_name(self._computer.jss_name, self._offboard_config)
+
+
+def update_slack_message(self, message):
+    """User defines implementation. Updates the Slack message before it is sent. Must return the message.
+
+    Example:
+        Appending the computer's serial number to the message:
+
+            def update_slack_message(self, message):
+                message += str(self._computer.serial_number)
+                return message
+
+    Args:
+        self: MainController's self.
+        message (str): Message to send to Slack.
+
+    Returns:
+
+    """
+    message += " Serial: {}".format(self._computer.serial_number)
+    return message
+
+
+
+
+
+
+
+
+
+
+
