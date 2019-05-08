@@ -97,6 +97,13 @@ class MainView(tk.Toplevel):
 
         self._how_to_btn = tk.Button(self.frame, text="How To", command=lambda: self._how_to_btn_clicked(), font=self.text_font, width=25)
 
+        self._settings_btn = tk.Button(self.bottom_frame, text="Settings", font=self.text_font, command=lambda: self._settings_btn_clicked(self.curr_scene))
+        self._slack_config_btn = tk.Button(self.frame, text="Slack Configuration", font=self.text_font, width=25, command=lambda: self._slack_config_btn_clicked())
+        self._offboard_config_btn = tk.Button(self.frame, text="Offboard Configuration", font=self.text_font, width=25, command=lambda: self._offboard_config_btn_clicked())
+        self._verify_config_btn = tk.Button(self.frame, text="Verification Configuration", font=self.text_font, width=25, command=lambda: self._verify_config_btn_clicked())
+        self._search_config_btn = tk.Button(self.frame, text="Search Configuration", font=self.text_font, width=25, command=lambda: self._search_config_btn_clicked())
+        self._directory_config_btn = tk.Button(self.frame, text="Configuration Directory", font=self.text_font, width=25, command=lambda: self._directory_config_btn_clicked())
+
         self._github_btn = tk.Button(self.frame, text="Github", command=lambda: self._github_btn_clicked(), font=self.text_font, width=25)
         self._github_lbl = tk.Label(self.frame, font=self.text_font)
         self._github_entry = tk.Entry(self.frame, width=len(self._github_url), justify='center', font=('Avenir Next','14','bold'))
@@ -288,16 +295,17 @@ class MainView(tk.Toplevel):
         # Give any extra space to column 0. See this page for details:
         # https://stackoverflow.com/questions/45847313/what-does-weight-do-in-tkinter
         self.frame.columnconfigure(0, weight=1)
-        self.bottom_frame.columnconfigure(0, weight=1)
+        self.bottom_frame.columnconfigure(1, weight=1)
 
         self._selection_scene()
 
         self.prev_scene = None
         self.curr_scene = "selection_scene"
 
-        self._quit_btn.grid(row=0, column=2, sticky='e')
-        self._back_btn.grid(row=0, column=1, sticky='e')
+        self._quit_btn.grid(row=0, column=3, sticky='e')
+        self._back_btn.grid(row=0, column=2, sticky='e')
         self._help_btn.grid(row=0, column=0, sticky='w')
+        self._settings_btn.grid(row=0, column=1, stick='w')
 
     def _input_btn_clicked(self, identifier):
         """
@@ -346,6 +354,8 @@ class MainView(tk.Toplevel):
                 self._selection_scene()
             elif self.prev_scene == "offboard_scene":
                 self.offboard_scene()
+            elif self.prev_scene == "settings_scene":
+                self._selection_scene()
 
         elif self.curr_scene == "github_scene":
             self._grid_forget_github_scene()
@@ -359,6 +369,13 @@ class MainView(tk.Toplevel):
             self._grid_forget_how_to_scene()
             self._help_scene()
 
+        elif self.curr_scene == "settings_scene":
+            self._grid_forget_settings_scene()
+            if self.prev_scene == "selection_scene":
+                self._selection_scene()
+            elif self.prev_scene == "offboard_scene":
+                self.offboard_scene()
+
     def _help_btn_clicked(self, curr_scene):
         if curr_scene != "help_scene":
             self.prev_scene = curr_scene
@@ -367,6 +384,26 @@ class MainView(tk.Toplevel):
     def _offboard_btn_clicked(self, curr_scene):
         self.prev_scene = curr_scene
         self.offboard_scene()
+
+    def _settings_btn_clicked(self, curr_scene):
+        if curr_scene != "settings_scene":
+            self.prev_scene = curr_scene
+        self._settings_scene()
+
+    def _slack_config_btn_clicked(self):
+        self._controller.open_config("slack")
+
+    def _offboard_config_btn_clicked(self):
+        self._controller.open_config("offboard")
+
+    def _verify_config_btn_clicked(self):
+        self._controller.open_config("verify")
+
+    def _search_config_btn_clicked(self):
+        self._controller.open_config("search")
+
+    def _directory_config_btn_clicked(self):
+        self._controller.open_config("private")
 
     def _how_to_btn_clicked(self):
         self._how_to_scene()
@@ -387,6 +424,19 @@ class MainView(tk.Toplevel):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Calls the populate function in the controller. That function does the actual populating.
         self._controller.populate_config_combobox()
+
+    def _settings_scene(self):
+        self.curr_scene = "settings_scene"
+        self._grid_forget_scenes()
+
+        self._offboard_config_btn.grid(row=0)
+        self._slack_config_btn.grid(row=1)
+        self._verify_config_btn.grid(row=2)
+        self._search_config_btn.grid(row=3)
+        self._directory_config_btn.grid(row=4)
+
+        self.unbind('<Return>', self.return_id)
+        self.return_id = self.bind('<Return>', lambda event: None)
 
     def _help_scene(self):
         self.curr_scene = "help_scene"
@@ -479,10 +529,18 @@ class MainView(tk.Toplevel):
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: self._input_btn_clicked("serial_number"))
 
+    def _grid_forget_settings_scene(self):
+        self._offboard_config_btn.grid_forget()
+        self._slack_config_btn.grid_forget()
+        self._verify_config_btn.grid_forget()
+        self._search_config_btn.grid_forget()
+        self._directory_config_btn.grid_forget()
+
     def _grid_forget_scenes(self):
         self._grid_forget_help_scene()
         self._grid_forget_selection_scene()
         self._grid_forget_offboard_scene()
+        self._grid_forget_settings_scene()
 
     def _grid_forget_github_scene(self):
         self._github_lbl.grid_forget()
