@@ -18,9 +18,14 @@ try:
 except ImportError:
     import tkinter as tk
 
-from management_tools import loggers
+blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
+sys.path.insert(0, os.path.join(blade_runner_dir, "slack"))
+sys.path.insert(0, blade_runner_dir)
+
+from blade_runner.dependencies.management_tools import loggers
 from blade_runner.document import document as doc
-from management_tools.slack import IncomingWebhooksSender as IWS
+from blade_runner.dependencies.management_tools.slack import IncomingWebhooksSender as IWS
 from blade_runner.windows.msg_box import MsgBox
 
 
