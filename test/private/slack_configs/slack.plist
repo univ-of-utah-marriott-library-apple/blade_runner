@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>slack_enabled</key>
+	<string>False</string>
+	<key>slackify_daemon_enabled</key>
+	<string>False</string>
+	<key>slack_url</key>
+	<string></string>
+	<key>slack_channel</key>
+	<string></string>	
+	<key>slack_channel_2</key>
+	<string></string>
+	<key>default_message</key>
+	<string>Offboarding complete.</string>
+	<key>slackify_daemon_message</key>
+	<string>Reminder: Blade-Runner finished.</string>
+</dict>
+</plist>

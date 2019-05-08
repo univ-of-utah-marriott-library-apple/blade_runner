@@ -1,0 +1,19 @@
+<computer>
+  <general>
+    <remote_management>
+      <managed>false</managed>
+    </remote_management>
+  </general>
+  <location>
+    <username></username>
+    <realname></realname>
+    <real_name></real_name>
+    <email_address></email_address>
+    <position></position>
+    <phone></phone>
+    <phone_number></phone_number>
+    <department></department>
+    <building></building>
+    <room></room>
+  </location>
+</computer>
