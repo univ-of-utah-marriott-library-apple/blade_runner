@@ -76,6 +76,7 @@ class EntryView(tk.Toplevel):
         # Create two frames inside the window.
         header_frame = tk.Frame(self)
         content_frame = tk.Frame(self)
+        button_frame = tk.Frame(self)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Bind Return key to the user submit button
         self.bind('<Return>', lambda event: self._submit_btn_clicked())
@@ -110,12 +111,13 @@ class EntryView(tk.Toplevel):
         self.serial_entry = tk.Entry(content_frame)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Submit button
-        self._submit_btn = tk.Button(content_frame, text='Submit', fg="blue", command=self._submit_btn_clicked)
+        self._submit_btn = tk.Button(button_frame, text='Submit', fg="blue", command=self._submit_btn_clicked)
         self._submit_btn.grid(row=6, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Grid the frames.
-        header_frame.grid(row=0)
-        content_frame.grid(row=1)
+        header_frame.grid(row=0, padx=10, pady=(10,5))
+        content_frame.grid(row=1, padx=10)
+        button_frame.grid(row=2, padx=10, pady=(5,10))
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>^
         self.resizable(False, False)
 
