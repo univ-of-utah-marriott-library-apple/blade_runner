@@ -375,6 +375,8 @@ class MainView(tk.Toplevel):
                 self._selection_scene()
             elif self.prev_scene == "offboard_scene":
                 self.offboard_scene()
+            elif self.prev_scene == "help_scene":
+                self._selection_scene()
 
     def _help_btn_clicked(self, curr_scene):
         if curr_scene != "help_scene":
