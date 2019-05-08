@@ -82,10 +82,6 @@ class DualVerifyController(EntryController):
             self._store_user_entries(self.computer, self._verify_params)
             self._store_conflicts(self.computer)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # If the sender buttons ID is 'jss', store the jss fields
-        if sender == "jss":
-            self._store_jss_entries(self.computer, self._verify_params)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.set_proceed(True)
         self.entry_view.destroy()
 
@@ -158,57 +154,6 @@ class DualVerifyController(EntryController):
         # For every verification parameter that is enabled, store its value in the Computer object.
         for param in verify_params.enabled:
             self._store_user_entry(computer, param)
-
-    def _store_jss_entry(self, computer, input_type):
-        """Store data from JSS entry in Computer.
-
-        Args:
-            computer (Computer): Stores information about the computer.
-            input_type (str): Data ID.
-
-        Returns:
-
-        """
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Store data from the JSS entry for barcode 1
-        if input_type == "barcode_1":
-            if self.entry_view.jss_barcode_1_entry.get() != "":
-                computer.barcode_1 = self.entry_view.jss_barcode_1_entry.get()
-
-        # Store data from the JSS entry for barcode 2
-        elif input_type == "barcode_2":
-            if self.entry_view.jss_barcode_2_entry.get() != "":
-                computer.barcode_2 = self.entry_view.jss_barcode_2_entry.get()
-
-        # Store data from the JSS entry for asset tag
-        elif input_type == "asset_tag":
-            if self.entry_view.jss_asset_entry.get() != "":
-                computer.asset_tag = self.entry_view.jss_asset_entry.get()
-
-        # Store data from the JSS entry for computer name
-        elif input_type == "computer_name":
-            if self.entry_view.jss_name_entry.get() != "":
-                computer.name = self.entry_view.jss_name_entry.get()
-
-        # Store data from the JSS entry for serial number
-        elif input_type == "serial_number":
-            if self.entry_view.jss_serial_entry.get() != "":
-                computer.serial_number = self.entry_view.jss_serial_entry.get()
-
-    def _store_jss_entries(self, computer, verify_params):
-        """Store the JSS fields in the Computer object.
-
-        Args:
-            computer (Computer): Stores information about the computer.
-            verify_params (VerifyParams): Specifies which verification fields are enabled.
-
-        Returns:
-            void
-        """
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # For every verification parameter that is enabled, store its value in the Computer object.
-        for param in verify_params.enabled:
-            self._store_jss_entry(computer, param)
 
     def _fill_user_entries(self, computer, verify_params):
         """Populates the user entries with user entered data contained in the Computer object. It knows which fields to
