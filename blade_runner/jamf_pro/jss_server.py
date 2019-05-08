@@ -682,7 +682,7 @@ class JssServer(object):
         try: # enrolling computer. If the process hangs, see Note section in docstring.
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             # Run enroll command
-            self._enroll(self._jamf_binary_1, self._invite)
+            return self._enroll(self._jamf_binary_1, self._invite)
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         except (OSError, subprocess.CalledProcessError) as e:
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -696,7 +696,7 @@ class JssServer(object):
                 self._jamf_create_conf(self._jamf_binary_2, self._jss_url)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 # Enroll the computer
-                self._enroll(self._jamf_binary_2, self._invite)
+                return self._enroll(self._jamf_binary_2, self._invite)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 logger.info('Enrolling finished.')
                 logger.debug('enroll_computer: finished')
@@ -741,8 +741,8 @@ class JssServer(object):
         enroll_cmd = [jamf_binary, 'enroll', '-invitation', invite, '-noPolicy', '-noManage', '-verbose']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Run command and print it in place
-        self._print_proc_in_place(enroll_cmd)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        proc = subprocess.Popen(enroll_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        return proc
 
     def _jamf_create_conf(self, jamf_binary, jss_url):
         """Create jamf.conf configuration to bypass verifiying SSL cert when enrolling.
