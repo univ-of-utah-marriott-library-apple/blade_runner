@@ -27,7 +27,7 @@ import tkSimpleDialog
 
 class SecureEraseWindow(Toplevel):
 
-    def __init__(self, cmd, master):
+    def __init__(self, cmd, master, cwd=None):
         Toplevel.__init__(self, master)
         self.protocol('WM_DELETE_WINDOW', self._close_btn_clicked)
         self.title("Secure Erase Internals Output")
@@ -45,11 +45,11 @@ class SecureEraseWindow(Toplevel):
         self.text.pack()
         self.text.insert(END, "Waiting for authentication...")
         self._set_to_middle(self)
-        self.after(1000, lambda: self.sudo_process(cmd, self.text))
+        self.after(1000, lambda: self.sudo_process(cmd, self.text, cwd))
 
-    def sudo_process(self, cmd, text):
+    def sudo_process(self, cmd, text, cwd):
         try:
-            child = pexpect.spawn('bash', cmd)
+            child = pexpect.spawn('bash', cmd, cwd=cwd)
 
             while not self.result:
                 match = child.expect(['SECURE ERASE INTERNALS', 'attempts', 'dummy', pexpect.TIMEOUT, 'Password:'])
