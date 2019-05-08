@@ -27,9 +27,11 @@ import socket
 import plistlib
 import subprocess
 
-from management_tools.slack import IncomingWebhooksSender as IWS
+blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
+sys.path.insert(0, os.path.join(blade_runner_dir, "slack"))
 
-# TODO: Upload this version of Slackify to the slackify repo.
+from blade_runner.dependencies.management_tools.slack import IncomingWebhooksSender as IWS
 
 
 def main():
@@ -67,9 +69,10 @@ def main():
 
 
 if __name__ == "__main__":
+    print("Starting Slackify.py")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get the directory of this file.
-    blade_runner_dir = os.path.dirname(os.path.abspath(__file__))
+    blade_runner_dir = os.path.abspath(__file__)
     for i in range(3):
         blade_runner_dir = os.path.dirname(blade_runner_dir)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
