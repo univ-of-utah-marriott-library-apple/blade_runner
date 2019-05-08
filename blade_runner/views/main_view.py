@@ -311,10 +311,15 @@ class MainView(tk.Toplevel):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self.unbind('<Return>', self.return_id)
+        self.return_id = self.bind('<Return>', lambda event: None)
+
         # Save the selected offboard configuration into the controller.
         self._controller.save_offboard_config(self.combobox.get())
         # Start the search sequence.
         self._controller.search_sequence(identifier)
+
+        self.return_id = self.bind('<Return>', lambda event: self._input_btn_clicked("serial_number"))
 
     def _secure_erase_btn_clicked(self):
         self._controller.secure_erase()
@@ -355,7 +360,8 @@ class MainView(tk.Toplevel):
             self._help_scene()
 
     def _help_btn_clicked(self, curr_scene):
-        self.prev_scene = curr_scene
+        if curr_scene != "help_scene":
+            self.prev_scene = curr_scene
         self._help_scene()
 
     def _offboard_btn_clicked(self, curr_scene):
