@@ -21,6 +21,9 @@ from blade_runner.controllers.main_controller import MainController
 class TestGUIServerManual(unittest.TestCase):
 
     def setUp(self):
+        if os.geteuid() != 0:
+            raise SystemExit("Blade Runner must be run as root.")
+
         cf = inspect.currentframe()
 
         root = tk.Tk()
