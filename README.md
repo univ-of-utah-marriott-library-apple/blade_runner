@@ -117,7 +117,7 @@ only contain tags that exist in `XML Response Body`.
 
 ### Example Configs
 
-* Offboard configuration that only sets management status to false:
+Offboard configuration that only sets management status to false:
 ```
 <computer>
   <general>
@@ -128,8 +128,7 @@ only contain tags that exist in `XML Response Body`.
 </computer>
 ```
 
-* Offboard configuration that sets management status to false and clears all
-  location fields:
+Offboard configuration that sets management status to false and clears all location fields:
 ```
 <computer>
   <general>
@@ -152,8 +151,7 @@ only contain tags that exist in `XML Response Body`.
 </computer>
 ```
 
-* Offboard configuration that sets management status to false and updates an
-  extension attribute (extension attributes differ between JAMF servers):
+Offboard configuration that sets management status to false and updates an extension attribute (extension attributes differ between JAMF servers):
 ```
 <computer>
   <general>
