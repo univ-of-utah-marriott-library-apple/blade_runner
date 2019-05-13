@@ -622,6 +622,12 @@ logger.debug("{} logger started.".format(lbasename))
 
 
 def main():
+    if os.geteuid() != 0:
+        logger.info("Blade Runner must be run as root.")
+        raise SystemExit("Blade Runner must be run as root.")
+
+    logger.info("Authentication passed. Blade Runner started.")
+
     root = tk.Tk()
     root.withdraw()
 
@@ -652,5 +658,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+    logger.info("Blade Runner exiting.")
 
 
