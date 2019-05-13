@@ -1,6 +1,8 @@
 Blade Runner
 ===========
 
+![](rsrc/images/blade_runner_logo.gif)
+
 *Blade Runner* is a JAMF Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating JAMF records, as well as secure erasing the computer's internal disks, generating and printing documents with data retreived from JAMF Pro, displaying inconsistencies in JAMF records against user entered data, and sending progress updates through Slack.
 
 It is configured through plists and XML files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
@@ -60,8 +62,8 @@ are located in `private` and all must be configured before running *Blade Runner
 
 ## JAMF Pro Configuration
 
-The JAMF configuration plist (`jss_server_config.plist`) contains the information
-needed for *Blade Runner* to run JAMF related tasks. The config contains the 
+The JAMF Pro configuration plist (`jamf_pro.plist`) contains the information
+needed for *Blade Runner* to run JAMF Pro related tasks. The config contains the 
 following keys:
 
 * **username**
@@ -106,8 +108,9 @@ following keys:
 ## Offboard Configuration
 
 Offboard configurations can have any name but must be XML files. These configs
-contain the information to be sent to JAMF Pro when offboarding. When offboarding with *Blade Runner*, an offboard configuration selection will be shown to the 
-user. All XML files in `private` will be avialable for selection.
+contain the information to be sent to JAMF Pro when offboarding. When 
+offboarding with *Blade Runner*, an offboard configuration selection will be 
+shown to the user. All XML files in `private` will be avialable for selection.
 
 **The XML file must represent a valid string for JAMF's XML API calls.** The best
 way to check this is to go to `https://my.jamf.server.domain:portnumber/api`,
@@ -117,7 +120,7 @@ only contain tags that exist in `XML Response Body`.
 
 ### Example Configs
 
-Offboard configuration that only sets management status to false:
+* Offboard configuration that only sets management status to false:
 ```
 <computer>
   <general>
@@ -128,7 +131,7 @@ Offboard configuration that only sets management status to false:
 </computer>
 ```
 
-Offboard configuration that sets management status to false and clears all location fields:
+* Offboard configuration that sets management status to false and clears all location fields:
 ```
 <computer>
   <general>
@@ -151,7 +154,7 @@ Offboard configuration that sets management status to false and clears all locat
 </computer>
 ```
 
-Offboard configuration that sets management status to false and updates an extension attribute (extension attributes differ between JAMF servers):
+* Offboard configuration that sets management status to false and updates an extension attribute (extension attributes differ between JAMF servers):
 ```
 <computer>
   <general>
