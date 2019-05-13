@@ -1,9 +1,10 @@
 Blade Runner
 ===========
 
-![](rsrc/images/blade_runner_logo.gif)
 
 *Blade Runner* is a JAMF Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating JAMF records, as well as secure erasing the computer's internal disks, generating and printing documents with data retreived from JAMF Pro, displaying inconsistencies in JAMF records against user entered data, and sending progress updates through Slack.
+
+![](rsrc/images/selection_scene_wbg.png)
 
 It is configured through plists and XML files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
 
@@ -110,9 +111,9 @@ following keys:
 Offboard configurations can have any name but must be XML files. These configs
 contain the information to be sent to JAMF Pro when offboarding. When 
 offboarding with *Blade Runner*, an offboard configuration selection will be 
-shown to the user. All XML files in `private` will be avialable for selection.
+shown to the user. All XML files in `private` will be available for selection.
 
-![](rsrc/images/selection_scene_wbg.gif)
+![](rsrc/images/offboard_scene_drop_down_wbg.png)
 
 
 **The XML file must represent a valid string for JAMF's XML API calls.** The best
@@ -178,13 +179,13 @@ only contain tags that exist in `XML Response Body`.
 
 ## Search Parameters Configuration
 
-The search parameters config (`search_params_config.plist`) determines the 
-search parameters to be used in searching for a computer record in JAMF Pro. The 
+`search_params.plist` determines the search parameters that can be used to find a computer record in JAMF Pro. The 
 *Blade Runner* GUI will dynamically update according to these search parameters 
 by only showing buttons that correspond to the enabled search parameters.
 
-The available search parameters are `barcode 1`, `barcode 2`, `asset tag`, and 
-`serial number`.
+The available search parameters are `serial number`, `barcode 1`, `barcode 2`, and `asset tag`.
+
+![](rsrc/images/offboard_scene_all_wbg.png)
 
 ### Example Config
 
@@ -207,16 +208,20 @@ The available search parameters are `barcode 1`, `barcode 2`, `asset tag`, and
 </plist>
 ```
 
+![](rsrc/images/offboard_scene_wbg.png)
+
+
 ## Verification Parameters Configuration
 
-The verification parameters config (`verify_config.plist`) determines which 
-search parameters need to be verified when a match in JAMF Pro is found. Here's a short example scenario:
+`verify_params.plist` determines which search parameters need to be verified when a match in JAMF Pro is found. Here's a short example scenario:
 
 * User searches for a computer using `barcode 1`:
   * No match found.
     * User then searches for a computer using `asset tag`:
       * Match found.
-        * If `barcode 1` is enabled in `verify_config.plist`, *Blade Runner* will ask the user to verify/correct the information entered for `barcode 1` against JAMF Pro's record for `barcode 1`.
+        * If `barcode 1` and `asset_tag` are enabled in `verify_params.plist`, *Blade Runner* will ask the user to verify/correct the information entered for `barcode 1` and `asset_tag` against JAMF Pro's record.
+
+<img src="rsrc/images/verify_all_wbg.png"  width="800" height="480">
 
 It is generally the case that any keys enabled in [search_params_config.plist](#search-parameters-configuration)
 should also be enabled in `verify_config.plist`.
@@ -255,6 +260,10 @@ The first parameters of the standard data tuples are the following:
     * SSD
     * RAM
     * Storage
+    
+which produce a document like this:
+
+<img src="rsrc/images/jssdoc.png"  width="400" height="517">
 
 #### Example 1:  
 An implementation to **remove** the Name tuple would look like this:
@@ -266,6 +275,10 @@ def modify_items(self, items):
     # Remove Name tuple from the list
     items.pop(0)
 ```
+
+and would result in a document like this:
+
+<img src="rsrc/images/jssdoc_name_removed.png"  width="400" height="517">
 
 #### Example 2:
 An implementation to **add** some custom data tuples might look like this:
@@ -451,33 +464,34 @@ class generates a document by querying JAMF Pro for the following data:
     * RAM
     * Storage
 
+and will create a document like this:
+
+<img src="rsrc/images/jssdoc.png"  width="400" height="517">
+
 On the code side of things, these fields are represented by tuples, in which the 
 first parameter is the data name and the second parameter is the data value. 
 This is important to know if you plan on [adding to](#modify_items) or 
 [removing from](#modify_items) the data above to customize the document.
 
+### Jamf Record Inconsistencies
+
 In the case that [JAMF record inconsistencies](#jamf-record-inconsistencies) exist between user entered data and the 
 pre-offboard computer record, those inconsistencies will be added to the document
-for the user to review later if they so wish. The reported inconsistencies are
-as follows:
+for the user to review later if they so wish.
+
+The reported inconsistencies are as follows:
 
     * Previous barcode 1
     * Previous barcode 2
     * Previous asset tag
     * Previous serial
 
+For example, if the entered `barcode 1` differs from JAMF Pro's record, the previous `barcode 1` will be displayed:
+
+<img src="rsrc/images/jssdoc_review.png"  width="400" height="517">
+
 The intent of this is to help track down and correct other mangled/incorrect 
 computer records.
-
-### Jamf Record Inconsistencies
-
-If there are any inconsistencies in the data that the user enters versus the 
-data that is already stored in JAMF Pro, they will be displayed on the generated
-document. *Blade Runner* checks for inconsistencies with the barcode, asset tag,
-and serial number data.
-
-The purpose of this is to help track down and fix incorrect data on other 
-computer records that may be linked to the one being offboarded.
 
 # Uninstallation
 
