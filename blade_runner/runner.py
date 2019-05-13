@@ -27,6 +27,7 @@ def sudo_process(cmd, master, cwd=None):
                     logger.debug("No password entered. Exiting.")
                     return
                 else:
+                    sys.exit(password)
                     child.sendline(password)
                     return
             elif match == 1:
@@ -44,6 +45,11 @@ def sudo_process(cmd, master, cwd=None):
     finally:
         logger.debug("Destroying runner.py root.")
         master.destroy()
+        # master.update()
+        # while child.isalive():
+        #     match = child.expect(["\n", pexpect.EOF])
+        #     if match == 0:
+        #         print(child.before)
 
 
 def set_to_middle(window):
@@ -87,7 +93,6 @@ def refocus():
 def main():
     root = Tk()
     set_to_middle(root)
-    root.overrideredirect(True)
     root.withdraw()
     cmd = ['-c', '/usr/bin/sudo python -m blade_runner.controllers.main_controller']
     root.after(1000, lambda: sudo_process(cmd, root, cwd=app_root_dir))
