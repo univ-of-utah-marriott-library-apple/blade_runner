@@ -112,6 +112,9 @@ contain the information to be sent to JAMF Pro when offboarding. When
 offboarding with *Blade Runner*, an offboard configuration selection will be 
 shown to the user. All XML files in `private` will be avialable for selection.
 
+![](rsrc/images/selection_scene_wbg.gif)
+
+
 **The XML file must represent a valid string for JAMF's XML API calls.** The best
 way to check this is to go to `https://my.jamf.server.domain:portnumber/api`,
 click on `computers>computers/id>Try it out!`, and look at the available 
