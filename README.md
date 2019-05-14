@@ -297,6 +297,10 @@ def modify_items(self, items):
     items.insert(2, ("Previous Name", prev_name))
 ```
 
+and would result in a document similar to this:
+
+<img src="rsrc/images/jssdoc_add_data.png"  width="400" height="517">
+
 ### update_offboard_config
 
 `user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before *Blade Runner* sends the offboard config to JAMF Pro. Its purpose is to make custom changes to the offboard data before it is sent.
