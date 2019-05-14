@@ -35,25 +35,28 @@ import subprocess
 import os
 import sys
 
-blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
+blade_runner_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
 
 from blade_runner.dependencies.tempapp import TempApp
 
 
 def main():
-    icon = os.path.join("rsrc/images/BladeRunner.icns")
+    icon = os.path.join(blade_runner_dir,"rsrc/images/BladeRunner.icns")
     infoPlist_overrides = {'CFBundleName': 'Blade Runner'}
+    bundle_name = 'Blade Runner'
 
     try: # Run application using the current python
-        myApp = TempApp(infoPlist_overrides, bundle_name='Blade Runner', app_icon=icon)
-        subprocess.check_output([myApp.path + '/Contents/MacOS/Python', '-m', 'blade_runner.controllers.main_controller'])
+        myApp = TempApp(infoPlist_overrides, bundle_name=bundle_name, app_icon=icon)
+
+        subprocess.check_output([myApp.python_path, '-m', 'blade_runner.controllers.main_controller'], cwd=blade_runner_dir)
     except IOError:
         try: # Run application using the system's python
-            myApp = TempApp(infoPlist_overrides, bundle_name='Blade Runner', app_icon=icon, python_bin=os.path.realpath('/usr/bin/python2.7'))
-            subprocess.check_output([myApp.path + '/Contents/MacOS/Python', '-m', 'blade_runner.controllers.main_controller'])
+            myApp = TempApp(infoPlist_overrides, bundle_name=bundle_name, app_icon=icon, python_bin=os.path.realpath('/usr/bin/python2.7'))
+            subprocess.check_output([myApp.python_path, '-m', 'blade_runner.controllers.main_controller'], cwd=blade_runner_dir)
         except:
             # If unable to run application with updated icon, run it normally.
+            print("Running application without icon update.")
             subprocess.check_output(['/usr/bin/python', '-m', 'blade_runner.controllers.main_controller'])
 
 
