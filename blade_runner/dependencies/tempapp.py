@@ -90,7 +90,7 @@ class TempApp(object):
         # Write the contents back to the new location
         plistlib.writePlist(original_infoPlist, os.path.join(self.path, 'Contents', 'Info.plist'))
 
-        self.python_path = os.path.join(self.path, 'Content/MacOS/Python')
+        self.python_path = os.path.join(self.path, 'Contents/MacOS/Python')
 
         # If run as root, a temp app will be created but inaccessible to the logged in user. To allow access to the
         # temp app, the temp app's owner must be changed to the logged in user.
