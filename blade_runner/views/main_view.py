@@ -92,7 +92,7 @@ class MainView(tk.Toplevel):
                                    font=self.text_font)
 
         self._about_btn = tk.Button(self.frame, text="About", command=lambda: self._about_btn_clicked(), font=self.text_font, width=25)
-        self._how_to_text_box = tk.Text(self.frame)
+        self._how_to_text_box = tk.Text(self.frame, wrap="word", font=self.text_font)
         self._how_to_scroll_bar = tk.Scrollbar(self.frame, command=self._how_to_text_box.yview)
 
         self._how_to_btn = tk.Button(self.frame, text="How To", command=lambda: self._how_to_btn_clicked(), font=self.text_font, width=25)
@@ -459,7 +459,7 @@ class MainView(tk.Toplevel):
         self._how_to_scroll_bar.grid(row=0, column=1, sticky='nsew')
         self._how_to_text_box.config(yscroll=self._how_to_scroll_bar.set)
 
-        self._how_to_text_box.insert('insert', "<NEED TO PUT SOME TEXT HERE>")
+        self._how_to_text_box.insert('insert', self._controller.cat_readme())
         self._how_to_text_box.config(state='disabled')
 
         self.unbind('<Return>', self.return_id)
@@ -469,12 +469,15 @@ class MainView(tk.Toplevel):
         self.curr_scene = "about_scene"
         self._grid_forget_help_scene()
 
-        text = ("Blade Runner is a JAMF based application that manages Mac computer systems "
-                "through offboarding, enrolling, and updating JAMF records. It also "
-                "secure erases internal disks, generates documents from JAMF data, prints those documents, and "
-                "sends progress updates through Slack.")
+        text = "Blade Runner is a JAMF Pro based Python application that manages deprecated Mac computer systems. " \
+               "It does so through offboarding, enrolling, and updating JAMF records, as well as secure erasing the " \
+               "computer's internal disks, generating and printing documents with data retreived from JAMF Pro, " \
+               "displaying inconsistencies in JAMF records against user entered data, and sending progress updates " \
+               "through Slack. \nIt is configured through plists and XML files, allowing for multiple offboarding " \
+               "configurations, a dynamically updating GUI, Slack integration, and specification of which search terms " \
+               "can be used to locate/update a JAMF Pro record."
         self._about_lbl.config(text=text, wraplength=self.frame.winfo_width())
-        self._about_lbl.grid(row=0, padx=5)
+        self._about_lbl.grid(row=0, padx=10)
 
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: None)
