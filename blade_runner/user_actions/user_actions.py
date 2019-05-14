@@ -118,7 +118,7 @@ def update_slack_message(self, message):
         message (str): Message to send to Slack.
 
     Returns:
-
+        message
     """
     message += " Serial: {}".format(self._computer.serial_number)
     return message
