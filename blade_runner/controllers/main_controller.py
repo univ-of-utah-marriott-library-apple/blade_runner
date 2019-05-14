@@ -612,6 +612,11 @@ class MainController(Controller):
             path = ""
         subprocess.check_output(["open", os.path.join(self._private_dir, path)])
 
+    def cat_readme(self):
+        readme = os.path.join(self.app_root_dir, "README.md")
+        with open(readme, "r") as f:
+            return f.read()
+
 
 cf = inspect.currentframe()
 abs_file_path = inspect.getframeinfo(cf).filename
