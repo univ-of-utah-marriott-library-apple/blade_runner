@@ -6,13 +6,13 @@
 #       https://michaellynn.github.io/2015/07/31/customized-python-app-bundles/
 #
 # It has been modified to fit the purposes of Blade Runner, mainly by adding
-# `python_bin` as an argument and an if else statement so that the python binary
-# path can be specified.
+# `python_bin` as an argument, an if else statement so that the python binary
+# path can be specified, and the ability to use TempApp when run as root.
 #
 # Big thanks to mikeymikey for allowing us to change Python's icon!
 #################################################################################
 
-import sys, os, os.path, tempfile, plistlib, shutil
+import sys, os, os.path, tempfile, plistlib, shutil, subprocess
 
 
 class TempApp(object):
@@ -35,6 +35,7 @@ class TempApp(object):
         self.cleanup_parent = False
         self.cleanup        = cleanup
         self.returncode     = 0
+        self.python_path    = None
         # First we look up which python we're running with so we know which Python.app to clone
         # ... We'll just cheat and use the path of 'os' which we already imported. The else statement
         # comes into play if the python binary was explicitly specified.
@@ -88,6 +89,13 @@ class TempApp(object):
         original_infoPlist.update(infoPlist_dict)
         # Write the contents back to the new location
         plistlib.writePlist(original_infoPlist, os.path.join(self.path, 'Contents', 'Info.plist'))
+
+        self.python_path = os.path.join(self.path, 'Content/MacOS/Python')
+
+        # If run as root, a temp app will be created but inaccessible to the logged in user. To allow access to the
+        # temp app, the temp app's owner must be changed to the logged in user.
+        if os.geteuid() == 0:
+            subprocess.check_output(['chown', '-R', os.getlogin(), os.path.dirname(self.path)])
 
     def cleanup_app(self):
         # Kill the process if it's still running
