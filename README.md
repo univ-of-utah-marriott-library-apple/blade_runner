@@ -34,7 +34,6 @@ For a list of features, see [Features & How They Work](#features-and-how-they-wo
     * [Auto Document Generation and Printing](#auto-document-generation-and-printing)
         * [Displays Inconsistencies in JAMF Record](#jamf-record-inconsistencies) 
 * [Uninstallation](#uninstallation)
-  * [Supporting Files](#files)
 * [Contact](#contact)
 * [Update History](#update-history)
 
@@ -55,7 +54,7 @@ range.
 files are used for JAMF Pro access, Slack notifications, and *Blade Runner*. The configuration files
 are located in `private` and all must be configured before running *Blade Runner*.
 
-* [JAMF Configuration](#jamf-configuration)
+* [JAMF Configuration](#jamf-pro-configuration)
 * [Offboard Configuration](#offboard-configuration)
 * [Search Parameters Configuration](#search-parameters-configuration)
 * [Verification Parameters Configuration](#verification-parameters-configuration)
@@ -63,7 +62,7 @@ are located in `private` and all must be configured before running *Blade Runner
 
 ## JAMF Pro Configuration
 
-The JAMF Pro configuration plist (`jamf_pro.plist`) contains the information
+`jamf_pro.plist` contains the information
 needed for *Blade Runner* to run JAMF Pro related tasks. The config contains the 
 following keys:
 
@@ -223,7 +222,7 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
 
 <img src="rsrc/images/verify_all_wbg.png"  width="800" height="480">
 
-It is generally the case that any keys enabled in [search_params_config.plist](#search-parameters-configuration)
+It is generally the case that any keys enabled in [search_params.plist](#search-parameters-configuration)
 should also be enabled in `verify_config.plist`.
 
 *Blade Runner*'s GUI will dynamically update according to which verification 
@@ -371,7 +370,7 @@ Enrolling is done through the `jamf` binary with an invitation code:
 
     jamf enroll -invitation 1234567891234567891234567891234567890 -noPolicy -noManage -verbose
 
-The invitation code is set in the [JAMF Pro configuration](#jamf-configuration).
+The invitation code is set in the [JAMF Pro configuration](#jamf-pro-configuration).
 
 ## Secure Erase
 
