@@ -48,13 +48,12 @@ def main():
 
     try: # Run application using the current python
         myApp = TempApp(infoPlist_overrides, bundle_name=bundle_name, app_icon=icon)
-
         subprocess.check_output([myApp.python_path, '-m', 'blade_runner.controllers.main_controller'], cwd=blade_runner_dir)
     except IOError:
         try: # Run application using the system's python
             myApp = TempApp(infoPlist_overrides, bundle_name=bundle_name, app_icon=icon, python_bin=os.path.realpath('/usr/bin/python2.7'))
             subprocess.check_output([myApp.python_path, '-m', 'blade_runner.controllers.main_controller'], cwd=blade_runner_dir)
-        except:
+        except IOError:
             # If unable to run application with updated icon, run it normally.
             print("Running application without icon update.")
             subprocess.check_output(['/usr/bin/python', '-m', 'blade_runner.controllers.main_controller'])
