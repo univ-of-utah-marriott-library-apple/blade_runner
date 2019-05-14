@@ -445,7 +445,7 @@ The intent of this is to help track down and correct other mangled/incorrect com
 
 # Uninstallation
 
-`raise NotImplementedError`
+To uninstall, simply delete the application. The only files *Blade Runner* creates outside itself are the documents it generates, which are located in `~/Documents/Blade Runner/`.
 
 # Contact
 
