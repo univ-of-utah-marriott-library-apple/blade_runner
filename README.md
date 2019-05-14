@@ -2,7 +2,7 @@ Blade Runner
 ===========
 
 
-*Blade Runner* is a JAMF Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating JAMF records, as well as secure erasing the computer's internal disks, generating and printing documents with data retreived from JAMF Pro, displaying inconsistencies in JAMF records against user entered data, and sending progress updates through Slack.
+*Blade Runner* is a JAMF Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating JAMF Pro records, as well as secure erasing the computer's internal disks, generating and printing documents with data retreived from JAMF Pro, displaying inconsistencies in JAMF Pro records against user entered data, and sending progress updates through Slack.
 
 ![](rsrc/images/selection_scene_wbg.png)
 
@@ -32,7 +32,7 @@ For a list of features, see [Features & How They Work](#features-and-how-they-wo
     * [Slack Notifications](#slack-notifications)
         * [Slack Reminder Daemon](#slack-notifications)   
     * [Auto Document Generation and Printing](#auto-document-generation-and-printing)
-        * [Displays Inconsistencies in JAMF Record](#jamf-record-inconsistencies) 
+        * [Displays Inconsistencies in JAMF Pro Record](#jamf-pro-record-inconsistencies) 
 * [Uninstallation](#uninstallation)
 * [Contact](#contact)
 * [Update History](#update-history)
@@ -50,7 +50,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 *Blade Runner* is configured through plists and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner*. The configuration files are located in `private` and all must be configured before running *Blade Runner*.
 
-* [JAMF Configuration](#jamf-pro-configuration)
+* [JAMF Pro Configuration](#jamf-pro-configuration)
 * [Offboard Configuration](#offboard-configuration)
 * [Search Parameters Configuration](#search-parameters-configuration)
 * [Verification Parameters Configuration](#verification-parameters-configuration)
@@ -103,7 +103,7 @@ Offboard configurations can have any name but must be XML files. These configs c
 ![](rsrc/images/offboard_scene_drop_down_wbg.png)
 
 
-**The XML file must represent a valid string for JAMF's XML API calls.** The best way to check this is to go to `https://my.jamf.server.domain:portnumber/api`, click on `computers>computers/id>Try it out!`, and look at the available data in `XML Response Body`. Your configuration file's tags and structure should only contain tags that exist in `XML Response Body`.
+**The XML file must represent a valid string for JAMF Pro's XML API calls.** The best way to check this is to go to `https://my.jamf.server.domain:portnumber/api`, click on `computers>computers/id>Try it out!`, and look at the available data in `XML Response Body`. Your configuration file's tags and structure should only contain tags that exist in `XML Response Body`.
 
 ### Example Configs
 
@@ -141,7 +141,7 @@ Offboard configurations can have any name but must be XML files. These configs c
 </computer>
 ```
 
-* Offboard configuration that sets management status to false and updates an extension attribute (extension attributes differ between JAMF servers):
+* Offboard configuration that sets management status to false and updates an extension attribute (extension attributes differ between JAMF Pro servers):
 ```
 <computer>
   <general>
@@ -426,7 +426,7 @@ and will create a document like this:
 
 On the code side of things, these fields are represented by tuples, in which the first parameter is the data name and the second parameter is the data value. This is important to know if you plan on [adding to](#add-example) or [removing from](#remove-example) the data above to customize the document.
 
-### Jamf Record Inconsistencies
+### Jamf Pro Record Inconsistencies
 
 In the case that JAMF Pro record inconsistencies exist between user entered data and the pre-offboard computer record, those inconsistencies will be added to the document for the user to review later if they so wish.
 
@@ -445,7 +445,7 @@ The intent of this is to help track down and correct other mangled/incorrect com
 
 # Uninstallation
 
-`raise NotImplementedError`
+To uninstall, simply delete the application. The only files *Blade Runner* creates outside itself are the documents it generates, which are located in `~/Documents/Blade Runner/`.
 
 # Contact
 
