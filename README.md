@@ -235,13 +235,12 @@ process may be needed. In such circumstances, a configuration file isn't suffici
 and the code needs to be supplemented.
 
 To facilitate "knowing" where to put this code, `user_actions.py` is provided. It
-contains two unimplemented functions that are called in `JssDoc` and `MainController`.
+contains three unimplemented functions that are always called.
 
 ### modify_items
 
-In [jss_doc.py](#auto-document-generation-and-printing) there is a function call to an uimplemented function in 
-`user_actions.py` called `modify_items()`. This function appears right before 
-the body of the document is generated. Its purpose is to allow the user to 
+`user_actions.py` contains an unimplemented function named `modify_items()`. This functions is called in [jss_doc.py](#auto-document-generation-and-printing).
+It appears right before the body of the document is generated. Its purpose is to allow the user to 
 modify the data that appears in the document. `modify_items()` takes the 
 `JssDoc`'s `self` as the first parameter and a list of tuples as the second 
 parameter. `self` provides access to JAMF Pro. Each tuple in the list contains 
@@ -260,11 +259,11 @@ The first parameters of the standard data tuples are the following:
     * RAM
     * Storage
     
-which produce a document like this:
+and produce a document like this:
 
 <img src="rsrc/images/jssdoc.png"  width="400" height="517">
 
-#### Example 1:  
+#### Remove Example  
 An implementation to **remove** the Name tuple would look like this:
 
 ```
@@ -279,7 +278,7 @@ and would result in a document like this:
 
 <img src="rsrc/images/jssdoc_name_removed.png"  width="400" height="517">
 
-#### Example 2:
+#### Add Example:
 An implementation to **add** some custom data tuples might look like this:
 
 ```
@@ -304,7 +303,7 @@ and would result in a document similar to this:
 
 `user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before *Blade Runner* sends the offboard config to JAMF Pro. Its purpose is to make custom changes to the offboard data before it is sent.
 
-#### Example 1:
+#### Example
 
 Given an offboard config like this:
 
@@ -334,6 +333,18 @@ def update_offboard_config(self):
 
     # Save the new XML string.
     self._offboard_config = ET.tostring(xml_root)
+```
+
+### update_slack_message
+
+`user_actions.py` contains an unimplemented function named `update_slack_message().` This function is called right before the Slack message is sent.
+
+An implementation that appends the serial number to the Slack message would look like this:
+
+```
+def update_slack_message(self, message):
+    message += " Serial: {}".format(self._computer.serial_number)
+    return message
 ```
 
 # Features and How They Work
@@ -473,12 +484,12 @@ and will create a document like this:
 
 On the code side of things, these fields are represented by tuples, in which the 
 first parameter is the data name and the second parameter is the data value. 
-This is important to know if you plan on [adding to](#modify_items) or 
-[removing from](#modify_items) the data above to customize the document.
+This is important to know if you plan on [adding to](#add-example) or 
+[removing from](#remove-example) the data above to customize the document.
 
 ### Jamf Record Inconsistencies
 
-In the case that [JAMF record inconsistencies](#jamf-record-inconsistencies) exist between user entered data and the 
+In the case that JAMF Pro record inconsistencies exist between user entered data and the 
 pre-offboard computer record, those inconsistencies will be added to the document
 for the user to review later if they so wish.
 
