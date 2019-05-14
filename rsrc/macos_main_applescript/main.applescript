@@ -20,4 +20,4 @@ end if
 set appRootDir to quoted form of (POSIX path of appRootDir)
 
 -- Start Blade Runner.
-do shell script "cd " & appRootDir & "; python -m blade_runner.runner > /dev/null 2>&1" with administrator privileges
+do shell script "cd " & appRootDir & "; python -m blade_runner.runner > /dev/null 2>&1 &" with administrator privileges
