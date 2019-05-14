@@ -610,6 +610,10 @@ class MainController(Controller):
             path = "search_params_configs/search_params.plist"
         elif config_id == "private":
             path = ""
+        else:
+            logger.warn("No configuration ID matches \"{}\"".format(config_id))
+            raise SystemError("No configuration ID matches \"{}\"".format(config_id))
+
         subprocess.check_output(["open", os.path.join(self._private_dir, path)])
 
     def cat_readme(self):
