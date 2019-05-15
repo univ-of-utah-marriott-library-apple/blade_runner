@@ -92,7 +92,7 @@ class TempApp(object):
 
         self.python_path = os.path.join(self.path, 'Contents/MacOS/Python')
 
-        # If run as root, a temp app will be created but inaccessible to the logged in user. To allow access to the
+        # If run as root, a temp app will be created but it will be inaccessible to the logged in user. To allow access to the
         # temp app, the temp app's owner must be changed to the logged in user.
         if os.geteuid() == 0:
             subprocess.check_output(['chown', '-R', os.getlogin(), os.path.dirname(self.path)])
