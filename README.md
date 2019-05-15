@@ -44,11 +44,11 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 # System Requirements
 
-*Blade Runner* requires Python 2.X.X >= Python 2.7.9, and is compatible on macOS 10.9 (Mavericks) through 10.12 (Sierra). It has not been tested on OSes outside that range.
+*Blade Runner* requires Python 2.7.9 or greater, excluding Python 3. It is compatible on macOS 10.9 (Mavericks) through 10.12 (Sierra). It has not been tested on OSes outside that range.
 
 # Configuration
 
-*Blade Runner* is configured through plists and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu and they must all be configured before running *Blade Runner*.
+*Blade Runner* is configured through plists and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu, and all must be configured before running *Blade Runner*.
 
 ![](rsrc/images/settings_scene_wbg.png)
 
@@ -100,12 +100,12 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. When offboarding with *Blade Runner*, an offboard configuration selection will be shown to the user. All XML files in `offboard_configs` will be available for selection.
+Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can also be accessed through `Settings`.
 
-![](rsrc/images/offboard_scene_drop_down_wbg.png)
+![](rsrc/images/offboard_scene_drop_down_marked_wbg.png)
 
 
-**The XML file must represent a valid string for JAMF Pro's XML API calls.** The best way to check this is to go to `https://my.jamf.server.domain:portnumber/api`, click on `computers>computers/id>Try it out!`, and look at the available data in `XML Response Body`. Your configuration file's tags and structure should only contain tags that exist in `XML Response Body`.
+**NOTE: The XML file must represent a valid string for JAMF Pro's XML API calls.** The best way to check this is to go to `https://my.jamf.server.domain:portnumber/api`, click on `computers>computers/id>Try it out!`, and look at the available data in `XML Response Body`. Your configuration file's tags and structure should only contain tags that exist in `XML Response Body`.
 
 ### Example Configs
 
