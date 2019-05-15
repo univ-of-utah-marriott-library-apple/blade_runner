@@ -6,7 +6,7 @@ Blade Runner
 
 ![](rsrc/images/selection_scene_wbg.png)
 
-It is configured through property lists (plists) and Extensible Markup Language (XML) files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
+It is configured through property list (plist) files and Extensible Markup Language (XML) files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
 
 For a list of features, see [Features & How They Work](#features-and-how-they-work).
 
@@ -48,7 +48,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 # Configuration
 
-*Blade Runner* is configured through plists and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu, and all must be configured before running *Blade Runner*.
+*Blade Runner* is configured through plist and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu, and all must be configured before running *Blade Runner*.
 
 ![](rsrc/images/settings_scene_wbg.png)
 
