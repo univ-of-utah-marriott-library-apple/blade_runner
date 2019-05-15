@@ -214,7 +214,7 @@ To facilitate "knowing" where to put this code, `user_actions.py` is provided. I
 
 ### modify_items
 
-`user_actions.py` contains an unimplemented function named `modify_items()`. This functions is called in [jss_doc.py](#auto-document-generation-and-printing). It appears right before the body of the document is generated. Its purpose is to allow the user to modify the data that appears in the document. `modify_items()` takes the `JssDoc`'s `self` as the first parameter and a list of tuples as the second parameter. `self` provides access to JAMF Pro. Each tuple in the list
+`user_actions.py` contains an unimplemented function named `modify_items()`. This function is called in [jss_doc.py](#auto-document-generation-and-printing). It appears right before the body of the document is generated. Its purpose is to allow the user to modify the data that appears in the document. `modify_items()` takes the `JssDoc`'s `self` as the first parameter and a list of tuples as the second parameter. `self` provides access to JAMF Pro. Each tuple in the list
 contains the name and value of the data to be added to the document.
 
 The first parameters of the standard data tuples are the following:
@@ -235,7 +235,7 @@ and produce a document like this:
 <img src="rsrc/images/jssdoc.png"  width="400" height="517">
 
 #### Remove Example  
-An implementation to **remove** the Name tuple would look like this:
+An implementation to **remove** the `Name` tuple would look like this:
 
 ```
 # user_actions.py
@@ -266,7 +266,7 @@ def modify_items(self, items):
     items.insert(2, ("Previous Name", prev_name))
 ```
 
-and would result in a document similar to this:
+and would result in a document like to this:
 
 <img src="rsrc/images/jssdoc_add_data.png"  width="400" height="517">
 
@@ -336,7 +336,7 @@ def update_slack_message(self, message):
     
 ## Offboard
 
-Offboarding is done through API calls made by *Blade Runner* to JAMF Pro. The user selects an offboarding configuration file and that file is sent to JAMF Pro as an XML string.
+Offboarding is done through API calls made by *Blade Runner* to JAMF Pro. The user selects an [offboarding configuration file](#offboard-configuration) and that file is sent as an XML string to JAMF Pro.
 
 ## Enroll
 
@@ -428,7 +428,7 @@ On the code side of things, these fields are represented by tuples, in which the
 
 ### Jamf Pro Record Inconsistencies
 
-In the case that JAMF Pro record inconsistencies exist between user entered data and the pre-offboard computer record, those inconsistencies will be added to the document for the user to review later if they so wish.
+In the case that inconsistencies exist between user entered data and the JAMF Pro data, they will be added to the document for the user to review later if they so wish.
 
 The reported inconsistencies are as follows:
 
@@ -441,7 +441,7 @@ For example, if the entered `barcode 1` differs from JAMF Pro's record, the prev
 
 <img src="rsrc/images/jssdoc_review.png"  width="400" height="517">
 
-The intent of this is to help track down and correct other mangled/incorrect computer records.
+The intent of this is to help track down and correct other mangled or incorrect computer records.
 
 # Uninstallation
 
