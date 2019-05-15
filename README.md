@@ -190,7 +190,7 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
 </plist>
 ```
 
-![](rsrc/images/offboard_scene_wbg.png)
+![](rsrc/images/offboard_scene_marked_wbg.png)
 
 ## Verification Parameters Configuration
 
