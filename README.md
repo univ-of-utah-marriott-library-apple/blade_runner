@@ -210,7 +210,7 @@ Here's a short example scenario of how *Blade Runner* handles user entered data 
 
 There are areas in *Blade Runner*'s codebase where a custom implementation of a process may be needed. In such circumstances, a configuration file isn't sufficient and the code needs to be supplemented.
 
-To facilitate "knowing" where to put this code, `user_actions.py` is provided. It contains three unimplemented functions that are always called.
+To facilitate "knowing" where to put this code, `user_actions.py` is provided. It contains three unimplemented functions that are called regardless of implementation.
 
 ### modify_items
 
