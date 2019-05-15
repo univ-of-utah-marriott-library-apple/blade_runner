@@ -673,7 +673,7 @@ class JssServer(object):
             updates' for the purpose of testing.
 
         Returns:
-            void
+            The process created by Popen.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         logger.debug("enroll_computer: activated")
