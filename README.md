@@ -404,7 +404,7 @@ In these situations, *Blade Runner* first performs a force unmount with `diskuti
 
 Slack notifications can be used to indicate the start and end of the process along with any errors that occur in the process. Currently, Slack notifications are reliant on `management_tools`, which is an included dependency.
 
-There is also a Slack reminder daemon that is launched when *Blade Runner* finishes offboarding a computer. Only one of these daemons can be launched on a computer at a time, and it will send a notification on a daily basis until the offboarded computer is turned off or the daemon is killed manually.
+To help busy or forgetful Mac admins, a Slack reminder daemon has been implemented to remind the admin that a Mac has been offboarded. This daemon will send a message once a day between 9 am and 6 pm, and will continue to do so until addressed. The daemon can be disabled in `slack.plist`.
 
 ## Auto Document Generation and Printing
 
