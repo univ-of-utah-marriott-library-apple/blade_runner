@@ -123,7 +123,7 @@ class JssDoc(object):
         # Build review HTML string.
         review = False
         # Review content string will be built and used only if one of the "incorrect" fields is not None.
-        review_content = """<b>Review these to fix any JSS inconsistencies.</b>"""
+        review_content = """<b>Review these to fix any JAMF Pro inconsistencies.</b>"""
         # Check if any field needs to be reviewed.
         if self.computer.incorrect_barcode_1:
             review = True
