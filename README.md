@@ -100,7 +100,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. When offboarding, an offboard configuration selection will be shown to the user. All XML files in `offboard_configs` will be available for selection:
+Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can be accessed through `Settings`.
 
 ![](rsrc/images/offboard_scene_drop_down_marked_wbg.png)
 
