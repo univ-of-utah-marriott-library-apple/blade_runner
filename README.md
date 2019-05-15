@@ -168,7 +168,7 @@ Offboard configurations can have any name but must be XML files. These configs c
 
 The available search parameters are `serial number`, `barcode 1`, `barcode 2`, and `asset tag`.
 
-![](rsrc/images/offboard_scene_all_wbg.png)
+![](rsrc/images/offboard_scene_marked_all_wbg.png)
 
 ### Example Config
 
