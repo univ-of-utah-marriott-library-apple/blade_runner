@@ -6,7 +6,7 @@ Blade Runner
 
 ![](rsrc/images/selection_scene_wbg.png)
 
-It is configured through plists and XML files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
+It is configured through property lists (plists) and Extensible Markup Language (XML) files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
 
 For a list of features, see [Features & How They Work](#features-and-how-they-work).
 
@@ -100,7 +100,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can also be accessed through `Settings`.
+Offboard configurations can have any name but must be listed in the XML configuration files. These configurations will contain the information to be sent to JAMF Pro during the offboarding process. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can also be accessed through `Settings`.
 
 ![](rsrc/images/offboard_scene_drop_down_marked_wbg.png)
 
@@ -164,15 +164,15 @@ Offboard configurations can have any name but must be XML files. These configs c
 
 ## Search Parameters Configuration
 
-`search_params.plist` determines the search parameters that can be used to find a computer record in JAMF Pro. The *Blade Runner* GUI will dynamically update according to these search parameters by only showing buttons that correspond to the enabled search parameters.
+`search_params.plist` determines the search parameters that can be used to find a computer record in JAMF Pro. The Blade Runner GUI will dynamically update search parameters by only showing buttons that correspond to the enabled parameters.
 
 The available search parameters are `serial number`, `barcode 1`, `barcode 2`, and `asset tag`.
 
 ![](rsrc/images/offboard_scene_marked_all_wbg.png)
 
-### Example Config
+### Example Configuration
 
-* Config that updates *Blade Runner* GUI to show `barcode 1`, `asset_tag`, and `serial number` buttons and allows the user to search JAMF Pro using those search parameters:
+* The example configuration below updates the Blade Runner GUI to show barcode 1, asset tag, and serial number buttons and allows the user to search JAMF Pro using the included search parameters:
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -194,7 +194,7 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
 
 ## Verification Parameters Configuration
 
-`verify_params.plist` determines which search parameters need to be verified when a match in JAMF Pro is found. It is generally the case that any keys enabled in [search_params.plist](#search-parameters-configuration) should also be enabled in `verify_config.plist`.
+The `verify_params.plist` file determines which search parameters need to be verified when a match in JAMF Pro is found. It is generally the case that any keys enabled in [search_params.plist](#search-parameters-configuration) should also be enabled in `verify_config.plist`.
 
 Here's a short example scenario of how *Blade Runner* handles user entered data when a match is found:
 
