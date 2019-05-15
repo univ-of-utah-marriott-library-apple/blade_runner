@@ -75,7 +75,7 @@ The `jamf_pro.plist` file contains the information needed for *Blade Runner* to 
 * **jamf_binary_2**
   * Secondary `jamf` binary location. Intended to be a location on an external hard drive, e.g., `/Volumes/my_external_drive/jamf` in the case that the computer being enrolled doesn't have a `jamf` binary.
 
-### Example Config
+### Example Configurations
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -107,7 +107,7 @@ Offboard configurations can have any name but must be listed in the XML configur
 
 **NOTE: The XML file must represent a valid string for JAMF Pro's XML API calls.** The best way to check this is to go to `https://my.jamf.server.domain:portnumber/api`, click on `computers>computers/id>Try it out!`, and look at the available data in `XML Response Body`. Your configuration file's tags and structure should only contain tags that exist in `XML Response Body`.
 
-### Example Configs
+### Example Configurations
 
 * Offboard configuration that only sets management status to false:
 ```xml
