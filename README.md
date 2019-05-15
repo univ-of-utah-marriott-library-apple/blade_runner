@@ -44,7 +44,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 # System Requirements
 
-*Blade Runner* requires Python 2.X.X >= Python 2.7.9, and is compatible on macOS 10.9 (Mavericks) through 10.12 (Sierra). It has not been tested on OSes outside that range.
+*Blade Runner* requires Python 2.7.9 or greater, excluding Python 3. It is compatible on macOS 10.9 (Mavericks) through 10.12 (Sierra). It has not been tested on OSes outside that range.
 
 # Configuration
 
