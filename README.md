@@ -60,7 +60,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ## JAMF Pro Configuration
 
-`jamf_pro.plist` contains the information needed for *Blade Runner* to perform JAMF Pro related tasks. The config contains the following keys:
+The `jamf_pro.plist` file contains the information needed for *Blade Runner* to perform JAMF Pro related tasks. The config contains the following keys:
 
 * **username**
   * JAMF Pro login username that will be used to make API requests to JAMF Pro. 
@@ -164,7 +164,7 @@ Offboard configurations can have any name but must be listed in the XML configur
 
 ## Search Parameters Configuration
 
-`search_params.plist` determines the search parameters that can be used to find a computer record in JAMF Pro. The Blade Runner GUI will dynamically update search parameters by only showing buttons that correspond to the enabled parameters.
+The `search_params.plist` file determines the search parameters that can be used to find a computer record in JAMF Pro. The Blade Runner GUI will dynamically update search parameters by only showing buttons that correspond to the enabled parameters.
 
 The available search parameters are `serial number`, `barcode 1`, `barcode 2`, and `asset tag`.
 
