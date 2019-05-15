@@ -77,7 +77,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ### Example Config
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -110,7 +110,7 @@ Offboard configurations can have any name but must be listed in the XML configur
 ### Example Configs
 
 * Offboard configuration that only sets management status to false:
-```
+```xml
 <computer>
   <general>
     <remote_management>
@@ -121,7 +121,7 @@ Offboard configurations can have any name but must be listed in the XML configur
 ```
 
 * Offboard configuration that sets management status to false and clears all location fields:
-```
+```xml
 <computer>
   <general>
     <remote_management>
@@ -144,7 +144,7 @@ Offboard configurations can have any name but must be listed in the XML configur
 ```
 
 * Offboard configuration that sets management status to false and updates an extension attribute (extension attributes differ between JAMF Pro servers):
-```
+```xml
 <computer>
   <general>
     <remote_management>
@@ -173,7 +173,7 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
 ### Example Configuration
 
 * The example configuration below updates the Blade Runner GUI to show barcode 1, asset tag, and serial number buttons and allows the user to search JAMF Pro using the included search parameters:
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -237,7 +237,7 @@ and produce a document like this:
 #### Remove Example  
 An implementation to **remove** the `Name` tuple would look like this:
 
-```
+```python
 # user_actions.py
 
 def modify_items(self, items):
@@ -252,7 +252,7 @@ and would result in a document like this:
 #### Add Example:
 An implementation to **add** some custom data tuples might look like this:
 
-```
+```python
 # user_actions.py
 
 def modify_items(self, items):
@@ -278,18 +278,19 @@ and would result in a document like to this:
 
 Given an offboard config like this:
 
-    <computer>
-        <general>
-            <name></name>
-            <remote_management>
-                <managed>false</managed>
-            </remote_management>
-        </general>
-    </computer>
-    
+```xml
+<computer>
+    <general>
+        <name></name>
+        <remote_management>
+            <managed>false</managed>
+        </remote_management>
+    </general>
+</computer>
+``` 
 an implementation to always change the name to the serial number would look like this:
 
-```
+```python
 # user_actions.py
 import xml.etree.cElementTree as ET
 
@@ -312,7 +313,7 @@ def update_offboard_config(self):
 
 An implementation that appends the serial number to the Slack message would look like this:
 
-```
+```python
 def update_slack_message(self, message):
     message += " Serial: {}".format(self._computer.serial_number)
     return message
