@@ -194,7 +194,9 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
 
 ## Verification Parameters Configuration
 
-`verify_params.plist` determines which search parameters need to be verified when a match in JAMF Pro is found. Here's a short example scenario:
+`verify_params.plist` determines which search parameters need to be verified when a match in JAMF Pro is found. It is generally the case that any keys enabled in [search_params.plist](#search-parameters-configuration) should also be enabled in `verify_config.plist`.
+
+Here's a short example scenario of how *Blade Runner* handles user entered data when a match is found:
 
 * User searches for a computer using `barcode 1`:
   * No match found.
@@ -203,10 +205,6 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
         * If `barcode 1` and `asset_tag` are enabled in `verify_params.plist`, *Blade Runner* will ask the user to verify/correct the information entered for `barcode 1` and `asset_tag` against JAMF Pro's record.
 
 <img src="rsrc/images/verify_all_wbg.png"  width="800" height="480">
-
-It is generally the case that any keys enabled in [search_params.plist](#search-parameters-configuration) should also be enabled in `verify_config.plist`.
-
-*Blade Runner*'s GUI will dynamically update according to which verification parameters are enabled.
 
 ## User Defined Actions
 
