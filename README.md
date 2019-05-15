@@ -48,7 +48,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 # Configuration
 
-*Blade Runner* is configured through plists and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu and they must all be configured before running *Blade Runner*.
+*Blade Runner* is configured through plists and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu, and all must be configured before running *Blade Runner*.
 
 ![](rsrc/images/settings_scene_wbg.png)
 
