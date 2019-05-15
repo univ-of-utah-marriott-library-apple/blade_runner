@@ -100,9 +100,9 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. When offboarding with *Blade Runner*, an offboard configuration selection will be shown to the user. All XML files in `offboard_configs` will be available for selection.
+Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. When offboarding, an offboard configuration selection will be shown to the user. All XML files in `offboard_configs` will be available for selection:
 
-![](rsrc/images/offboard_scene_drop_down_wbg.png)
+![](rsrc/images/offboard_scene_drop_down_marked_wbg.png)
 
 
 **The XML file must represent a valid string for JAMF Pro's XML API calls.** The best way to check this is to go to `https://my.jamf.server.domain:portnumber/api`, click on `computers>computers/id>Try it out!`, and look at the available data in `XML Response Body`. Your configuration file's tags and structure should only contain tags that exist in `XML Response Body`.
