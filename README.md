@@ -65,7 +65,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 * **username**
   * JAMF Pro login username that will be used to make API requests to JAMF Pro. 
 * **password**
-  * JAMF Pro login password that will be used to make API requests to the JAMF Pro.
+  * JAMF Pro login password that will be used to make API requests to JAMF Pro.
 * **jss_url**
   * JAMF Pro url.
 * **invite**
