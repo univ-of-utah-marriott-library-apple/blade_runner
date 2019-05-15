@@ -48,7 +48,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 # Configuration
 
-*Blade Runner* is configured through plists and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner*. The configuration files can be accessed through *Blade Runner*'s `Settings` menu and they must all be configured before running *Blade Runner*.
+*Blade Runner* is configured through plists and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu and they must all be configured before running *Blade Runner*.
 
 ![](rsrc/images/settings_scene_wbg.png)
 
@@ -60,12 +60,12 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ## JAMF Pro Configuration
 
-`jamf_pro.plist` contains the information needed for *Blade Runner* to run JAMF Pro related tasks. The config contains the following keys:
+`jamf_pro.plist` contains the information needed for *Blade Runner* to perform JAMF Pro related tasks. The config contains the following keys:
 
 * **username**
   * JAMF Pro login username that will be used to make API requests to JAMF Pro. 
 * **password**
-  * JAMF Pro login password that will be used to make API requests to the JAMF Pro.
+  * JAMF Pro login password that will be used to make API requests to JAMF Pro.
 * **jss_url**
   * JAMF Pro url.
 * **invite**
@@ -100,7 +100,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. When offboarding with *Blade Runner*, an offboard configuration selection will be shown to the user. All XML files in `private` will be available for selection.
+Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. When offboarding with *Blade Runner*, an offboard configuration selection will be shown to the user. All XML files in `offboard_configs` will be available for selection.
 
 ![](rsrc/images/offboard_scene_drop_down_wbg.png)
 
