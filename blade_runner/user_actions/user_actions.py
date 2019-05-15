@@ -18,8 +18,6 @@
 # implied warranties of any kind.
 ################################################################################
 
-import xml_updater
-
 
 def modify_items(self, data):
     """User defined implementation for JssDoc in jss_doc.py. Meant to allow user to modify the data tuples that are
@@ -64,8 +62,7 @@ def modify_items(self, data):
     Returns:
         void
     """
-    prev_name = self.jss_server.get_extension_attribute(self.computer.jss_id, name="Previous Computer Names")
-    data.insert(1, ("Prev Name", prev_name))
+    pass
 
 
 def update_offboard_config(self):
@@ -112,15 +109,7 @@ def update_offboard_config(self):
     Returns:
         void
     """
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Append the computer name with the serial number.
-    self._offboard_config = xml_updater.append_name(self._computer.get_serial(), self._offboard_config)
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Add a timestamp to the additional notes attribute.
-    self._offboard_config = xml_updater.timestamp_note(self._offboard_config)
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Set the previous computer name extension attribute.
-    self._offboard_config = xml_updater.set_previous_computer_name(self._computer.jss_name, self._offboard_config)
+    pass
 
 
 def update_slack_message(self, message):
@@ -140,7 +129,6 @@ def update_slack_message(self, message):
     Returns:
         message
     """
-    message += " Serial: {}".format(self._computer.serial_number)
     return message
 
 
