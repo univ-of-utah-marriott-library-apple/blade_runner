@@ -20,14 +20,10 @@
 # implied warranties of any kind.
 ################################################################################
 
-import os
-import inspect
-try:
-    import Tkinter as tk
-except ImportError:
-    import tkinter as tk
+import logging
+import Tkinter as tk
 
-from management_tools import loggers
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class StallWindow(tk.Toplevel):
@@ -55,6 +51,7 @@ class StallWindow(tk.Toplevel):
             StallWindow(master_window, awesome_func, "Running my awesome function!")
 
         """
+        self.logger = logging.getLogger(__name__)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         tk.Toplevel.__init__(self, master)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -168,9 +165,9 @@ class StallWindow(tk.Toplevel):
 
 
 # Start logging.
-cf = inspect.currentframe()
-abs_file_path = inspect.getframeinfo(cf).filename
-basename = os.path.basename(abs_file_path)
-lbasename = os.path.splitext(basename)[0]
-logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
-logger.debug("{} logger started.".format(lbasename))
+# cf = inspect.currentframe()
+# abs_file_path = inspect.getframeinfo(cf).filename
+# basename = os.path.basename(abs_file_path)
+# lbasename = os.path.splitext(basename)[0]
+# logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
+# logger.debug("{} logger started.".format(lbasename))
