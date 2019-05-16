@@ -21,11 +21,12 @@
 ################################################################################
 
 import os
-import inspect
 import subprocess
 import webbrowser
+import logging
 
-from blade_runner.dependencies.management_tools import loggers
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def create_html(content, filepath):
@@ -74,16 +75,23 @@ def print_pdf_to_default(pdf):
     Returns:
         void
     """
+    base_no_ext = os.path.splitext(os.path.basename(pdf))[0]
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Build AppleScript to print PDF to default printer from Preview.
     script = r'''
     set theFile to POSIX path of "{}"
-    do shell script("open " & theFile) 
+    do shell script("open " & quoted form of theFile) 
     tell application "Preview"
         delay 2
-        print the front document
+        set theOpenDocs to get name of every window
+        repeat with theDoc in theOpenDocs
+            if theDoc contains "{}" then
+                set theWindow to the first item of (get the windows whose name is theDoc)
+                print theWindow
+            end if
+        end repeat
     end tell
-            '''.format(pdf)
+    '''.format(pdf, base_no_ext)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Write AppleScript text to a bash file.
     with open("/tmp/print.sh", "w+") as f:
@@ -100,9 +108,3 @@ def print_pdf_to_default(pdf):
         logger.error(str(e.output))
         logger.error("Document didn't print. Make sure a default printer has been configured.")
 
-
-cf = inspect.currentframe()
-abs_file_path = inspect.getframeinfo(cf).filename
-basename = os.path.basename(abs_file_path)
-lbase = os.path.splitext(basename)[0]
-logger = loggers.FileLogger(name=lbase, level=loggers.DEBUG)
