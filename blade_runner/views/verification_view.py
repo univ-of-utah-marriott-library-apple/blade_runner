@@ -20,10 +20,10 @@
 # implied warranties of any kind.
 ################################################################################
 
-try:
-    import Tkinter as tk
-except ImportError:
-    import tkinter as tk
+import logging
+import Tkinter as tk
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class VerifyView(tk.Toplevel):
@@ -36,6 +36,7 @@ class VerifyView(tk.Toplevel):
             master: Parent Tk window.
             controller (Controller): Controller for the view.
         """
+        self.logger = logging.getLogger(__name__)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Call __init__ for parent class.
         tk.Toplevel.__init__(self, master)
