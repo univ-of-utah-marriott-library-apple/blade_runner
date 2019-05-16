@@ -21,11 +21,10 @@
 ################################################################################
 
 import re
-import os
-import inspect
 import subprocess
+import logging
 
-from management_tools import loggers
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class Computer(object):
@@ -54,6 +53,7 @@ class Computer(object):
 
         Intended to be used as the model of the computer that Blade-Runner is running on.
         """
+        self.logger = logging.getLogger(__name__)
         self.serial_number = None
         self.jss_id = None
         self.barcode_1 = None
@@ -73,21 +73,14 @@ class Computer(object):
     def get_serial(self):
         """Gets and returns serial number from the computer"""
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("get_serial" + ": activated")
+        self.logger.info("get_serial" + ": activated")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Gets raw data that contains the serial number
         serial_request_raw = subprocess.check_output(["system_profiler", "SPHardwareDataType"])
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Gets serial number from the raw data
-        serial = re.findall('Serial Number .system.: (.*)', serial_request_raw)[0]
+        serial = re.findall('Serial Number .system.: (.*)', serial_request_raw.decode(encoding='UTF-8'))[0]
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("get_serial" + ": succeeded")
+        self.logger.info("get_serial" + ": succeeded")
         return serial
 
-# Start logging.
-cf = inspect.currentframe()
-abs_file_path = inspect.getframeinfo(cf).filename
-basename = os.path.basename(abs_file_path)
-lbasename = os.path.splitext(basename)[0]
-logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
-logger.debug("{} logger started.".format(lbasename))
