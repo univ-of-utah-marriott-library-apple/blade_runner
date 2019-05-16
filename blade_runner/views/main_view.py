@@ -46,6 +46,8 @@ class MainView(tk.Toplevel):
             master (Tk): the main view's master or root window
             controller (MainController): the main view's controller
         """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get logger.
         self.logger = logging.getLogger(__name__)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         tk.Toplevel.__init__(self, master)
@@ -54,32 +56,25 @@ class MainView(tk.Toplevel):
         # Set the action for when the window is closed using the close button
         self.protocol('WM_DELETE_WINDOW', self._exit_btn_clicked)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # The main views controller
+        # The main views controller.
         self._controller = controller
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Disable resizing of window.
         self.resizable(False, False)
-
-        self._github_url = "<INSERT GITHUB REPO>"
-
-        # Creating components
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set default text font
         self.text_font = ("Avenir Next","14")
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create frames
         self.frame = tk.Frame(self)
         self.combobox_frame = tk.Frame(self)
         self.bottom_frame = tk.Frame(self)
-
-        self.selection_lbl = tk.Label(self.combobox_frame)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Blade Runner labels
         self._version_lbl = tk.Label(self, text="v1.0.0", font=("Avenir Next", "8"))
         self._version_lbl.grid(row=1, padx=(8,0), sticky='w')
-
-        self.choose_lbl = tk.Label(self.combobox_frame, text="Select an offboard configuration file below.", font=self.text_font)
-
-        self.combobox = ttk.Combobox(self.combobox_frame, width=25)
-
-        self._offboard_btn = tk.Button(self.frame, text="Offboard", fg="blue", command=lambda: self._offboard_btn_clicked(self.curr_scene),
-                                       width=25, font=self.text_font)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Bottom frame buttons
         self._quit_btn = tk.Button(self.bottom_frame, text="Quit", command=lambda: self._exit_btn_clicked(),
                                    font=self.text_font)
 
@@ -88,13 +83,14 @@ class MainView(tk.Toplevel):
 
         self._help_btn = tk.Button(self.bottom_frame, text="Help", command=lambda: self._help_btn_clicked(self.curr_scene),
                                    font=self.text_font)
-
-        self._about_btn = tk.Button(self.frame, text="About", command=lambda: self._about_btn_clicked(), font=self.text_font, width=25)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # How to scene widgets
         self._how_to_text_box = tk.Text(self.frame, wrap="word", font=self.text_font)
         self._how_to_scroll_bar = tk.Scrollbar(self.frame, command=self._how_to_text_box.yview)
-
+        self._how_to_lbl = tk.Label(self.frame, justify='left', font=self.text_font)
         self._how_to_btn = tk.Button(self.frame, text="How To", command=lambda: self._how_to_btn_clicked(), font=self.text_font, width=25)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Settings and settings scene buttons
         self._settings_btn = tk.Button(self.bottom_frame, text="Settings", font=self.text_font, command=lambda: self._settings_btn_clicked(self.curr_scene))
         self._slack_config_btn = tk.Button(self.frame, text="Slack Configuration", font=self.text_font, width=25, command=lambda: self._slack_config_btn_clicked())
         self._offboard_config_btn = tk.Button(self.frame, text="Offboard Configuration", font=self.text_font, width=25, command=lambda: self._offboard_config_btn_clicked())
@@ -103,14 +99,25 @@ class MainView(tk.Toplevel):
         self._directory_config_btn = tk.Button(self.frame, text="Configuration Directory", font=self.text_font, width=25, command=lambda: self._directory_config_btn_clicked())
         self._print_config_btn = tk.Button(self.frame, text="Print Configuration", font=self.text_font, width=25, command=lambda: self._print_config_btn_clicked())
         self._python_bin_config_btn = tk.Button(self.frame, text="Python Binary Configuration", font=self.text_font, width=25, command=lambda: self._python_bin_config_btn_clicked())
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Github scene widgets
+        self._github_url = "<INSERT GITHUB REPO>"
         self._github_btn = tk.Button(self.frame, text="Github", command=lambda: self._github_btn_clicked(), font=self.text_font, width=25)
         self._github_lbl = tk.Label(self.frame, font=self.text_font)
         self._github_entry = tk.Entry(self.frame, width=len(self._github_url), justify='center', font=('Avenir Next','14','bold'))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # About scene widgets
+        self._about_btn = tk.Button(self.frame, text="About", command=lambda: self._about_btn_clicked(), font=self.text_font, width=25)
 
         self._about_lbl = tk.Label(self.frame, justify='left', font=self.text_font)
-        self._how_to_lbl = tk.Label(self.frame, justify='left', font=self.text_font)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Offboard scene widgets
+        self.selection_lbl = tk.Label(self.combobox_frame)
+        self.choose_lbl = tk.Label(self.combobox_frame, text="Select an offboard configuration file below.", font=self.text_font)
+        self.combobox = ttk.Combobox(self.combobox_frame, width=25)
+        self._offboard_btn = tk.Button(self.frame, text="Offboard", fg="blue",
+                                       command=lambda: self._offboard_btn_clicked(self.curr_scene),
+                                       width=25, font=self.text_font)
         self._serial_btn = tk.Button(self.frame, text="Serial Number", fg='blue',
                                      command=lambda: self._input_btn_clicked('serial_number'), width=25, font=self.text_font)
 
@@ -123,6 +130,8 @@ class MainView(tk.Toplevel):
         self._asset_btn = tk.Button(self.frame, text="Asset Tag",
                                     command=lambda: self._input_btn_clicked('asset_tag'), width=25, font=self.text_font)
 
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Selection scene widgets
         self._secure_erase_btn = tk.Button(self.frame, text="Secure Erase Internal Disks",
                                            command=lambda: self._secure_erase_btn_clicked(), width=25, font=self.text_font)
 
@@ -132,11 +141,11 @@ class MainView(tk.Toplevel):
         # After the window loads, the function is fired. This is the Map event, or when the window has finished being
         # constructed.
         self.bind('<Map>', lambda event: self.populate_combobox())
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Bind return key
         self.return_id = self.bind('<Return>', lambda event: self._offboard_btn_clicked())
-
-        # define the image
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Encoded Blade Runner logo.
         encoded_logo = '''\
         R0lGODlhWAJRAPcAAAAAACYmJkJCQlhYWGtra319fZMAAJwAAZ8ACqAABqMADKUBFKYBG6kBHKUK
         HagFGLQBHboAHLMAFKoEIKcPIqwKJa4OKrMGI7sEIrEJJrEOKrwKKKgUJq4RLKsYK6cQJLASLq8U
@@ -281,27 +290,31 @@ class MainView(tk.Toplevel):
         bm1sa2ppaGdmZWRjYmFgX15dXFtaWVhXVlVUU1JRUE9OTUxLSklIR0ZFRENCQUA/Pj08Ozo5ODc2
         NTQzMjEwLy4tLCsqKSgnJiUkIyIhIB8eHRwbGhkYFxYVFBMSERAPDg0MCwoJCAcGBQQDAgEAADs=
         '''
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Add Blade Runner logo.
         self.asset_label = tk.Label(self)
         self.asset_photoimage = tk.PhotoImage(data=encoded_logo)
         self.asset_label['image'] = self.asset_photoimage
         self.asset_label.grid(row=0)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid frames and separator.
         self.frame.grid(row=3, padx=10, pady=(10, 15), sticky='ew')
         self._separator.grid(row=5, sticky='ew')
         self.bottom_frame.grid(row=6, padx=10, pady=(10, 10), sticky='ew')
-
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Give any extra space to column 0. See this page for details:
         # https://stackoverflow.com/questions/45847313/what-does-weight-do-in-tkinter
         self.frame.columnconfigure(0, weight=1)
         self.bottom_frame.columnconfigure(1, weight=1)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set up the selection scene.
         self._selection_scene()
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set up scene vars
         self.prev_scene = None
         self.curr_scene = "selection_scene"
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid bottom frame buttons.
         self._quit_btn.grid(row=0, column=3, sticky='e')
         self._back_btn.grid(row=0, column=2, sticky='e')
         self._help_btn.grid(row=0, column=0, sticky='w')
