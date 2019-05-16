@@ -31,11 +31,12 @@ Example:
 
 """
 
-import subprocess
 import os
-import sys
 import re
+import sys
 import logging
+import plistlib
+import subprocess
 
 blade_runner_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
@@ -46,6 +47,10 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 def main():
+    python_bin_config = os.path.join(blade_runner_dir, "private/python_bin_config/python_bin.plist")
+    python_bin_settings = plistlib.readPlist(python_bin_config)
+    user_input_python_bin = python_bin_settings["python_binary"]
+
     # Set the icon path
     icon = os.path.join(blade_runner_dir, "rsrc/images/BladeRunner.icns")
     # Set the plist overrides
@@ -54,7 +59,7 @@ def main():
     bundle_name = 'Blade Runner'
 
     # Set the list of binaries to check.
-    python_binaries = [sys.executable, "/usr/bin/python2.7", "python2", "/usr/bin/python", "/anaconda2/bin/python2"]
+    python_binaries = [user_input_python_bin, "/usr/bin/python2.7", "/usr/bin/python", "/anaconda2/bin/python2"]
     # Find which binaries are greater than or equal to 2.7.9.
     valid_bins = compatible_python_bins(python_binaries)
 
