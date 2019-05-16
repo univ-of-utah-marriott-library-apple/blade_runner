@@ -20,12 +20,12 @@
 # implied warranties of any kind.
 ################################################################################
 
-import os
-import inspect
+import logging
 
-from management_tools import loggers
-from entry_controller import EntryController
+from blade_runner.controllers.entry_controller import EntryController
 from blade_runner.views.verification_view import VerifyView
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class VerificationController(EntryController):
@@ -41,6 +41,7 @@ class VerificationController(EntryController):
             search_params (SearchParams): Search parameters.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self.logger = logging.getLogger(__name__)
         # Save the view in the superclass (EntryController).
         view = VerifyView(master, self)
         super(VerificationController, self).__init__(computer, view)
@@ -120,10 +121,3 @@ class VerificationController(EntryController):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.proceed = False
         self.entry_view.destroy()
-
-
-cf = inspect.currentframe()
-filename = inspect.getframeinfo(cf).filename
-filename = os.path.basename(filename)
-filename = os.path.splitext(filename)[0]
-logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)
