@@ -40,6 +40,9 @@ class Controller(object):
         # Gets computer screen width and height
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
+
+        x = int(screen_width / 2 - window.winfo_width()/2)
+        y = int(screen_height / 4)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Sets window position
-        window.geometry('+{}+{}'.format(screen_width / 2 - window.winfo_width()/2, screen_height / 4))
+        window.geometry('+{}+{}'.format(x, y))
