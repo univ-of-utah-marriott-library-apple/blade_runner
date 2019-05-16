@@ -20,7 +20,11 @@
 # implied warranties of any kind.
 ################################################################################
 
-from controller import Controller
+import logging
+
+from blade_runner.controllers.controller import Controller
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class EntryController(Controller):
@@ -33,6 +37,7 @@ class EntryController(Controller):
             computer (Computer): Used to store and fill entries.
             view: Controller's view.
         """
+        self.logger = logging.getLogger(__name__)
         self.computer = computer
         self.entry_view = view
 
