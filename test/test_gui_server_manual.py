@@ -73,7 +73,7 @@ class TestGUIServerManual(unittest.TestCase):
         self.search_params_config = os.path.join(self.blade_runner_dir, "private/search_params_configs/search_params.plist")
         self.search_params = plistlib.readPlist(self.search_params_config)
 
-        self.jamf_pro_doc_config = os.path.join(self.blade_runner_dir, "private/jamf_pro_doc_config/jamf_pro_doc.plist")
+        self.jamf_pro_doc_config = os.path.join(self.blade_runner_dir, "private/print_config/print.plist")
         self.doc_settings = plistlib.readPlist(self.jamf_pro_doc_config)
 
         self.br = MainController(root, jss_server, self.slack_data, self.verify_data, self.search_params, self.doc_settings)
