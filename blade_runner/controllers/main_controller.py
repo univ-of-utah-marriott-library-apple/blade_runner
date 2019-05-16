@@ -53,7 +53,6 @@ from blade_runner.dependencies.management_tools.slack import IncomingWebhooksSen
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
 # TODO BUG: If spaces are entered in the asset/barcode inputs the program quits. Need to format spaces.
-# TODO Find a better way to enable/disable JSS Doc printing. I don't like it being an arg for MainController.
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -601,6 +600,16 @@ class MainController(Controller):
             self.logger.debug("Setting frontmost of process Python to true failed.")
 
     def open_config(self, config_id):
+        """Opens the specified configuration file in its default application.
+
+        Args:
+            config_id (str): Denotes which path to use.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Determine the path to the configuration file.
         if config_id == "slack":
             path = "slack_configs/slack.plist"
         elif config_id == "offboard":
@@ -611,47 +620,68 @@ class MainController(Controller):
             path = "search_params_configs/search_params.plist"
         elif config_id == "private":
             path = ""
+        elif config_id == "print":
+            path = "print_config/print.plist"
+        elif config_id == "python_bin":
+            path = "python_bin_config/python_bin.plist"
         else:
             self.logger.warn("No configuration ID matches \"{}\"".format(config_id))
             raise SystemError("No configuration ID matches \"{}\"".format(config_id))
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open the file in its default application
         subprocess.check_output(["open", os.path.join(self._private_dir, path)])
 
     def cat_readme(self):
+        """Outputs the text of README.md.
+
+        Returns:
+            Text of README.md.
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set the path to README.md.
         readme = os.path.join(self.app_root_dir, "README.md")
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Read README.md contents and return them as a single string.
         with open(readme, "r") as f:
             return f.read()
 
 
 def main():
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set up logging values.
     fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
     script_name = os.path.splitext(os.path.basename(__file__))[0]
     log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
     filepath = os.path.join(log_dir, script_name + ".log")
+
+    # Create directory for log if it DNE.
     try:
         os.mkdir(log_dir)
     except OSError as e:
         if e.errno != 17:
             raise e
 
+    # Set up and get logger.
     logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
     logger = logging.getLogger(script_name)
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Ensure script is being run as root.
     if os.geteuid() != 0:
         logger.info("Blade Runner must be run as root.")
         raise SystemExit("Blade Runner must be run as root.")
-
     logger.info("Authentication passed. Blade Runner started.")
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Create main root window.
     root = tk.Tk()
     root.withdraw()
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set up parent folder of private.
     abs_file_path = os.path.abspath(__file__)
-    # Read from jss config plist and set up the JSS server
     blade_runner_dir = abs_file_path
     for i in range(3):
         blade_runner_dir = os.path.dirname(blade_runner_dir)
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Read from jss config plist and set up the JAMF Pro server
     jss_server_plist = os.path.join(blade_runner_dir, "private/jamf_pro_configs/jamf_pro.plist")
     jss_server_data = plistlib.readPlist(jss_server_plist)
     jss_server = JssServer(**jss_server_data)
@@ -661,17 +691,20 @@ def main():
     slack_plist = os.path.join(blade_runner_dir, "private/slack_configs/slack.plist")
     slack_data = plistlib.readPlist(slack_plist)
 
+    # Read from verify params plist to set up verification parameters
     verify_config = os.path.join(blade_runner_dir, "private/verify_params_configs/verify_params.plist")
     verify_params = plistlib.readPlist(verify_config)
 
+    # Read from search params plist to set up search parameters.
     search_params_config = os.path.join(blade_runner_dir, "private/search_params_configs/search_params.plist")
     search_params = plistlib.readPlist(search_params_config)
 
-    jamf_pro_doc_config = os.path.join(blade_runner_dir, "private/jamf_pro_doc_config/jamf_pro_doc.plist")
-    doc_settings = plistlib.readPlist(jamf_pro_doc_config)
-
+    # Read from print config to enable or disable printing.
+    print_config = os.path.join(blade_runner_dir, "private/print_config/print.plist")
+    print_settings = plistlib.readPlist(print_config)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Run the application
-    app = MainController(root, jss_server, slack_data, verify_params, search_params, doc_settings)
+    app = MainController(root, jss_server, slack_data, verify_params, search_params, print_settings)
     app.run()
     logger.info("Blade Runner exiting.")
 
