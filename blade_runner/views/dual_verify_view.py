@@ -19,11 +19,10 @@
 # permission. This software is supplied as is without expressed or
 # implied warranties of any kind.
 ################################################################################
+import logging
+import Tkinter as tk
 
-try:
-    import Tkinter as tk
-except ImportError:
-    import tkinter as tk
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class DualVerifyView(tk.Toplevel):
@@ -67,6 +66,7 @@ class DualVerifyView(tk.Toplevel):
             master: Master Tk window.
             controller (DualVerifyController): Controller for this view.
         """
+        self.logger = logging.getLogger(__name__)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         tk.Toplevel.__init__(self, master)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
