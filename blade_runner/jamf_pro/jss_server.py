@@ -21,16 +21,15 @@
 ################################################################################
 
 import re
-import os
 import sys
 import json
 import base64
-import inspect
 import urllib2
 import subprocess
 import xml.etree.cElementTree as ET
+import logging
 
-from management_tools import loggers
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class JssServer(object):
@@ -52,6 +51,7 @@ class JssServer(object):
             _jamf_binary_2: Location of JAMF binary on external drive.
 
         """
+        self.logger = logging.getLogger(__name__)
         self._username = kwargs.get('username', None)
         self._password = kwargs.get('password', None)
         self._jss_url = kwargs.get('jss_url', None)
@@ -81,18 +81,18 @@ class JssServer(object):
             JSS ID (str)
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("match: started")
+        self.logger.debug("match: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set API request URL
         request_url = "{0}/JSSResource/computers/match/{1}".format(self._jss_url, search_param)
-        logger.debug("Request URL: {}".format(request_url))
+        self.logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create GET request
         request = self.create_get_request_handler(request_url)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
-        logger.info("Status code from request: {}".format(response.code))
+        self.logger.info("Status code from request: {}".format(response.code))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Read the JSON from the response.
         response_json = json.loads(response.read())
@@ -103,16 +103,16 @@ class JssServer(object):
         except IndexError as e:
             # If search param length is greater than 10, it is the serial number
             if len(search_param) > 10:
-                logger.info("Serial number was not found in the JSS. {}".format(search_param))
+                self.logger.info("Serial number was not found in the JSS. {}".format(search_param))
             # Otherwise it's the barcode or asset tag
             else:
-                logger.info("Barcode or asset not found in the JSS. {}".format(search_param))
+                self.logger.info("Barcode or asset not found in the JSS. {}".format(search_param))
             return None
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get JSS ID from computer data
         jss_id = str(computer_data['id'])
-        logger.info("JSS ID: {}".format(jss_id))
-        logger.debug("match: finished")
+        self.logger.info("JSS ID: {}".format(jss_id))
+        self.logger.debug("match: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return jss_id
 
@@ -126,18 +126,18 @@ class JssServer(object):
             hardware data
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_hardware_data: started")
+        self.logger.debug("get_hardware_data: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set API request URL
         request_url = "{0}/JSSResource/computers/id/{1}/subset/Hardware".format(self._jss_url, jss_id)
-        logger.debug("Request URL: {}".format(request_url))
+        self.logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create GET request
         request = self.create_get_request_handler(request_url)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
-        logger.info("Status code from request: {}".format(response.code))
+        self.logger.info("Status code from request: {}".format(response.code))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Read the JSON from the response.
         response_json = json.loads(response.read())
@@ -145,7 +145,7 @@ class JssServer(object):
         # Get the hardware data from the JSON
         hardware_inventory = response_json['computer']['hardware']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_hardware_data: finished")
+        self.logger.debug("get_hardware_data: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return hardware_inventory
 
@@ -159,18 +159,18 @@ class JssServer(object):
             General data.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_general_data: started")
+        self.logger.debug("get_general_data: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create API request URL
         request_url = "{0}/JSSResource/computers/id/{1}/subset/General".format(self._jss_url, jss_id)
-        logger.debug("Request URL: {}".format(request_url))
+        self.logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create GET request
         request = self.create_get_request_handler(request_url)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
-        logger.info("Status code from request: {}".format(response.code))
+        self.logger.info("Status code from request: {}".format(response.code))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Read the JSON from the response.
         response_json = json.loads(response.read())
@@ -178,7 +178,7 @@ class JssServer(object):
         # Get the general data from the JSON
         general_inv = response_json['computer']['general']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_general_data: finished")
+        self.logger.debug("get_general_data: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return general_inv
 
@@ -192,7 +192,7 @@ class JssServer(object):
             Extension attributes.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_extension_attributes: started")
+        self.logger.debug("get_extension_attributes: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create API request URL
         request_url = "{0}/JSSResource/computers/id/{1}/subset/extension_attributes".format(self._jss_url, jss_id)
@@ -202,7 +202,7 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
-        logger.info("Status code from request: {}".format(response.code))
+        self.logger.info("Status code from request: {}".format(response.code))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Read the JSON from the response.
         response_json = json.loads(response.read())
@@ -210,7 +210,7 @@ class JssServer(object):
         # Get the extension attributes from the JSON response.
         ext_attrs = response_json.get('computer', {}).get('extension_attributes', {})
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_extension_attributes: finished")
+        self.logger.debug("get_extension_attributes: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return ext_attrs
 
@@ -226,7 +226,7 @@ class JssServer(object):
             Value of extension attribute.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_extension_attribute: started")
+        self.logger.debug("get_extension_attribute: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get extension attributes
         ext_attrs = self.get_extension_attributes(jss_id)
@@ -242,7 +242,7 @@ class JssServer(object):
                     ext_attr_val = attribute['value']
                     return ext_attr_val
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_extension_attribute: finished")
+        self.logger.debug("get_extension_attribute: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return None
 
@@ -256,7 +256,7 @@ class JssServer(object):
             Location data.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_location_data: started")
+        self.logger.debug("get_location_data: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create API request URL
         request_url = "{0}/JSSResource/computers/id/{1}/subset/Location".format(self._jss_url, jss_id)
@@ -266,7 +266,7 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request
         response = self.open_request_handler(request)
-        logger.info("Status code from request: {}".format(response.code))
+        self.logger.info("Status code from request: {}".format(response.code))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Read the JSON from the response.
         response_json = json.loads(response.read())
@@ -274,7 +274,7 @@ class JssServer(object):
         # Get the location data from the JSON response.
         jss_location_fields = response_json.get('computer', {}).get('location', {})
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_location_data: finished")
+        self.logger.debug("get_location_data: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return jss_location_fields
 
@@ -289,7 +289,7 @@ class JssServer(object):
 
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_subsets_data: started")
+        self.logger.debug("get_subsets_data: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Parse the xml file into an element tree
         tree = ET.parse(xml_file)
@@ -327,7 +327,7 @@ class JssServer(object):
         # Change the element tree into an xml string.
         xml_string = ET.tostring(xml, encoding='utf-8')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_subsets_data: finished")
+        self.logger.debug("get_subsets_data: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return xml_string
 
@@ -341,12 +341,12 @@ class JssServer(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("delete_record: started")
+        self.logger.debug("delete_record: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Delete the JSS record.
         self._delete_handler(jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("delete_record: finished")
+        self.logger.debug("delete_record: finished")
 
     def push_identity_fields(self, computer):
         """Pushes barcode, asset tag, serial number, and name fields to the JSS server.
@@ -358,7 +358,7 @@ class JssServer(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("push_identity_fields: started")
+        self.logger.debug("push_identity_fields: started")
         encoding = 'utf-8'
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # v BEGIN: Create XML structure that will be sent through the api call
@@ -400,7 +400,7 @@ class JssServer(object):
         # Push xml string and update the computer in the JSS.
         self._push_xml_str_handler(xml, computer.jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("push_identity_fields: finished")
+        self.logger.debug("push_identity_fields: finished")
 
     def push_xml(self, xml, jss_id):
         """Push data from XML file to update JSS record for the given JSS ID.
@@ -413,7 +413,7 @@ class JssServer(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("push_xml: started")
+        self.logger.debug("push_xml: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Parse XML file into an element tree.
         tree = ET.parse(xml)
@@ -430,7 +430,7 @@ class JssServer(object):
         # Push XML string to udpate JSS record.
         self._push_xml_str_handler(xml, jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("push_xml: finished")
+        self.logger.debug("push_xml: finished")
 
     def push_xml_str(self, xml_str, jss_id):
         """Push data from XML string to update JSS record for the given JSS ID.
@@ -443,7 +443,7 @@ class JssServer(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("push_xml_str: started")
+        self.logger.debug("push_xml_str: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Remove new lines from xml string.
         xml_str = re.sub("\n", "", xml_str)
@@ -454,7 +454,7 @@ class JssServer(object):
         # Push XML string to udpate JSS record.
         self._push_xml_str_handler(xml_str, jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("push_xml_str: finished")
+        self.logger.debug("push_xml_str: finished")
 
     def get_serial(self, jss_id):
         """Gets the serial number for the computer corresponding to JSS ID from the JSS.
@@ -466,7 +466,7 @@ class JssServer(object):
             Serial number of computer according to the JSS. (str)
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_serial: started")
+        self.logger.debug("get_serial: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get general data.
         general_data = self.get_general_data(jss_id)
@@ -474,7 +474,7 @@ class JssServer(object):
         # Get serial number.
         jss_serial = general_data['serial_number']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_serial: finished")
+        self.logger.debug("get_serial: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return jss_serial
 
@@ -488,7 +488,7 @@ class JssServer(object):
             Managed status of computer. (str)
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug('get_managed_status: started')
+        self.logger.debug('get_managed_status: started')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get general data.
         general_data = self.get_general_data(jss_id)
@@ -498,9 +498,9 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get management status
         managed = str(remote_mangement_data['managed']).lower()
-        logger.debug('Management status: {}'.format(managed))
+        self.logger.debug('Management status: {}'.format(managed))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug('get_managed_status: finished')
+        self.logger.debug('get_managed_status: finished')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return managed
 
@@ -514,7 +514,7 @@ class JssServer(object):
             Barcode 1 of computer. (str)
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_barcode_1: started")
+        self.logger.debug("get_barcode_1: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get general data.
         general_data = self.get_general_data(jss_id)
@@ -522,7 +522,7 @@ class JssServer(object):
         # Get barcode 1.
         barcode = general_data['barcode_1']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_barcode_1: finished")
+        self.logger.debug("get_barcode_1: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return barcode
 
@@ -536,7 +536,7 @@ class JssServer(object):
             Barcode 2 of computer. (str)
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_barcode_2: started")
+        self.logger.debug("get_barcode_2: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get general data.
         general_data = self.get_general_data(jss_id)
@@ -544,7 +544,7 @@ class JssServer(object):
         # Get barcode 2.
         barcode = general_data['barcode_2']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_barcode_2: finished")
+        self.logger.debug("get_barcode_2: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return barcode
 
@@ -558,7 +558,7 @@ class JssServer(object):
             Asset tag of computer. (str)
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_asset_tag: started")
+        self.logger.debug("get_asset_tag: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get general data.
         general_data = self.get_general_data(jss_id)
@@ -566,7 +566,7 @@ class JssServer(object):
         # Get asset tag.
         asset = general_data['asset_tag']
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_asset_tag: finished")
+        self.logger.debug("get_asset_tag: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return asset
 
@@ -580,7 +580,7 @@ class JssServer(object):
             Name of computer. (str)
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_name: started")
+        self.logger.debug("get_name: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get general data.
         general_data = self.get_general_data(jss_id)
@@ -588,7 +588,7 @@ class JssServer(object):
         # Get name.
         name = general_data['name'].encode('utf-8')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_name: finished")
+        self.logger.debug("get_name: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return name
 
@@ -602,7 +602,7 @@ class JssServer(object):
             Model of computer (str).
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_model: started")
+        self.logger.debug("get_model: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get hardware data.
         hardware_data = self.get_hardware_data(jss_id)
@@ -610,7 +610,7 @@ class JssServer(object):
         # Get computer model.
         computer_model = hardware_data["model"]
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_model: finished")
+        self.logger.debug("get_model: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return computer_model
 
@@ -624,7 +624,7 @@ class JssServer(object):
             Amount of RAM (str).
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_ram: started")
+        self.logger.debug("get_ram: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get hardware data.
         hardware_data = self.get_hardware_data(jss_id)
@@ -633,7 +633,7 @@ class JssServer(object):
         ram = hardware_data["total_ram"]
         ram = "{} MB".format(ram)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_ram: finished")
+        self.logger.debug("get_ram: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return ram
 
@@ -647,7 +647,7 @@ class JssServer(object):
             Drive capacity in MB (str).
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_drive_capacity: started")
+        self.logger.debug("get_drive_capacity: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get hardware data.
         hardware_data = self.get_hardware_data(jss_id)
@@ -657,7 +657,7 @@ class JssServer(object):
         capacity = storage["drive_capacity_mb"]
         capacity = "{} MB".format(capacity)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("get_drive_capacity: finished")
+        self.logger.debug("get_drive_capacity: finished")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return capacity
 
@@ -676,8 +676,8 @@ class JssServer(object):
             The process created by Popen.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("enroll_computer: activated")
-        logger.info('Enrolling computer.')
+        self.logger.debug("enroll_computer: activated")
+        self.logger.info('Enrolling computer.')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         try: # enrolling computer. If the process hangs, see Note section in docstring.
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -686,11 +686,11 @@ class JssServer(object):
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         except (OSError, subprocess.CalledProcessError) as e:
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-            logger.error("First enroll attempt failed. Error: {}".format(e))
+            self.logger.error("First enroll attempt failed. Error: {}".format(e))
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             try: # enrolling using the second jamf binary
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                logger.info("Enrolling again. Now using {}".format(self._jamf_binary_2))
+                self.logger.info("Enrolling again. Now using {}".format(self._jamf_binary_2))
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 # Create jamf.conf configuration
                 self._jamf_create_conf(self._jamf_binary_2, self._jss_url)
@@ -698,8 +698,8 @@ class JssServer(object):
                 # Enroll the computer
                 return self._enroll(self._jamf_binary_2, self._invite)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                logger.info('Enrolling finished.')
-                logger.debug('enroll_computer: finished')
+                self.logger.info('Enrolling finished.')
+                self.logger.debug('enroll_computer: finished')
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             except subprocess.CalledProcessError as e:
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -708,7 +708,7 @@ class JssServer(object):
                 # Add another argument to the exception to store the message.
                 e.args += (msg,)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                logger.error(msg)
+                self.logger.error(msg)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 raise
             except Exception as e:
@@ -719,12 +719,12 @@ class JssServer(object):
                 # Add another argument to the exception to store the message.
                 e.args += (msg,)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                logger.error(msg)
+                self.logger.error(msg)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 raise
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-            logger.info('Enrolling finished.')
-            logger.debug('enroll_computer: finished')
+            self.logger.info('Enrolling finished.')
+            self.logger.debug('enroll_computer: finished')
 
     def _enroll(self, jamf_binary, invite):
         """Enroll the computer.
@@ -761,7 +761,7 @@ class JssServer(object):
         # Run the command.
         conf_output = subprocess.check_output(conf_cmd, stderr=subprocess.STDOUT)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug(conf_output)
+        self.logger.debug(conf_output)
 
     def _print_proc_in_place(self, cmd):
         """Run a process and print it in place. This means that all the output will be written to a single line,
@@ -806,11 +806,11 @@ class JssServer(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("_delete_handler: started")
+        self.logger.debug("_delete_handler: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create request url.
         request_url = "{}/JSSResource/computers/id/{}".format(self._jss_url, jss_id)
-        logger.debug("Request URL: {}".format(request_url))
+        self.logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create the request.
         request = urllib2.Request(request_url)
@@ -824,8 +824,8 @@ class JssServer(object):
         # Open/send the request.
         response = self.open_request_handler(request)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("HTML DELETE response code: {}".format(response.code))
-        logger.debug("_delete_handler: finished")
+        self.logger.debug("HTML DELETE response code: {}".format(response.code))
+        self.logger.debug("_delete_handler: finished")
 
     def open_request_handler(self, request):
         """Handles open requests for requests that are urllib2.Request.
@@ -842,27 +842,27 @@ class JssServer(object):
             response = urllib2.urlopen(request)
         except urllib2.HTTPError as error:
             contents = error.read()
-            logger.error("HTTP error contents: {}".format(contents))
+            self.logger.error("HTTP error contents: {}".format(contents))
             if error.code == 400:
-                logger.error("HTTP code {}: {}".format(error.code, "Request error."))
+                self.logger.error("HTTP code {}: {}".format(error.code, "Request error."))
             elif error.code == 401:
-                logger.error("HTTP code {}: {}".format(error.code, "Authorization error."))
+                self.logger.error("HTTP code {}: {}".format(error.code, "Authorization error."))
             elif error.code == 403:
-                logger.error("HTTP code {}: {}".format(error.code, "Permissions error."))
+                self.logger.error("HTTP code {}: {}".format(error.code, "Permissions error."))
             elif error.code == 404:
-                logger.error("HTTP code {}: {}".format(error.code, "Resource not found."))
+                self.logger.error("HTTP code {}: {}".format(error.code, "Resource not found."))
             elif error.code == 409:
                 error_message = re.findall("Error: (.*)<", contents)
-                logger.error("HTTP code {}: {} {}".format(error.code, "Resource conflict", error_message[0]))
+                self.logger.error("HTTP code {}: {} {}".format(error.code, "Resource conflict", error_message[0]))
             else:
-                logger.error("HTTP code {}: {}".format(error.code, "Misc HTTP error."))
+                self.logger.error("HTTP code {}: {}".format(error.code, "Misc HTTP error."))
             raise error
         except urllib2.URLError as error:
-            logger.error("URL error reason: {}".format(error.reason))
-            logger.error("Error contacting JSS.")
+            self.logger.error("URL error reason: {}".format(error.reason))
+            self.logger.error("Error contacting JSS.")
             raise error
         except Exception as error:
-            logger.debug("Error submitting to JSS: {}".format(error))
+            self.logger.debug("Error submitting to JSS: {}".format(error))
             raise error
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         return response
@@ -900,11 +900,11 @@ class JssServer(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("_push_xml_str_handler: started")
+        self.logger.debug("_push_xml_str_handler: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create request url.
         request_url = "{}/JSSResource/computers/id/{}".format(self._jss_url, jss_id)
-        logger.debug("Request URL: {}".format(request_url))
+        self.logger.debug("Request URL: {}".format(request_url))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create request from request url.
         request = urllib2.Request(request_url, data=xml)
@@ -919,17 +919,17 @@ class JssServer(object):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open/send the request.
         response = self.open_request_handler(request)
-        logger.info("   HTML PUT response code: {}".format(response.code))
+        self.logger.info("   HTML PUT response code: {}".format(response.code))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("_push_xml_str_handler: finished")
+        self.logger.debug("_push_xml_str_handler: finished")
 
 
 # Setup logging
-cf = inspect.currentframe()
-abs_file_path = inspect.getframeinfo(cf).filename
-basename = os.path.basename(abs_file_path)
-lbasename = os.path.splitext(basename)[0]
-logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
-logger.debug("{} logger started.".format(lbasename))
+# cf = inspect.currentframe()
+# abs_file_path = inspect.getframeinfo(cf).filename
+# basename = os.path.basename(abs_file_path)
+# lbasename = os.path.splitext(basename)[0]
+# logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
+# logger.debug("{} logger started.".format(lbasename))
 
 
