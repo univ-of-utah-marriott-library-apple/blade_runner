@@ -6,7 +6,7 @@ Blade Runner
 
 ![](rsrc/images/selection_scene_wbg.png)
 
-It is configured through plists and XML files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
+It is configured through property list (plist) files and Extensible Markup Language (XML) files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
 
 For a list of features, see [Features & How They Work](#features-and-how-they-work).
 
@@ -48,7 +48,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 # Configuration
 
-*Blade Runner* is configured through plists and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu, and all must be configured before running *Blade Runner*.
+*Blade Runner* is configured through plist and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu, and all must be configured before running *Blade Runner*.
 
 ![](rsrc/images/settings_scene_wbg.png)
 
@@ -60,7 +60,7 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ## JAMF Pro Configuration
 
-`jamf_pro.plist` contains the information needed for *Blade Runner* to perform JAMF Pro related tasks. The config contains the following keys:
+The `jamf_pro.plist` file contains the information needed for *Blade Runner* to perform JAMF Pro related tasks. The config contains the following keys:
 
 * **username**
   * JAMF Pro login username that will be used to make API requests to JAMF Pro. 
@@ -75,9 +75,9 @@ Uninstallation instructions are provided [below](#uninstallation).
 * **jamf_binary_2**
   * Secondary `jamf` binary location. Intended to be a location on an external hard drive, e.g., `/Volumes/my_external_drive/jamf` in the case that the computer being enrolled doesn't have a `jamf` binary.
 
-### Example Config
+### Example Configurations
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -100,17 +100,17 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be XML files. These configs contain the information to be sent to JAMF Pro when offboarding. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can also be accessed through `Settings`.
+Offboard configurations can have any name but must be listed in the XML configuration files. These configurations will contain the information to be sent to JAMF Pro during the offboarding process. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can also be accessed through `Settings`.
 
 ![](rsrc/images/offboard_scene_drop_down_marked_wbg.png)
 
 
 **NOTE: The XML file must represent a valid string for JAMF Pro's XML API calls.** The best way to check this is to go to `https://my.jamf.server.domain:portnumber/api`, click on `computers>computers/id>Try it out!`, and look at the available data in `XML Response Body`. Your configuration file's tags and structure should only contain tags that exist in `XML Response Body`.
 
-### Example Configs
+### Example Configurations
 
 * Offboard configuration that only sets management status to false:
-```
+```xml
 <computer>
   <general>
     <remote_management>
@@ -121,7 +121,7 @@ Offboard configurations can have any name but must be XML files. These configs c
 ```
 
 * Offboard configuration that sets management status to false and clears all location fields:
-```
+```xml
 <computer>
   <general>
     <remote_management>
@@ -144,7 +144,7 @@ Offboard configurations can have any name but must be XML files. These configs c
 ```
 
 * Offboard configuration that sets management status to false and updates an extension attribute (extension attributes differ between JAMF Pro servers):
-```
+```xml
 <computer>
   <general>
     <remote_management>
@@ -164,16 +164,16 @@ Offboard configurations can have any name but must be XML files. These configs c
 
 ## Search Parameters Configuration
 
-`search_params.plist` determines the search parameters that can be used to find a computer record in JAMF Pro. The *Blade Runner* GUI will dynamically update according to these search parameters by only showing buttons that correspond to the enabled search parameters.
+The `search_params.plist` file determines the search parameters that can be used to find a computer record in JAMF Pro. The Blade Runner GUI will dynamically update search parameters by only showing buttons that correspond to the enabled parameters.
 
 The available search parameters are `serial number`, `barcode 1`, `barcode 2`, and `asset tag`.
 
 ![](rsrc/images/offboard_scene_marked_all_wbg.png)
 
-### Example Config
+### Example Configuration
 
-* Config that updates *Blade Runner* GUI to show `barcode 1`, `asset_tag`, and `serial number` buttons and allows the user to search JAMF Pro using those search parameters:
-```
+* The example configuration below updates the Blade Runner GUI to show barcode 1, asset tag, and serial number buttons and allows the user to search JAMF Pro using the included search parameters:
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -190,11 +190,13 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
 </plist>
 ```
 
-![](rsrc/images/offboard_scene_wbg.png)
+![](rsrc/images/offboard_scene_marked_wbg.png)
 
 ## Verification Parameters Configuration
 
-`verify_params.plist` determines which search parameters need to be verified when a match in JAMF Pro is found. Here's a short example scenario:
+The `verify_params.plist` file determines which search parameters need to be verified when a match in JAMF Pro is found. It is generally the case that any keys enabled in [search_params.plist](#search-parameters-configuration) should also be enabled in `verify_config.plist`.
+
+Here's a short example scenario of how *Blade Runner* handles user entered data when a match is found:
 
 * User searches for a computer using `barcode 1`:
   * No match found.
@@ -204,19 +206,15 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
 
 <img src="rsrc/images/verify_all_wbg.png"  width="800" height="480">
 
-It is generally the case that any keys enabled in [search_params.plist](#search-parameters-configuration) should also be enabled in `verify_config.plist`.
-
-*Blade Runner*'s GUI will dynamically update according to which verification parameters are enabled.
-
 ## User Defined Actions
 
 There are areas in *Blade Runner*'s codebase where a custom implementation of a process may be needed. In such circumstances, a configuration file isn't sufficient and the code needs to be supplemented.
 
-To facilitate "knowing" where to put this code, `user_actions.py` is provided. It contains three unimplemented functions that are always called.
+To facilitate "knowing" where to put this code, `user_actions.py` is provided. It contains three unimplemented functions that are called regardless of implementation.
 
 ### modify_items
 
-`user_actions.py` contains an unimplemented function named `modify_items()`. This functions is called in [jss_doc.py](#auto-document-generation-and-printing). It appears right before the body of the document is generated. Its purpose is to allow the user to modify the data that appears in the document. `modify_items()` takes the `JssDoc`'s `self` as the first parameter and a list of tuples as the second parameter. `self` provides access to JAMF Pro. Each tuple in the list
+`user_actions.py` contains an unimplemented function named `modify_items()`. This function is called in [jss_doc.py](#auto-document-generation-and-printing). It appears right before the body of the document is generated. Its purpose is to allow the user to modify the data that appears in the document. `modify_items()` takes the `JssDoc`'s `self` as the first parameter and a list of tuples as the second parameter. `self` provides access to JAMF Pro. Each tuple in the list
 contains the name and value of the data to be added to the document.
 
 The first parameters of the standard data tuples are the following:
@@ -237,9 +235,9 @@ and produce a document like this:
 <img src="rsrc/images/jssdoc.png"  width="400" height="517">
 
 #### Remove Example  
-An implementation to **remove** the Name tuple would look like this:
+An implementation to **remove** the `Name` tuple would look like this:
 
-```
+```python
 # user_actions.py
 
 def modify_items(self, items):
@@ -254,7 +252,7 @@ and would result in a document like this:
 #### Add Example:
 An implementation to **add** some custom data tuples might look like this:
 
-```
+```python
 # user_actions.py
 
 def modify_items(self, items):
@@ -268,7 +266,7 @@ def modify_items(self, items):
     items.insert(2, ("Previous Name", prev_name))
 ```
 
-and would result in a document similar to this:
+and would result in a document like to this:
 
 <img src="rsrc/images/jssdoc_add_data.png"  width="400" height="517">
 
@@ -280,18 +278,19 @@ and would result in a document similar to this:
 
 Given an offboard config like this:
 
-    <computer>
-        <general>
-            <name></name>
-            <remote_management>
-                <managed>false</managed>
-            </remote_management>
-        </general>
-    </computer>
-    
+```xml
+<computer>
+    <general>
+        <name></name>
+        <remote_management>
+            <managed>false</managed>
+        </remote_management>
+    </general>
+</computer>
+``` 
 an implementation to always change the name to the serial number would look like this:
 
-```
+```python
 # user_actions.py
 import xml.etree.cElementTree as ET
 
@@ -314,7 +313,7 @@ def update_offboard_config(self):
 
 An implementation that appends the serial number to the Slack message would look like this:
 
-```
+```python
 def update_slack_message(self, message):
     message += " Serial: {}".format(self._computer.serial_number)
     return message
@@ -338,7 +337,7 @@ def update_slack_message(self, message):
     
 ## Offboard
 
-Offboarding is done through API calls made by *Blade Runner* to JAMF Pro. The user selects an offboarding configuration file and that file is sent to JAMF Pro as an XML string.
+Offboarding is done through API calls made by *Blade Runner* to JAMF Pro. The user selects an [offboarding configuration file](#offboard-configuration) and that file is sent as an XML string to JAMF Pro.
 
 ## Enroll
 
@@ -405,7 +404,7 @@ In these situations, *Blade Runner* first performs a force unmount with `diskuti
 
 Slack notifications can be used to indicate the start and end of the process along with any errors that occur in the process. Currently, Slack notifications are reliant on `management_tools`, which is an included dependency.
 
-There is also a Slack reminder daemon that is launched when *Blade Runner* finishes offboarding a computer. Only one of these daemons can be launched on a computer at a time, and it will send a notification on a daily basis until the offboarded computer is turned off or the daemon is killed manually.
+To help busy or forgetful Mac admins, a Slack reminder daemon has been implemented to remind the admin that a Mac has been offboarded. This daemon will send a message once a day between 9 am and 6 pm, and will continue to do so until addressed. The daemon can be disabled in `slack.plist`.
 
 ## Auto Document Generation and Printing
 
@@ -430,7 +429,7 @@ On the code side of things, these fields are represented by tuples, in which the
 
 ### Jamf Pro Record Inconsistencies
 
-In the case that JAMF Pro record inconsistencies exist between user entered data and the pre-offboard computer record, those inconsistencies will be added to the document for the user to review later if they so wish.
+In the case that inconsistencies exist between user entered data and the JAMF Pro data, they will be added to the document for the user to review later if they so wish.
 
 The reported inconsistencies are as follows:
 
@@ -443,7 +442,7 @@ For example, if the entered `barcode 1` differs from JAMF Pro's record, the prev
 
 <img src="rsrc/images/jssdoc_review.png"  width="400" height="517">
 
-The intent of this is to help track down and correct other mangled/incorrect computer records.
+The intent of this is to help track down and correct other mangled or incorrect computer records.
 
 # Uninstallation
 
