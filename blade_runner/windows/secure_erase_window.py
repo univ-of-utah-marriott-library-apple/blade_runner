@@ -20,16 +20,20 @@
 # implied warranties of any kind.
 ################################################################################
 
+import logging
+import os
 from Tkinter import *
 import tkSimpleDialog
 
 from blade_runner.dependencies import pexpect
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class SecureEraseWindow(Toplevel):
 
     def __init__(self, cmd, master, cwd=None):
         Toplevel.__init__(self, master)
+        self.logger = logging.getLogger(__name__)
         self.protocol('WM_DELETE_WINDOW', self._close_btn_clicked)
         self.title("Secure Erase Internals Output")
         self.result = None
@@ -143,6 +147,18 @@ class Results(object):
 
 
 if __name__ == "__main__":
+    fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
+    filepath = os.path.join(log_dir, script_name + ".log")
+    try:
+        os.mkdir(log_dir)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
+    logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
+    logger = logging.getLogger(script_name)
+
     master = Tk()
     master.withdraw()
     cmd = ['-c', '/usr/bin/sudo python secure_erase_internals.py; echo "Return code: $?"']
