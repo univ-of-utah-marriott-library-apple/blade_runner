@@ -20,12 +20,12 @@
 # implied warranties of any kind.
 ################################################################################
 
-import os
-import inspect
+import logging
 
-from management_tools import loggers
-from entry_controller import EntryController
+from blade_runner.controllers.entry_controller import EntryController
 from blade_runner.views.entry_view import EntryView
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class SearchController(EntryController):
@@ -40,6 +40,7 @@ class SearchController(EntryController):
             input_type (str): Data identifier.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self.logger = logging.getLogger(__name__)
         # Set up the view and pass it to EntryController.
         view = EntryView(master, self)
         super(SearchController, self).__init__(computer, view)
@@ -88,8 +89,8 @@ class SearchController(EntryController):
         self.entry_view.destroy()
 
 
-cf = inspect.currentframe()
-filename = inspect.getframeinfo(cf).filename
-filename = os.path.basename(filename)
-filename = os.path.splitext(filename)[0]
-logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)
+# cf = inspect.currentframe()
+# filename = inspect.getframeinfo(cf).filename
+# filename = os.path.basename(filename)
+# filename = os.path.splitext(filename)[0]
+# logger = loggers.FileLogger(name=filename, level=loggers.DEBUG)
