@@ -485,12 +485,6 @@ def main():
             raise SystemExit("SECURE ERASE FAILED")
 
 
-# cf = inspect.currentframe()
-# abs_file_path = inspect.getframeinfo(cf).filename
-# basename = os.path.basename(abs_file_path)
-# lbase = os.path.splitext(basename)[0]
-# logger = loggers.FileLogger(name=lbase, level=loggers.DEBUG)
-
 if __name__ == "__main__":
     fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
     script_name = os.path.splitext(os.path.basename(__file__))[0]
