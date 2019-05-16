@@ -23,15 +23,12 @@
 import os
 import sys
 import socket
-import inspect
+import logging
 import plistlib
 import subprocess
 import tkMessageBox
+import Tkinter as tk
 import traceback as tb
-try:
-    import Tkinter as tk
-except ImportError:
-    import tkinter as tk
 import xml.etree.cElementTree as ET
 
 blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
@@ -39,30 +36,32 @@ sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
 sys.path.insert(0, os.path.join(blade_runner_dir, "slack"))
 sys.path.insert(0, blade_runner_dir)
 
-from blade_runner.controllers.controller import Controller
-from blade_runner.dependencies.management_tools import loggers
-from blade_runner.controllers.search_controller import SearchController
 from blade_runner.jamf_pro.jss_doc import JssDoc
 from blade_runner.views.main_view import MainView
 from blade_runner.user_actions import user_actions
 from blade_runner.jamf_pro.computer import Computer
 from blade_runner.jamf_pro.jss_server import JssServer
-from dual_verify_controller import DualVerifyController
 from blade_runner.windows.stall_window import StallWindow
-from verification_controller import VerificationController
-from management_tools.slack import IncomingWebhooksSender as IWS
+from blade_runner.controllers.controller import Controller
 from blade_runner.jamf_pro.params import SearchParams, VerifyParams
 from blade_runner.windows.secure_erase_window import SecureEraseWindow
+from blade_runner.controllers.search_controller import SearchController
+from blade_runner.controllers.dual_verify_controller import DualVerifyController
+from blade_runner.controllers.verification_controller import VerificationController
+from blade_runner.dependencies.management_tools.slack import IncomingWebhooksSender as IWS
+
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
 # TODO BUG: If spaces are entered in the asset/barcode inputs the program quits. Need to format spaces.
 # TODO Find a better way to enable/disable JSS Doc printing. I don't like it being an arg for MainController.
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
 
 class MainController(Controller):
     """Blade-Runner's main controller."""
 
-    def __init__(self, root, server, slack_data, verify_params, search_params, print_enabled=False):
+    def __init__(self, root, server, slack_data, verify_params, search_params, doc_settings):
         """Initialize the main controller.
 
         Args:
@@ -73,6 +72,7 @@ class MainController(Controller):
             search_params (dict): Search parameters configuration data.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self.logger = logging.getLogger(__name__)
         # Set report callback so that a Tk window will appear with the exception message when an exception occurs.
         self._root = root
         self._root.report_callback_exception = self._exception_messagebox
@@ -96,7 +96,7 @@ class MainController(Controller):
         self._verify_controller = None
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set whether or not a JSSDoc will be printed to a printer.
-        self._print_enabled = print_enabled
+        self._doc_settings = doc_settings
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set configuration data
         self._offboard_config = None
@@ -141,7 +141,7 @@ class MainController(Controller):
         except IndexError:
             tkMessageBox.showerror('Exception', value)
         finally:
-            logger.error("".join(tb.format_exception(exc, value, traceback)))
+            self.logger.error("".join(tb.format_exception(exc, value, traceback)))
 
     def run(self):
         """Start Blade-Runner.
@@ -224,7 +224,7 @@ class MainController(Controller):
         # Create a new SearchParams object.
         self.search_params = SearchParams(self.search_params_input)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("Blade-Runner reset.")
+        self.logger.info("Blade-Runner reset.")
 
     def populate_config_combobox(self):
         """Populates the main view's combobox with available configuration files.
@@ -340,12 +340,12 @@ class MainController(Controller):
             if self._proceed:
                 # Get managed status of computer
                 managed = self._jss_server.get_managed_status(self._computer.jss_id)
-                logger.debug("Management status: {}".format(managed))
+                self.logger.debug("Management status: {}".format(managed))
                 # If managed status is false, re-enroll computer to set managed status to true. This enables the
                 # JSS record to be modified
                 if managed == 'false':
                     msg = "Enrolling to change managed status to true to enable modification of JSS record."
-                    logger.debug(msg)
+                    self.logger.debug(msg)
                     # Open a stall window, enroll the computer, and close the stall window.
                     StallWindow(self._main_view, self._jss_server.enroll_computer, msg, process=True)
             else:
@@ -358,13 +358,13 @@ class MainController(Controller):
             # If user didn't cancel operation...
             if self._proceed:
                 msg = "Enrolling because no JSS ID exists for this computer."
-                logger.debug(msg)
+                self.logger.debug(msg)
                 # Open a stall window, enroll the computer, and close the stall window.
                 StallWindow(self._main_view, self._jss_server.enroll_computer, msg)
 
                 # Since JSS ID has now been created, retrieve it.
                 self._computer.jss_id = self._jss_server.match(self._computer.serial_number)
-                logger.debug("JSS id after enrolling: {}".format(self._computer.jss_id))
+                self.logger.debug("JSS id after enrolling: {}".format(self._computer.jss_id))
             else:
                 return
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -382,9 +382,9 @@ class MainController(Controller):
         self._slack_handler(self._slack_data)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create and print JssDoc according to settings.
-        self._jss_doc_handler(self._computer, self._jss_server, print_doc=self._print_enabled)
+        self._jss_doc_handler(self._computer, self._jss_server, self._doc_settings)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("Blade Runner successfully finished.")
+        self.logger.info("Blade Runner successfully finished.")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Display success message box.
         tkMessageBox.showinfo("Finished", "Blade-Runner successfully finished.")
@@ -492,12 +492,12 @@ class MainController(Controller):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get the new managed status and make sure it's false
         post_managed_status = self._jss_server.get_managed_status(self._computer.jss_id)
-        logger.debug("post_managed_status: {}".format(post_managed_status))
+        self.logger.debug("post_managed_status: {}".format(post_managed_status))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Make sure managed status is false. If not, exit.
         if post_managed_status != 'false':
             msg = "Managed status was not false after offboarding. Aborting."
-            logger.error(msg)
+            self.logger.error(msg)
             self.restart()
             raise SystemError(msg)
 
@@ -519,10 +519,10 @@ class MainController(Controller):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Start Slackify daemon
         if slack_data['slackify_daemon_enabled'] == 'True':
-            logger.debug("Starting Slackify reminder daemon.")
+            self.logger.debug("Starting Slackify reminder daemon.")
             self.start_slackify_reminder_dameon()
 
-    def _jss_doc_handler(self, computer, jss_server, print_doc=False):
+    def _jss_doc_handler(self, computer, jss_server, doc_settings):
         """Creates a document from the predefined setup in JssDoc and prints the document
         to the default printer if print_doc is True.
 
@@ -545,8 +545,9 @@ class MainController(Controller):
         doc.html_to_pdf()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # If document printing is enabled, print to the default printer.
-        # TODO: Make print_doc part of some config.
-        if print_doc:
+        # if print_doc:
+        #     doc.print_pdf_to_default()
+        if doc_settings['print'].lower() == "true":
             doc.print_pdf_to_default()
 
     def send_slack_message(self, message):
@@ -597,7 +598,7 @@ class MainController(Controller):
         try:  # set focus to the main view.
             subprocess.check_output(select_window)
         except subprocess.CalledProcessError:
-            logger.debug("Setting frontmost of process Python to true failed.")
+            self.logger.debug("Setting frontmost of process Python to true failed.")
 
     def open_config(self, config_id):
         if config_id == "slack":
@@ -611,7 +612,7 @@ class MainController(Controller):
         elif config_id == "private":
             path = ""
         else:
-            logger.warn("No configuration ID matches \"{}\"".format(config_id))
+            self.logger.warn("No configuration ID matches \"{}\"".format(config_id))
             raise SystemError("No configuration ID matches \"{}\"".format(config_id))
 
         subprocess.check_output(["open", os.path.join(self._private_dir, path)])
@@ -622,15 +623,28 @@ class MainController(Controller):
             return f.read()
 
 
-cf = inspect.currentframe()
-abs_file_path = inspect.getframeinfo(cf).filename
-basename = os.path.basename(abs_file_path)
-lbasename = os.path.splitext(basename)[0]
-logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
-logger.debug("{} logger started.".format(lbasename))
+# cf = inspect.currentframe()
+# abs_file_path = inspect.getframeinfo(cf).filename
+# basename = os.path.basename(abs_file_path)
+# lbasename = os.path.splitext(basename)[0]
+# logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
+# logger.debug("{} logger started.".format(lbasename))
 
 
 def main():
+    fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
+    filepath = os.path.join(log_dir, script_name + ".log")
+    try:
+        os.mkdir(log_dir)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
+
+    logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
+    logger = logging.getLogger(script_name)
+
     if os.geteuid() != 0:
         logger.info("Blade Runner must be run as root.")
         raise SystemExit("Blade Runner must be run as root.")
@@ -640,6 +654,7 @@ def main():
     root = tk.Tk()
     root.withdraw()
 
+    abs_file_path = os.path.abspath(__file__)
     # Read from jss config plist and set up the JSS server
     blade_runner_dir = abs_file_path
     for i in range(3):
@@ -655,18 +670,21 @@ def main():
     slack_data = plistlib.readPlist(slack_plist)
 
     verify_config = os.path.join(blade_runner_dir, "private/verify_params_configs/verify_params.plist")
-    verify_data = plistlib.readPlist(verify_config)
+    verify_params = plistlib.readPlist(verify_config)
 
     search_params_config = os.path.join(blade_runner_dir, "private/search_params_configs/search_params.plist")
     search_params = plistlib.readPlist(search_params_config)
 
+    jamf_pro_doc_config = os.path.join(blade_runner_dir, "private/jamf_pro_doc_config/jamf_pro_doc.plist")
+    doc_settings = plistlib.readPlist(jamf_pro_doc_config)
+
     # Run the application
-    app = MainController(root, jss_server, slack_data, verify_data, search_params, print_enabled=False)
+    app = MainController(root, jss_server, slack_data, verify_params, search_params, doc_settings)
     app.run()
+    logger.info("Blade Runner exiting.")
 
 
 if __name__ == "__main__":
     main()
-    logger.info("Blade Runner exiting.")
 
 
