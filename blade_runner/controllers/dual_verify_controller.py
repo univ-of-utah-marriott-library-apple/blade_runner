@@ -313,11 +313,3 @@ class DualVerifyController(EntryController):
         self.entry_view.jss_name_entry.config(state=state)
         self.entry_view.jss_serial_entry.config(state=state)
 
-
-# Start logging.
-# cf = inspect.currentframe()
-# abs_file_path = inspect.getframeinfo(cf).filename
-# basename = os.path.basename(abs_file_path)
-# lbasename = os.path.splitext(basename)[0]
-# logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
-# logger.debug("{} logger started.".format(lbasename))
