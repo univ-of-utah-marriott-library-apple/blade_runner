@@ -20,14 +20,11 @@
 # implied warranties of any kind.
 ################################################################################
 
-try:
-    import Tkinter as tk
-except ImportError:
-    import tkinter as tk
-try:
-    import ttk
-except ImportError:
-    from tkinter import ttk
+import logging
+import Tkinter as tk
+import ttk
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class MainView(tk.Toplevel):
@@ -49,6 +46,7 @@ class MainView(tk.Toplevel):
             master (Tk): the main view's master or root window
             controller (MainController): the main view's controller
         """
+        self.logger = logging.getLogger(__name__)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         tk.Toplevel.__init__(self, master)
         self.title("Blade Runner")
