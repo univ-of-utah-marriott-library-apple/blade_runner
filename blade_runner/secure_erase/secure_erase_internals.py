@@ -28,24 +28,23 @@ import re
 import os
 import sys
 import socket
-import inspect
 import plistlib
 import urllib2
 import subprocess as sp
-try:
-    import Tkinter as tk
-except ImportError:
-    import tkinter as tk
+import Tkinter as tk
+import logging
 
 blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
 sys.path.insert(0, os.path.join(blade_runner_dir, "slack"))
 sys.path.insert(0, blade_runner_dir)
 
-from blade_runner.dependencies.management_tools import loggers
 from blade_runner.document import document as doc
 from blade_runner.dependencies.management_tools.slack import IncomingWebhooksSender as IWS
 from blade_runner.windows.msg_box import MsgBox
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def firmware_pass_exists():
@@ -487,16 +486,28 @@ def main():
             raise SystemExit("SECURE ERASE FAILED")
 
 
-cf = inspect.currentframe()
-abs_file_path = inspect.getframeinfo(cf).filename
-basename = os.path.basename(abs_file_path)
-lbase = os.path.splitext(basename)[0]
-logger = loggers.FileLogger(name=lbase, level=loggers.DEBUG)
+# cf = inspect.currentframe()
+# abs_file_path = inspect.getframeinfo(cf).filename
+# basename = os.path.basename(abs_file_path)
+# lbase = os.path.splitext(basename)[0]
+# logger = loggers.FileLogger(name=lbase, level=loggers.DEBUG)
 
 if __name__ == "__main__":
+    fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
+    filepath = os.path.join(log_dir, script_name + ".log")
+    try:
+        os.mkdir(log_dir)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
+
+    logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
+    logger = logging.getLogger(script_name)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get path to Python script.
-    blade_runner_dir = abs_file_path
+    blade_runner_dir = os.path.abspath(__file__)
     for i in range(3):
         blade_runner_dir = os.path.dirname(blade_runner_dir)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
