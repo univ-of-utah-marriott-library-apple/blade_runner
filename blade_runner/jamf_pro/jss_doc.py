@@ -21,11 +21,12 @@
 ################################################################################
 
 import os
-import inspect
+import logging
 
-from management_tools import loggers
 from blade_runner.document import document as doc
 from blade_runner.user_actions import user_actions
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class JssDoc(object):
@@ -41,12 +42,13 @@ class JssDoc(object):
             filename (str): Indicates how the file will be named.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self.logger = logging.getLogger(__name__)
         # Set computer and server.
         self.jss_server = jss_server
         self.computer = computer
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get path to Python script.
-        blade_runner_dir = abs_file_path
+        blade_runner_dir = os.path.abspath(__file__)
         for i in range(3):
             blade_runner_dir = os.path.dirname(blade_runner_dir)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -229,11 +231,11 @@ class JssDoc(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("open_html: started")
+        self.logger.info("open_html: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         doc.open_html(self.html_doc)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("open_html: finished")
+        self.logger.info("open_html: finished")
 
     def html_to_pdf(self):
         """Convert HTML file to PDF. Prints only the first page, which is the "-P 1" option.
@@ -242,11 +244,11 @@ class JssDoc(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("Converting HTML to PDF")
+        self.logger.info("Converting HTML to PDF")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         doc.html_to_pdf(self.html_doc)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("Converting HTML to PDF finished.")
+        self.logger.info("Converting HTML to PDF finished.")
 
     def print_pdf_to_default(self):
         """Print PDF file to default printer.
@@ -255,15 +257,15 @@ class JssDoc(object):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("print_pdf_to_default: started")
+        self.logger.info("print_pdf_to_default: started")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         doc.print_pdf_to_default(self.pdf_doc)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.info("print_pdf_to_default: finished")
+        self.logger.info("print_pdf_to_default: finished")
 
 
-cf = inspect.currentframe()
-abs_file_path = inspect.getframeinfo(cf).filename
-basename = os.path.basename(abs_file_path)
-lbase = os.path.splitext(basename)[0]
-logger = loggers.FileLogger(name=lbase, level=loggers.DEBUG)
+# cf = inspect.currentframe()
+# abs_file_path = inspect.getframeinfo(cf).filename
+# basename = os.path.basename(abs_file_path)
+# lbase = os.path.splitext(basename)[0]
+# logger = loggers.FileLogger(name=lbase, level=loggers.DEBUG)
