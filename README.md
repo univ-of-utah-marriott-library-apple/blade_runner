@@ -19,6 +19,8 @@ For a list of features, see [Features & How They Work](#features-and-how-they-wo
     * [Offboard Configuration](#offboard-configuration)
     * [Search Parameters Configuration](#search-parameters-configuration)
     * [Verification Parameters Configuration](#verification-parameters-configuration)
+    * [Document Printing Configuration](#document-printing-configuration)
+    * [Python Binary Configuration](#python-binary-configuration)
     * [User Defined Actions](#user-defined-actions)
 * [Features & How They Work](#features-and-how-they-work)
     * [Offboard](#offboard)
@@ -46,6 +48,12 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 *Blade Runner* requires Python 2.7.9 or greater, excluding Python 3. It is compatible on macOS 10.9 (Mavericks) through 10.12 (Sierra). It has not been tested on OSes outside that range.
 
+# Best Practices
+
+Running Python 2.7.9 or greater
+
+
+
 # Configuration
 
 *Blade Runner* is configured through plist and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu, and all must be configured before running *Blade Runner*.
@@ -56,6 +64,8 @@ Uninstallation instructions are provided [below](#uninstallation).
 * [Offboard Configuration](#offboard-configuration)
 * [Search Parameters Configuration](#search-parameters-configuration)
 * [Verification Parameters Configuration](#verification-parameters-configuration)
+* [Document Printing Configuration](#document-printing-configuration)
+* [Python Binary Configuration](#python-binary-configuration)
 * [User Defined Actions](#user-defined-actions)
 
 ## JAMF Pro Configuration
@@ -205,6 +215,42 @@ Here's a short example scenario of how *Blade Runner* handles user entered data 
         * If `barcode 1` and `asset_tag` are enabled in `verify_params.plist`, *Blade Runner* will ask the user to verify/correct the information entered for `barcode 1` and `asset_tag` against JAMF Pro's record.
 
 <img src="rsrc/images/verify_all_wbg.png"  width="800" height="480">
+
+## Document Printing Configuration
+
+The `jamf_pro_doc.plist` file determines if generated documents will be printed upon creation to the default printer.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>print</key>
+	<string>False</string>
+</dict>
+</plist>
+```
+
+## Python Binary Configuration
+
+The `python_bin.plist` file allows for specifying the Python binary to use for *Blade Runner*. 
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>python_binary</key>
+	<string>/usr/bin/python</string>
+</dict>
+</plist>
+```
+
+An attempt to use the specified binary will be made, but if the attempt fails, *Blade Runner* will attempt to use the following binaries if they exist and if their version is 2.7.9 or greater (excluding Python 3): 
+
+    /usr/bin/python2.7
+    /usr/bin/python
+    /anaconda2/bin/python2
 
 ## User Defined Actions
 
