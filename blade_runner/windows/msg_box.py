@@ -20,10 +20,8 @@
 # implied warranties of any kind.
 ################################################################################
 
-try:
-    import Tkinter as tk
-except ImportError:
-    import tkinter as tk
+import logging
+import Tkinter as tk
 
 from blade_runner.controllers.controller import Controller
 
@@ -31,6 +29,7 @@ from blade_runner.controllers.controller import Controller
 class MsgBox(Controller):
 
     def __init__(self, msg):
+        self.logger = logging.getLogger(__name__)
         self.root = tk.Tk()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.root.title("WARNING")
