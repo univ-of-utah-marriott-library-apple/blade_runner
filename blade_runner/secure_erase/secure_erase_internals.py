@@ -28,20 +28,19 @@ import re
 import os
 import sys
 import socket
-import plistlib
-import urllib2
-import subprocess as sp
-import Tkinter as tk
 import logging
+import urllib2
+import plistlib
+import subprocess as sp
 
 blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
 sys.path.insert(0, os.path.join(blade_runner_dir, "slack"))
 sys.path.insert(0, blade_runner_dir)
 
+from blade_runner.windows.msg_box import MsgBox
 from blade_runner.document import document as doc
 from blade_runner.dependencies.management_tools.slack import IncomingWebhooksSender as IWS
-from blade_runner.windows.msg_box import MsgBox
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
