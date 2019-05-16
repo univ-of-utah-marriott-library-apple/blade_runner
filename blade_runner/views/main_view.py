@@ -101,6 +101,8 @@ class MainView(tk.Toplevel):
         self._verify_config_btn = tk.Button(self.frame, text="Verification Configuration", font=self.text_font, width=25, command=lambda: self._verify_config_btn_clicked())
         self._search_config_btn = tk.Button(self.frame, text="Search Configuration", font=self.text_font, width=25, command=lambda: self._search_config_btn_clicked())
         self._directory_config_btn = tk.Button(self.frame, text="Configuration Directory", font=self.text_font, width=25, command=lambda: self._directory_config_btn_clicked())
+        self._print_config_btn = tk.Button(self.frame, text="Print Configuration", font=self.text_font, width=25, command=lambda: self._print_config_btn_clicked())
+        self._python_bin_config_btn = tk.Button(self.frame, text="Python Binary Configuration", font=self.text_font, width=25, command=lambda: self._python_bin_config_btn_clicked())
 
         self._github_btn = tk.Button(self.frame, text="Github", command=lambda: self._github_btn_clicked(), font=self.text_font, width=25)
         self._github_lbl = tk.Label(self.frame, font=self.text_font)
@@ -405,6 +407,12 @@ class MainView(tk.Toplevel):
     def _directory_config_btn_clicked(self):
         self._controller.open_config("private")
 
+    def _print_config_btn_clicked(self):
+        self._controller.open_config("print")
+
+    def _python_bin_config_btn_clicked(self):
+        self._controller.open_config("python_bin")
+
     def _how_to_btn_clicked(self):
         self._how_to_scene()
 
@@ -429,11 +437,13 @@ class MainView(tk.Toplevel):
         self.curr_scene = "settings_scene"
         self._grid_forget_scenes()
 
-        self._offboard_config_btn.grid(row=0)
-        self._slack_config_btn.grid(row=1)
-        self._verify_config_btn.grid(row=2)
-        self._search_config_btn.grid(row=3)
-        self._directory_config_btn.grid(row=4)
+        self._slack_config_btn.grid(row=0)
+        self._verify_config_btn.grid(row=1)
+        self._search_config_btn.grid(row=2)
+        self._offboard_config_btn.grid(row=3)
+        self._print_config_btn.grid(row=4)
+        self._python_bin_config_btn.grid(row=5)
+        self._directory_config_btn.grid(row=6)
 
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: None)
@@ -538,6 +548,8 @@ class MainView(tk.Toplevel):
         self._verify_config_btn.grid_forget()
         self._search_config_btn.grid_forget()
         self._directory_config_btn.grid_forget()
+        self._print_config_btn.grid_forget()
+        self._python_bin_config_btn.grid_forget()
 
     def _grid_forget_scenes(self):
         self._grid_forget_help_scene()
