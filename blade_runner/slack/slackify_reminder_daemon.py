@@ -25,8 +25,12 @@ import sys
 import time
 import plistlib
 import subprocess
+import logging
 from blade_runner.dependencies.management_tools import filelock
 from blade_runner.dependencies.daemon import daemon
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def slackify_reminder():
@@ -71,6 +75,17 @@ def run_daemon():
 
 
 if __name__ == "__main__":
+    fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
+    filepath = os.path.join(log_dir, script_name + ".log")
+    try:
+        os.mkdir(log_dir)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
+    logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
+    logger = logging.getLogger(script_name)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set path to script .
     blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
