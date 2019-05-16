@@ -34,21 +34,18 @@ Example:
 import subprocess
 import os
 import sys
-import inspect
 import re
+import logging
 
 blade_runner_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
 
 from blade_runner.dependencies.tempapp import TempApp
-from blade_runner.dependencies.management_tools import loggers
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 def main():
-    # Ensure being run as root.
-    if os.geteuid() != 0:
-        raise SystemExit("Blade Runner must be run as root.")
-
     # Set the icon path
     icon = os.path.join(blade_runner_dir, "rsrc/images/BladeRunner.icns")
     # Set the plist overrides
@@ -83,6 +80,14 @@ def main():
 
 
 def compatible_python_bins(python_bins):
+    """Checks if a list a of python binaries contains a binary that is >= 2.7.9 and < 3.0.0
+
+    Args:
+        python_bins (list): List of python binaries
+
+    Returns:
+        List of compatible python binaries.
+    """
     logger.info("Checking Python versions...")
     versions = []
     for binary in python_bins:
@@ -100,12 +105,18 @@ def compatible_python_bins(python_bins):
 
 
 def get_python_version(python_bin):
+    """Returns the version of a python binary as a tuple of integers.
+
+    Args:
+        python_bin (str): Python binary.
+
+    Returns:
+        Integer tuple containing the major, minor, and micro of the version.
+    """
     try:
-        cmd = [python_bin, '--version']
         version = subprocess.check_output([python_bin, '--version'], stderr=subprocess.STDOUT)
     except (subprocess.CalledProcessError, OSError) as e:
-        logger.debug(e)
-        return None
+         return None
 
     match = re.match('Python (\d+).(\d+).(\d+)', version)
     if match:
@@ -118,12 +129,19 @@ def get_python_version(python_bin):
     return version
 
 
-cf = inspect.currentframe()
-abs_file_path = inspect.getframeinfo(cf).filename
-basename = os.path.basename(abs_file_path)
-lbasename = os.path.splitext(basename)[0]
-logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
-logger.debug("{} logger started.".format(lbasename))
-
 if __name__ == "__main__":
+    fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
+    filepath = os.path.join(log_dir, script_name + ".log")
+    try:
+        os.mkdir(log_dir)
+    except OSError as e:
+        if e.errno == 17:
+            pass
+        else:
+            raise e
+    logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
+    logger = logging.getLogger(script_name)
+
     main()
