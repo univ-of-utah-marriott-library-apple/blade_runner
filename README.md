@@ -19,7 +19,7 @@ For a list of features, see [Features & How They Work](#features-and-how-they-wo
     * [Offboard Configuration](#offboard-configuration)
     * [Search Parameters Configuration](#search-parameters-configuration)
     * [Verification Parameters Configuration](#verification-parameters-configuration)
-    * [Document Printing Configuration](#document-printing-configuration)
+    * [Print Configuration](#print-configuration)
     * [Python Binary Configuration](#python-binary-configuration)
     * [User Defined Actions](#user-defined-actions)
 * [Features & How They Work](#features-and-how-they-work)
@@ -64,7 +64,7 @@ Running Python 2.7.9 or greater
 * [Offboard Configuration](#offboard-configuration)
 * [Search Parameters Configuration](#search-parameters-configuration)
 * [Verification Parameters Configuration](#verification-parameters-configuration)
-* [Document Printing Configuration](#document-printing-configuration)
+* [Print Configuration](#print-configuration)
 * [Python Binary Configuration](#python-binary-configuration)
 * [User Defined Actions](#user-defined-actions)
 
@@ -216,9 +216,9 @@ Here's a short example scenario of how *Blade Runner* handles user entered data 
 
 <img src="rsrc/images/verify_all_wbg.png"  width="800" height="480">
 
-## Document Printing Configuration
+## Print Configuration
 
-The `jamf_pro_doc.plist` file determines if generated documents will be printed upon creation to the default printer.
+The `print.plist` file determines if generated documents will be printed upon creation to the default printer.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
