@@ -20,11 +20,12 @@
 # implied warranties of any kind.
 ################################################################################
 
-import os
-import inspect
-from management_tools import loggers
-from entry_controller import EntryController
+import logging
+
+from blade_runner.controllers.entry_controller import EntryController
 from blade_runner.views.dual_verify_view import DualVerifyView
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class DualVerifyController(EntryController):
@@ -42,6 +43,7 @@ class DualVerifyController(EntryController):
     def __init__(self, master, computer, verify_params, jss_server):
         """Stores view and shows and populates widgets according to search params."""
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self.logger = logging.getLogger(__name__)
         # Create view and store it in the super class.
         view = DualVerifyView(master, self)
         super(DualVerifyController, self).__init__(computer, view)
@@ -115,30 +117,30 @@ class DualVerifyController(EntryController):
         computer.jss_serial_number = jss_server.get_serial(computer.jss_id)
         computer.jss_name = jss_server.get_name(computer.jss_id)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        logger.debug("Previous barcode_1: {}".format(computer.jss_barcode_1))
-        logger.debug("Previous barcode_2: {}".format(computer.jss_barcode_2))
-        logger.debug("Previous asset_tag: {}".format(computer.jss_asset_tag))
-        logger.debug("Previous serial_number: {}".format(computer.jss_serial_number))
-        logger.debug("Previous name: {}".format(computer.jss_name))
+        self.logger.debug("Previous barcode_1: {}".format(computer.jss_barcode_1))
+        self.logger.debug("Previous barcode_2: {}".format(computer.jss_barcode_2))
+        self.logger.debug("Previous asset_tag: {}".format(computer.jss_asset_tag))
+        self.logger.debug("Previous serial_number: {}".format(computer.jss_serial_number))
+        self.logger.debug("Previous name: {}".format(computer.jss_name))
 
     def _store_conflicts(self, computer):
         # Check to see what fields changed after the user updated the fields through the entry view window.
         if computer.barcode_1 and computer.barcode_1 != computer.jss_barcode_1:
             computer.incorrect_barcode_1 = computer.jss_barcode_1
-            logger.debug("barcode_1 {} is incorrect.".format(computer.incorrect_barcode_1))
+            self.logger.debug("barcode_1 {} is incorrect.".format(computer.incorrect_barcode_1))
 
         if computer.barcode_2 and computer.barcode_2 != computer.jss_barcode_2:
             computer.incorrect_barcode_2 = computer.jss_barcode_2
-            logger.debug("barcode_2 {} is incorrect.".format(computer.incorrect_barcode_2))
+            self.logger.debug("barcode_2 {} is incorrect.".format(computer.incorrect_barcode_2))
 
         if computer.asset_tag and computer.asset_tag != computer.jss_asset_tag:
             computer.incorrect_asset = computer.jss_asset_tag
-            logger.debug("asset_tag {} is incorrect.".format(computer.incorrect_asset))
+            self.logger.debug("asset_tag {} is incorrect.".format(computer.incorrect_asset))
 
         if computer.serial_number and computer.jss_serial_number != computer.get_serial():
             computer.serial_number = computer.get_serial()
             computer.incorrect_serial = self._jss_server.get_serial(computer.jss_id)
-            logger.debug("JSS serial {} is incorrect.".format(computer.incorrect_serial))
+            self.logger.debug("JSS serial {} is incorrect.".format(computer.incorrect_serial))
 
     def _store_user_entries(self, computer, verify_params):
         """Store the user fields in the Computer object.
@@ -313,9 +315,9 @@ class DualVerifyController(EntryController):
 
 
 # Start logging.
-cf = inspect.currentframe()
-abs_file_path = inspect.getframeinfo(cf).filename
-basename = os.path.basename(abs_file_path)
-lbasename = os.path.splitext(basename)[0]
-logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
-logger.debug("{} logger started.".format(lbasename))
+# cf = inspect.currentframe()
+# abs_file_path = inspect.getframeinfo(cf).filename
+# basename = os.path.basename(abs_file_path)
+# lbasename = os.path.splitext(basename)[0]
+# logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
+# logger.debug("{} logger started.".format(lbasename))
