@@ -26,6 +26,7 @@ import sys
 import socket
 import plistlib
 import subprocess
+import logging
 
 blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(blade_runner_dir, "dependencies"))
@@ -33,8 +34,23 @@ sys.path.insert(0, os.path.join(blade_runner_dir, "slack"))
 
 from blade_runner.dependencies.management_tools.slack import IncomingWebhooksSender as IWS
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
 
 def main():
+    fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
+    filepath = os.path.join(log_dir, script_name + ".log")
+    try:
+        os.mkdir(log_dir)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
+
+    logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
+    logger = logging.getLogger(script_name)
+    logger.info("Slackify starting.")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set the default message.
     default_message = slack_data['default_message']
@@ -69,7 +85,6 @@ def main():
 
 
 if __name__ == "__main__":
-    print("Starting Slackify.py")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get the directory of this file.
     blade_runner_dir = os.path.abspath(__file__)
