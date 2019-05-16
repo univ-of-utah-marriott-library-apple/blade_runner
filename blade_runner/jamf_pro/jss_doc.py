@@ -262,10 +262,3 @@ class JssDoc(object):
         doc.print_pdf_to_default(self.pdf_doc)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.logger.info("print_pdf_to_default: finished")
-
-
-# cf = inspect.currentframe()
-# abs_file_path = inspect.getframeinfo(cf).filename
-# basename = os.path.basename(abs_file_path)
-# lbase = os.path.splitext(basename)[0]
-# logger = loggers.FileLogger(name=lbase, level=loggers.DEBUG)
