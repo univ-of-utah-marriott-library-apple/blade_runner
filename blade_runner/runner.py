@@ -47,22 +47,26 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 def main():
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Get Python binary location from the Python binary settings.
     python_bin_config = os.path.join(blade_runner_dir, "private/python_bin_config/python_bin.plist")
     python_bin_settings = plistlib.readPlist(python_bin_config)
     user_input_python_bin = python_bin_settings["python_binary"]
-
-    # Set the icon path
-    icon = os.path.join(blade_runner_dir, "rsrc/images/BladeRunner.icns")
-    # Set the plist overrides
-    infoPlist_overrides = {'CFBundleName': 'Blade Runner'}
-    # Set the bundle name
-    bundle_name = 'Blade Runner'
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set the list of binaries to check.
     python_binaries = [user_input_python_bin, "/usr/bin/python2.7", "/usr/bin/python", "/anaconda2/bin/python2"]
     # Find which binaries are greater than or equal to 2.7.9.
     valid_bins = compatible_python_bins(python_binaries)
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set the icon path
+    icon = os.path.join(blade_runner_dir, "rsrc/images/BladeRunner.icns")
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set the plist overrides
+    infoPlist_overrides = {'CFBundleName': 'Blade Runner'}
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set the bundle name
+    bundle_name = 'Blade Runner'
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # For every valid binary, try to run it with the Python icon replaced with Blade Runner's icon.
     for python_bin in valid_bins:
         try:
@@ -72,8 +76,7 @@ def main():
             return
         except IOError as e:
             logger.error(e)
-
-    # For every valid binary, try to run Blade Runner normally (no icon change).
+    # If the attempts to replace the Python icon with the Blade Runner icon fail, try to run Blade Runner normally.
     for python_bin in valid_bins:
         logger.info("Running application without icon update.")
         logger.info("Attempting to run with Python binary {}, version {}".format(python_bin, get_python_version(python_bin)))
@@ -93,11 +96,15 @@ def compatible_python_bins(python_bins):
     Returns:
         List of compatible python binaries.
     """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     logger.info("Checking Python versions...")
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Get the Python version of the Python binaries.
     versions = []
     for binary in python_bins:
         versions.append(get_python_version(binary))
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Determine which of these Python versions/binaries are compatible with Blade Runner.
     compat_bins = []
     for i, version in enumerate(versions):
         if version:
@@ -105,6 +112,8 @@ def compatible_python_bins(python_bins):
                 if version[1] == 7:
                     if version[2] >= 9:
                         compat_bins.append(python_bins[i])
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Return the compatible binaries.
     logger.debug("Compatible binaries: {}".format(compat_bins))
     return compat_bins
 
@@ -117,13 +126,19 @@ def get_python_version(python_bin):
 
     Returns:
         Integer tuple containing the major, minor, and micro of the version.
+        None if version checking fails.
     """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Get the Python version of the Python binary.
     try:
         version = subprocess.check_output([python_bin, '--version'], stderr=subprocess.STDOUT)
     except (subprocess.CalledProcessError, OSError) as e:
          return None
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Strip the Python version from the string.
     match = re.match('Python (\d+).(\d+).(\d+)', version)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Parse the Python version into an tuple of integers.
     if match:
         major = int(match.group(1))
         minor = int(match.group(2))
@@ -135,6 +150,8 @@ def get_python_version(python_bin):
 
 
 if __name__ == "__main__":
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set up logging.
     fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
     script_name = os.path.splitext(os.path.basename(__file__))[0]
     log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
@@ -148,5 +165,6 @@ if __name__ == "__main__":
             raise e
     logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
     logger = logging.getLogger(script_name)
-
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Run main.
     main()
