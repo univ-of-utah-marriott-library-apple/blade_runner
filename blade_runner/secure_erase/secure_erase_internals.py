@@ -443,7 +443,7 @@ def diskutil_list():
     return disk_output
 
 
-def secure_erase_internal_disks():
+def secure_erase_internal_disks(disks):
     """Secure erase internal disks with a single-pass zero-fill erase.
 
     Returns:
@@ -451,11 +451,8 @@ def secure_erase_internal_disks():
         False otherwise.
     """
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Get main disks.
-    main_disks = list_main_disks()
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get internal disks from main disks.
-    internal_disks = find_internal_disks(main_disks)
+    internal_disks = find_internal_disks(disks)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get the listed disks and print it to the screen
     disk_output = diskutil_list()
