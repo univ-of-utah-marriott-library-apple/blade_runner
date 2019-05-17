@@ -20,9 +20,9 @@
 # implied warranties of any kind.
 ################################################################################
 
+import ttk
 import logging
 import Tkinter as tk
-import ttk
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -108,7 +108,6 @@ class MainView(tk.Toplevel):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # About scene widgets
         self._about_btn = tk.Button(self.frame, text="About", command=lambda: self._about_btn_clicked(), font=self.text_font, width=25)
-
         self._about_lbl = tk.Label(self.frame, justify='left', font=self.text_font)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Offboard scene widgets
@@ -120,21 +119,16 @@ class MainView(tk.Toplevel):
                                        width=25, font=self.text_font)
         self._serial_btn = tk.Button(self.frame, text="Serial Number", fg='blue',
                                      command=lambda: self._input_btn_clicked('serial_number'), width=25, font=self.text_font)
-
         self._barcode_1_btn = tk.Button(self.frame, text="Barcode 1",
                                         command=lambda: self._input_btn_clicked('barcode_1'), width=25, font=self.text_font)
-
         self._barcode_2_btn = tk.Button(self.frame, text="Barcode 2",
                                         command=lambda: self._input_btn_clicked('barcode_2'), width=25, font=self.text_font)
-
         self._asset_btn = tk.Button(self.frame, text="Asset Tag",
                                     command=lambda: self._input_btn_clicked('asset_tag'), width=25, font=self.text_font)
-
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Selection scene widgets
         self._secure_erase_btn = tk.Button(self.frame, text="Secure Erase Internal Disks",
                                            command=lambda: self._secure_erase_btn_clicked(), width=25, font=self.text_font)
-
         self._separator = ttk.Separator(self, orient='horizontal')
         self._separator_2 = ttk.Separator(self, orient='horizontal')
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -332,17 +326,28 @@ class MainView(tk.Toplevel):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Unbind and rebind to None.
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: None)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Save the selected offboard configuration into the controller.
         self._controller.save_offboard_config(self.combobox.get())
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Start the search sequence.
         self._controller.search_sequence(identifier)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Unbind and rebind serial number button.
+        self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: self._input_btn_clicked("serial_number"))
 
     def _secure_erase_btn_clicked(self):
+        """Secure erase button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Start secure erase process.
         self._controller.secure_erase()
 
     def _exit_btn_clicked(self):
@@ -357,10 +362,19 @@ class MainView(tk.Toplevel):
         self._controller.terminate()
 
     def _back_btn_clicked(self):
+        """Back button handler.
+
+        Logic for what scene was the previous scene.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Offboard scene logic
         if self.curr_scene == "offboard_scene":
             self._grid_forget_offboard_scene()
             self._selection_scene()
-
+        # Help scene logic
         elif self.curr_scene == "help_scene":
             self._grid_forget_help_scene()
             if self.prev_scene == "selection_scene":
@@ -369,19 +383,19 @@ class MainView(tk.Toplevel):
                 self.offboard_scene()
             elif self.prev_scene == "settings_scene":
                 self._selection_scene()
-
+        # Github scene logic
         elif self.curr_scene == "github_scene":
             self._grid_forget_github_scene()
             self._help_scene()
-
+        # About scene logic
         elif self.curr_scene == "about_scene":
             self._grid_forget_about_scene()
             self._help_scene()
-
+        # How To scene logic
         elif self.curr_scene == "how_to_scene":
             self._grid_forget_how_to_scene()
             self._help_scene()
-
+        # Settins scene logic
         elif self.curr_scene == "settings_scene":
             self._grid_forget_settings_scene()
             if self.prev_scene == "selection_scene":
@@ -392,47 +406,159 @@ class MainView(tk.Toplevel):
                 self._selection_scene()
 
     def _help_btn_clicked(self, curr_scene):
+        """Help button handler.
+
+        Sets the previous scene and opens the help scene.
+
+        Args:
+            curr_scene (str): The scene from which the help button was pressed.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set previous scene.
         if curr_scene != "help_scene":
             self.prev_scene = curr_scene
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open help scene.
         self._help_scene()
 
     def _offboard_btn_clicked(self, curr_scene):
+        """Offboard button handler.
+
+        Sets previous scene and opens the offboard scene.
+
+        Args:
+            curr_scene (str): The scene from which the button was pressed.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set previous scene.
         self.prev_scene = curr_scene
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open offboard scene.
         self.offboard_scene()
 
     def _settings_btn_clicked(self, curr_scene):
+        """Settings button handler.
+
+        Sets previous scene and opens the settings scene.
+
+        Args:
+            curr_scene (str):x The scene from which the button was pressed.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set previous scene.
         if curr_scene != "settings_scene":
             self.prev_scene = curr_scene
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open settings scene.
         self._settings_scene()
 
     def _slack_config_btn_clicked(self):
+        """Slack configuration button handler
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open Slack configuration in default application.
         self._controller.open_config("slack")
 
     def _offboard_config_btn_clicked(self):
+        """Offboard configuration button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open offboard configuration in default application.
         self._controller.open_config("offboard")
 
     def _verify_config_btn_clicked(self):
+        """Verify configuration button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open verify params configuration in default application.
         self._controller.open_config("verify")
 
     def _search_config_btn_clicked(self):
+        """Search configuration button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open search configuration in default application.
         self._controller.open_config("search")
 
     def _directory_config_btn_clicked(self):
+        """Directory configuration button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Opens private directory in Finder.
         self._controller.open_config("private")
 
     def _print_config_btn_clicked(self):
+        """Print configuration button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open print configuration in default application.
         self._controller.open_config("print")
 
     def _python_bin_config_btn_clicked(self):
+        """Python configuration button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Open Python binary configuration in default application.
         self._controller.open_config("python_bin")
 
     def _how_to_btn_clicked(self):
+        """How To button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Opens the How To scene.
         self._how_to_scene()
 
     def _about_btn_clicked(self):
+        """About button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Opens the About scene.
         self._about_scene()
 
     def _github_btn_clicked(self):
+        """Github button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Opens the Github scene.
         self._github_scene()
 
     def populate_combobox(self):
@@ -447,9 +573,19 @@ class MainView(tk.Toplevel):
         self._controller.populate_config_combobox()
 
     def _settings_scene(self):
-        self.curr_scene = "settings_scene"
-        self._grid_forget_scenes()
+        """Opens the settings scene.
 
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set current scene.
+        self.curr_scene = "settings_scene"
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Forget previous scene.
+        self._grid_forget_scenes()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid settings scene widgets.
         self._slack_config_btn.grid(row=0)
         self._verify_config_btn.grid(row=1)
         self._search_config_btn.grid(row=2)
@@ -457,39 +593,71 @@ class MainView(tk.Toplevel):
         self._print_config_btn.grid(row=4)
         self._python_bin_config_btn.grid(row=5)
         self._directory_config_btn.grid(row=6)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Unbind and bind to None.
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: None)
 
     def _help_scene(self):
-        self.curr_scene = "help_scene"
-        self._grid_forget_scenes()
+        """Opens help scene.
 
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set current scene.
+        self.curr_scene = "help_scene"
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Forget previous scene.
+        self._grid_forget_scenes()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid help scene widgets.
         self._about_btn.grid(row=0)
         self._how_to_btn.grid(row=1)
         self._github_btn.grid(row=2)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Unbind and bind to None.
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: None)
 
     def _how_to_scene(self):
-        self.curr_scene = "how_to_scene"
-        self._grid_forget_help_scene()
+        """Opens How To scene.
 
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set current scene.
+        self.curr_scene = "how_to_scene"
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Forget previous scene.
+        self._grid_forget_help_scene()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid How To scene widgets.
         self._how_to_text_box.grid(row=0)
         self._how_to_scroll_bar.grid(row=0, column=1, sticky='nsew')
         self._how_to_text_box.config(yscroll=self._how_to_scroll_bar.set)
-
         self._how_to_text_box.insert('insert', self._controller.cat_readme())
         self._how_to_text_box.config(state='disabled')
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Unbind and bind to None.
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: None)
 
     def _about_scene(self):
-        self.curr_scene = "about_scene"
-        self._grid_forget_help_scene()
+        """Open about scene.
 
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set current scene.
+        self.curr_scene = "about_scene"
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Forget previous scene.
+        self._grid_forget_help_scene()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid About scene widgets.
         text = "Blade Runner is a JAMF Pro based Python application that manages deprecated Mac computer systems. " \
                "It does so through offboarding, enrolling, and updating JAMF records, as well as secure erasing the " \
                "computer's internal disks, generating and printing documents with data retreived from JAMF Pro, " \
@@ -499,47 +667,76 @@ class MainView(tk.Toplevel):
                "can be used to locate/update a JAMF Pro record."
         self._about_lbl.config(text=text, wraplength=self.frame.winfo_width())
         self._about_lbl.grid(row=0, padx=10)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Unbind and bind to None.
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: None)
 
     def _github_scene(self):
-        self.curr_scene = "github_scene"
-        self._grid_forget_help_scene()
+        """Open Github scene.
 
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set current scene.
+        self.curr_scene = "github_scene"
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Forget previous scene.
+        self._grid_forget_help_scene()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid Github scene widgets.
         self._github_lbl.grid(row=0)
         text = """To view the source code, submit bugs, or ask questions, visit Blade Runner's Github page at:"""
         self._github_lbl.config(text=text, wraplength=self.frame.winfo_width()*.90, justify="left")
-
         self._github_entry.grid(row=1)
         self._github_entry.insert("insert", self._github_url)
         self._github_entry.config(state='readonly', relief='flat', highlightthickness=0)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Unbind and bind to None.
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: None)
 
     def _selection_scene(self):
+        """Open Selection scene.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set current scene.
         self.curr_scene = "selection_scene"
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid Offboard scene widgets.
         self._offboard_btn.grid(row=0)
         self._secure_erase_btn.grid(row=1)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Unbind and bind to Offboard button.
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: self._offboard_btn_clicked(self.curr_scene))
 
     def offboard_scene(self):
-        self.curr_scene = "offboard_scene"
-        self._grid_forget_selection_scene()
+        """Opens Offboard scene.
 
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Set current scene.
+        self.curr_scene = "offboard_scene"
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Forget previous scene.
+        self._grid_forget_selection_scene()
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid Offboard scene widgets.
         self.combobox_frame.grid(row=2)
-        # Add and configure the selection label.
         self.selection_lbl.grid(row=0, column=0)
         self.selection_lbl.config(text="Select an offboard configuration:", font=self.text_font)
-
         self.choose_lbl.grid(row=2, pady=(10, 0))
         self.choose_lbl.config(text="Search for computer's JAMF record by:")
-
         self.combobox.grid(row=1, column=0)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Grid Offboard scene buttons according to search params configuration.
         if 'serial_number' in self._controller.search_params.enabled:
             self._serial_btn.grid(row=3, column=0)
 
@@ -551,11 +748,18 @@ class MainView(tk.Toplevel):
 
         if 'asset_tag' in self._controller.search_params.enabled:
             self._asset_btn.grid(row=6, column=0)
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Unbind and bind to serial number button.
         self.unbind('<Return>', self.return_id)
         self.return_id = self.bind('<Return>', lambda event: self._input_btn_clicked("serial_number"))
 
     def _grid_forget_settings_scene(self):
+        """Grid forget Settings scene.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self._offboard_config_btn.grid_forget()
         self._slack_config_btn.grid_forget()
         self._verify_config_btn.grid_forget()
@@ -565,29 +769,65 @@ class MainView(tk.Toplevel):
         self._python_bin_config_btn.grid_forget()
 
     def _grid_forget_scenes(self):
+        """Grid forget all scenes.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self._grid_forget_help_scene()
         self._grid_forget_selection_scene()
         self._grid_forget_offboard_scene()
         self._grid_forget_settings_scene()
 
     def _grid_forget_github_scene(self):
+        """Grid forget Github scene.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self._github_lbl.grid_forget()
         self._github_entry.grid_forget()
 
     def _grid_forget_about_scene(self):
+        """Grid forget About scene.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self._about_lbl.grid_forget()
 
     def _grid_forget_how_to_scene(self):
+        """Grid forget How To scene.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self._how_to_lbl.grid_forget()
         self._how_to_scroll_bar.grid_forget()
         self._how_to_text_box.grid_forget()
 
     def _grid_forget_help_scene(self):
+        """Grid forget Help Scene.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self._about_btn.grid_forget()
         self._how_to_btn.grid_forget()
         self._github_btn.grid_forget()
 
     def _grid_forget_offboard_scene(self):
+        """Grid forget Offboard scene.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.selection_lbl.grid_forget()
         self.choose_lbl.grid_forget()
         self.combobox.grid_forget()
@@ -598,6 +838,12 @@ class MainView(tk.Toplevel):
         self.combobox_frame.grid_forget()
 
     def _grid_forget_selection_scene(self):
+        """Grid forget Selection scene.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self._offboard_btn.grid_forget()
         self._secure_erase_btn.grid_forget()
 
