@@ -24,17 +24,17 @@
 "python test_secure_erase_internals.py"
 '''
 
-import re
 import os
 import sys
+import logging
 import unittest
 import subprocess as sp
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from blade_runner.secure_erase import secure_erase_internals as sei
 
-global test_disk
-
-home = os.path.expanduser("~")
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class TestSecureEraseInternalDisks(unittest.TestCase):
@@ -42,7 +42,8 @@ class TestSecureEraseInternalDisks(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """This will only run once, regardless of how many tests there are."""
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Setup command to create a test disk.
         cls.vol_name = 'test_disk'
         create_dmg = [
             'hdiutil',
@@ -53,52 +54,80 @@ class TestSecureEraseInternalDisks(unittest.TestCase):
             'HFS+J',
             '-volname',
             cls.vol_name,
-            home + '/' + cls.vol_name
+            os.path.join("/tmp", cls.vol_name)
         ]
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        cls.test_disk_path = os.path.join("/tmp", cls.vol_name + ".dmg")
+
+        # Create the test disk.
         try:
             sp.check_output(create_dmg)
         except:
-            print('The file ' + cls.vol_name + '.dmg' + 'already exists. Please delete it and try again.')
-            sys.exit()
-
-
-        mount_dmg = ['hdiutil', 'mount', home + '/' + cls.vol_name + '.dmg']
+            print('The file {}.dmg already exists. Please delete it and try again.'.format(cls.vol_name))
+            delete_dmg = ['rm', '-f', cls.test_disk_path]
+            sp.check_output(delete_dmg)
+            raise SystemExit("The file {}.dmg already existed. It has now been deleted. Try again.".format(cls.vol_name))
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Mount the test disk.
+        mount_dmg = ['hdiutil', 'mount', cls.test_disk_path]
         sp.check_output(mount_dmg)
-
-        cmd = ['diskutil', 'list', cls.vol_name]
-        # outputs a byte string
-        disk_output = sp.check_output(cmd)
-        # using grouping to later extract first group
-        byte_str_pattern = re.compile(b'(/dev/disk\d+)(\s)')
-        main_disk = re.findall(byte_str_pattern, disk_output)
-        # extracting first group of match
-        cls.main_disk = main_disk[0]
-
-        create_file_in_dmg = ['touch', '/Volumes/' + cls.vol_name + '/test.txt']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Path to disk.
+        cls.test_disk = os.path.join('/dev/', sei.whole_disks(cls.vol_name)[0])
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create a file inside the test disk volume.
+        create_file_in_dmg = ['touch', os.path.join('/Volumes/', cls.vol_name, 'test.txt')]
         sp.check_output(create_file_in_dmg)
 
     @classmethod
     def tearDownClass(cls):
         """This will only run once, regardless of how many tests there are."""
-
-        detach_dmg = ['hdiutil', 'detach', cls.main_disk[0]]
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Detach the test disk.
+        detach_dmg = ['hdiutil', 'detach', cls.test_disk]
         sp.check_output(detach_dmg)
-
-        delete_dmg = ['rm','-f',home + '/' + cls.vol_name + '.dmg']
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Delete the test disk dmg.
+        delete_dmg = ['rm','-f',  cls.test_disk_path]
         sp.check_output(delete_dmg)
 
 
     def setUp(self):
         '''This will be run before each test case.'''
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Save vol_name and test_disk to self.
         self.vol_name = self.__class__.vol_name
-        self.main_disk = self.__class__.main_disk
+        self.test_disk = self.__class__.test_disk
 
     def test_erase_valid_disk(self):
-        is_erased = sei.secure_erase_internal_disks(self.main_disk)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Erase the test disk.
+        is_erased = sei.secure_erase_disks([self.test_disk])
         self.assertTrue(is_erased)
 
 
 if __name__ == '__main__':
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Ensure run as root.
     if os.geteuid() != 0:
         raise SystemExit("Must be run as root.")
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set up logging vars.
+    fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
+    filepath = os.path.join(log_dir, script_name + ".log")
+
+    # Create log path
+    try:
+        os.mkdir(log_dir)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
+
+    # Set up logger.
+    logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
+    logger = logging.getLogger(script_name)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Start unit tests.
     unittest.main(verbosity=1)
