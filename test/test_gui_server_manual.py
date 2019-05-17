@@ -83,16 +83,23 @@ class TestGUIServerManual(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set up logging vars.
     fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
     script_name = os.path.splitext(os.path.basename(__file__))[0]
     log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
     filepath = os.path.join(log_dir, script_name + ".log")
+
+    # Create log path
     try:
         os.mkdir(log_dir)
     except OSError as e:
         if e.errno != 17:
             raise e
 
+    # Set up logger.
     logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
     logger = logging.getLogger(script_name)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Start unit tests.
     unittest.main(verbosity=2)
