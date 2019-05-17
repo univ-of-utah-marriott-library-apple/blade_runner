@@ -98,6 +98,24 @@ def list_main_disks():
     return disks_info['WholeDisks']
 
 
+def whole_disks(disk):
+    """Get whole disks of a disk.
+
+    Returns:
+        List of whole disks.
+    """
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Get whole disks.
+    cmd = ['diskutil', 'list', '-plist', disk]
+    disk_output = sp.check_output(cmd)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Parse the output into a dictionary.
+    disks_info = plistlib.readPlistFromString(disk_output)
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Return the list of the disks.
+    return disks_info['WholeDisks']
+
+
 def find_internal_disks(main_disks):
     """Find the internal disks from a list of disks.
 
@@ -109,6 +127,7 @@ def find_internal_disks(main_disks):
     """
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # For each disk, see if it's an internal disk.
+    logger.debug(main_disks)
     internal_disks = []
     for disk in main_disks:
         cmd = ['diskutil', 'info', '-plist', disk]
@@ -439,20 +458,16 @@ def diskutil_list():
     # List the disks and return the output.
     cmd = ['diskutil', 'list']
     disk_output = sp.check_output(cmd)
-    logger.info(disk_output)
     return disk_output
 
 
-def secure_erase_internal_disks(disks):
-    """Secure erase internal disks with a single-pass zero-fill erase.
+def secure_erase_disks(disks):
+    """Secure erase disks with a single-pass zero-fill erase.
 
     Returns:
         True if successful.
         False otherwise.
     """
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Get internal disks from main disks.
-    internal_disks = find_internal_disks(disks)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get the listed disks and print it to the screen
     disk_output = diskutil_list()
@@ -461,7 +476,7 @@ def secure_erase_internal_disks(disks):
     # Warn the user about the disks that will be erased. Give 10 seconds before proceeding.
     logger.warn("***************************************************************")
     logger.warn("You are about to secure erase the following internal disk(s). Proceeding in 10 seconds:")
-    for disk in internal_disks:
+    for disk in disks:
         logger.warn("" + disk)
     logger.warn("***************************************************************")
     sleep(10)
@@ -469,7 +484,7 @@ def secure_erase_internal_disks(disks):
     # Proceed with secure erase.
     erased_status = []
     logger.warn("Proceeding with secure erase.")
-    for disk in internal_disks:
+    for disk in disks:
         # Sometimes a space is returned as a disk. Check for this.
         if not disk.isspace():
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -583,7 +598,9 @@ def main():
             logger.info(e)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Secure erase the internal disks.
-        erased = secure_erase_internal_disks()
+        main_disks = list_main_disks()
+        internal_disks = find_internal_disks(main_disks)
+        erased = secure_erase_disks(internal_disks)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # If erase successful, run verification tests.
         if erased is True:
