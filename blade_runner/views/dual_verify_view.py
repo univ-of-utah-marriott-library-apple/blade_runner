@@ -81,7 +81,7 @@ class DualVerifyView(tk.Toplevel):
         self._controller = controller
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the window's title.
-        self.title("Verify JAMF Record")
+        self.title("Verify JAMF Pro Record")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create two frames inside the window.
         header_frame = tk.Frame(self)
@@ -144,21 +144,20 @@ class DualVerifyView(tk.Toplevel):
         self.jss_serial_entry = tk.Entry(content_frame)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Submit button for user entered data
-        self._user_submit_btn = tk.Button(button_frame, text='Update & Send', command=self._user_submit_btn_clicked)
-        self._user_submit_btn.grid()
-
+        self._submit_btn = tk.Button(button_frame, text='Update & Send', command=self._submit_btn_clicked)
+        self._submit_btn.grid()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Grid the frames.
         header_frame.grid(row=0, padx=10, pady=(10, 0))
         content_frame.grid(row=1, padx=10)
         button_frame.grid(row=2, padx=10, pady=(5,10))
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>^
-        self.bind('<Return>', lambda event: self._user_submit_btn_clicked())
+        self.bind('<Return>', lambda event: self._submit_btn_clicked())
         self.resizable(False, False)
 
     def _close_button_clicked(self):
         self._controller.cancel_operation()
 
-    def _user_submit_btn_clicked(self):
+    def _submit_btn_clicked(self):
         self._controller.proceed_operation("user")
 
