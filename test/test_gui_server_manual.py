@@ -25,16 +25,16 @@ How to run:
 
     sudo python test/test_gui_server_manual.py
 
-Current working directory must be Blade Runner.
+Current working directory must be Blade Runner, as in Contents/Resources/Blade\ Runner/.
 
 """
 
 import os
 import sys
-import inspect
 import logging
 import plistlib
 import unittest
+import subprocess
 import Tkinter as tk
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -48,41 +48,52 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class TestGUIServerManual(unittest.TestCase):
+    """Test the GUI and the server manually."""
 
     def setUp(self):
-        if os.geteuid() != 0:
-            raise SystemExit("Blade Runner must be run as root.")
-
-        cf = inspect.currentframe()
-
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Create main root window.
         root = tk.Tk()
         root.withdraw()
-
-        abs_file_path = inspect.getframeinfo(cf).filename
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get path to private folder
+        abs_file_path = os.path.abspath(__file__)
         self.blade_runner_dir = os.path.dirname(abs_file_path)
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        # Get JAMF Pro settings.
         jss_server_plist = os.path.join(self.blade_runner_dir, "private/jamf_pro_configs/jamf_pro.plist")
         jss_server_data = plistlib.readPlist(jss_server_plist)
         jss_server = JssServer(**jss_server_data)
 
+        # Get Slack settings.
         self.slack_plist = os.path.join(self.blade_runner_dir, "private/slack_configs/slack.plist")
         self.slack_data = plistlib.readPlist(self.slack_plist)
 
+        # Get verification parameter settings
         self.verify_config = os.path.join(self.blade_runner_dir, "private/verify_params_configs/verify_params.plist")
         self.verify_data = plistlib.readPlist(self.verify_config)
 
+        # Get search parameter settings.
         self.search_params_config = os.path.join(self.blade_runner_dir, "private/search_params_configs/search_params.plist")
         self.search_params = plistlib.readPlist(self.search_params_config)
 
-        self.jamf_pro_doc_config = os.path.join(self.blade_runner_dir, "private/print_config/print.plist")
-        self.doc_settings = plistlib.readPlist(self.jamf_pro_doc_config)
+        # Get document settings.
+        self.print_config = os.path.join(self.blade_runner_dir, "private/print_config/print.plist")
+        self.print_settings = plistlib.readPlist(self.print_config)
 
-        self.br = MainController(root, jss_server, self.slack_data, self.verify_data, self.search_params, self.doc_settings)
+        # Set up main controller.
+        self.br = MainController(root, jss_server, self.slack_data, self.verify_data, self.search_params, self.print_settings)
 
     def test_manual(self):
+        """Manually test Blade Runner."""
         self.br.run()
 
 
 if __name__ == "__main__":
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Ensure run as root.
+    if os.geteuid() != 0:
+        raise SystemExit("Blade Runner must be run as root.")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set up logging vars.
     fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
@@ -96,6 +107,9 @@ if __name__ == "__main__":
     except OSError as e:
         if e.errno != 17:
             raise e
+
+    # Ensure that the owner is the logged in user.
+    subprocess.check_output(['chown', '-R', os.getlogin(), log_dir])
 
     # Set up logger.
     logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
