@@ -161,26 +161,6 @@ class MainController(Controller):
         # Make this window the main loop.
         self._main_view.mainloop()
 
-    def test_run(self, callback):
-        """Start Blade-Runner for testing.
-
-        Returns:
-            void
-        """
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Create the main view.
-        self._main_view = MainView(self._root, self)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Set it to the middle of the screen.
-        self._set_to_middle(self._main_view)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Refocus on the window.
-        self.refocus()
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Make this window the main loop.
-        self._main_view.after(1000, callback)
-        self._main_view.wait_window(self._main_view)
-
     def secure_erase(self):
         package = "blade_runner.secure_erase.secure_erase_internals"
         cmd = ['-c', '/usr/bin/sudo python -m ' + package + '; echo "Return code: $?"']
@@ -648,6 +628,10 @@ class MainController(Controller):
 
 def main():
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Ensure script is being run as root.
+    if os.geteuid() != 0:
+        raise SystemExit("Blade Runner must be run as root.")
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set up logging values.
     fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
     script_name = os.path.splitext(os.path.basename(__file__))[0]
@@ -661,15 +645,12 @@ def main():
         if e.errno != 17:
             raise e
 
+    # Ensure that the owner is the logged in user.
+    subprocess.check_output(['chown', '-R', os.getlogin(), log_dir])
+
     # Set up and get logger.
     logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
     logger = logging.getLogger(script_name)
-    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Ensure script is being run as root.
-    if os.geteuid() != 0:
-        logger.info("Blade Runner must be run as root.")
-        raise SystemExit("Blade Runner must be run as root.")
-    logger.info("Authentication passed. Blade Runner started.")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Create main root window.
     root = tk.Tk()
