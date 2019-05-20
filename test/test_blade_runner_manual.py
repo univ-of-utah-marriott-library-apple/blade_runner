@@ -23,7 +23,7 @@
 """
 How to run:
 
-    sudo python test/test_gui_server_manual.py
+    sudo python test/test_blade_runner_manual.py
 
 Current working directory must be Blade Runner, as in Contents/Resources/Blade\ Runner/.
 
@@ -47,7 +47,7 @@ from blade_runner.controllers.main_controller import MainController
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
-class TestGUIServerManual(unittest.TestCase):
+class TestBladeRunnerManual(unittest.TestCase):
     """Test the GUI and the server manually."""
 
     def setUp(self):
