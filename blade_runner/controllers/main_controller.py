@@ -52,7 +52,7 @@ from blade_runner.dependencies.management_tools.slack import IncomingWebhooksSen
 
 
 # TODO Interface with a Trello board and dynamically create lists for the DEP
-# TODO BUG: If spaces are entered in the asset/barcode inputs the program quits. Need to format spaces.
+# TODO BUG: If spaces are entered in the asset/barcode inputs the program quits.
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -323,7 +323,7 @@ class MainController(Controller):
                 # If managed status is false, re-enroll computer to set managed status to true. This enables the
                 # JSS record to be modified
                 if managed == 'false':
-                    msg = "Enrolling to change managed status to true to enable modification of JSS record."
+                    msg = "Enrolling to change managed status to true to enable modification of the JAMF Pro record."
                     self.logger.debug(msg)
                     # Open a stall window, enroll the computer, and close the stall window.
                     StallWindow(self._main_view, self._jss_server.enroll_computer, msg, process=True)
@@ -336,14 +336,14 @@ class MainController(Controller):
             self._open_verify_view()
             # If user didn't cancel operation...
             if self._proceed:
-                msg = "Enrolling because no JSS ID exists for this computer."
+                msg = "Enrolling because no JAMF Pro ID exists for this computer."
                 self.logger.debug(msg)
                 # Open a stall window, enroll the computer, and close the stall window.
                 StallWindow(self._main_view, self._jss_server.enroll_computer, msg)
 
                 # Since JSS ID has now been created, retrieve it.
                 self._computer.jss_id = self._jss_server.match(self._computer.serial_number)
-                self.logger.debug("JSS id after enrolling: {}".format(self._computer.jss_id))
+                self.logger.debug("JAMF Pro ID after enrolling: {}".format(self._computer.jss_id))
             else:
                 return
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -424,13 +424,9 @@ class MainController(Controller):
         Returns:
             void
         """
-        message = "JSS doesn't record exist. Please verify\nthe following fields before submitting\nthem to the JSS.\n"
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self._verify_controller = VerificationController(self._main_view, self._computer, self.verify_params,
                                                          self.search_params)
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Configure message to be displayed.
-        self._verify_controller.entry_view.text_lbl.config(text=message)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Wait for entry view window to close.
         self._main_view.wait_window(window=self._verify_controller.entry_view)
