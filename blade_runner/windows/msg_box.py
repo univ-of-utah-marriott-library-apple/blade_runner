@@ -38,18 +38,20 @@ class MsgBox(Controller):
         self.root.protocol('WM_DELETE_WINDOW', self._cancel_btn_clicked)
         self.root.attributes("-topmost", True)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Creating components
-        
-        self.text_lbl = tk.Label(self.root, text=msg)
+        self.frame = tk.Frame(self.root)
+
+        self.text_lbl = tk.Label(self.frame, text=msg, justify="left")
         self.text_lbl.grid(row=0, column=0, sticky='EW')
 
-        self._proceed_btn = tk.Button(self.root, text="Continue", command=lambda: self._proceed_btn_clicked())
-        self._proceed_btn.grid(row=2, column=0, sticky='EW')
+        self._proceed_btn = tk.Button(self.frame, text="Continue", command=lambda: self._proceed_btn_clicked(), width=25)
+        self._proceed_btn.grid(row=2, column=0)
 
-        self._cancel_btn = tk.Button(self.root, text="Cancel", command=lambda: self._cancel_btn_clicked())
-        self._cancel_btn.grid(row=1, column=0, sticky='EW')
-        
+        self._cancel_btn = tk.Button(self.frame, text="Cancel", command=lambda: self._cancel_btn_clicked(), width=25)
+        self._cancel_btn.grid(row=1, column=0)
+
+        self.frame.grid(row=0, padx=10, pady=10)
+
         self.proceed = False
         self._set_to_middle(self.root)
         self.root.bind('<Map>', lambda event: self.root.focus_force())
