@@ -43,6 +43,8 @@ from blade_runner.document import document as doc
 from blade_runner.dependencies.management_tools.slack import IncomingWebhooksSender as IWS
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
+logging.getLogger(__name__).addHandler(logging.StreamHandler(sys.stdout))
+
 logger = logging.getLogger(__name__)
 
 
@@ -127,7 +129,6 @@ def find_internal_disks(main_disks):
     """
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # For each disk, see if it's an internal disk.
-    logger.debug(main_disks)
     internal_disks = []
     for disk in main_disks:
         cmd = ['diskutil', 'info', '-plist', disk]
@@ -471,72 +472,76 @@ def secure_erase_disks(disks):
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get the listed disks and print it to the screen
     disk_output = diskutil_list()
-    logger.debug(disk_output)
+    logger.debug("disktutil output below:\n{}".format(disk_output))
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Warn the user about the disks that will be erased. Give 10 seconds before proceeding.
     logger.warn("***************************************************************")
-    logger.warn("You are about to secure erase the following internal disk(s). Proceeding in 10 seconds:")
+    logger.warn("You are about to secure erase the following internal disk(s):")
     for disk in disks:
         logger.warn("" + disk)
     logger.warn("***************************************************************")
-    sleep(10)
+    proceed = interactive("Proceed with secure erase?")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Proceed with secure erase.
     erased_status = []
-    logger.warn("Proceeding with secure erase.")
-    for disk in disks:
-        # Sometimes a space is returned as a disk. Check for this.
-        if not disk.isspace():
-            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-            # First attempt to secure erase disk.
-            cmd = ['diskutil', 'secureErase', '0', disk]
-            try:
-                logger.warn("SECURE ERASING " + disk)
-                sp.Popen(cmd, stderr=sp.STDOUT).wait()
-                logger.warn('{0} successfully erased.'.format(disk))
-                erased_status.append(True)
-            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-            # Handle error. Try again.
-            except sp.CalledProcessError as exc:
-                logger.warn("{1}: Failure in erasing {0}.".format(disk, exc.output))
+    if proceed:
+        logger.warn("Proceeding with secure erase.")
+        for disk in disks:
+            # Sometimes a space is returned as a disk. Check for this.
+            if not disk.isspace():
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                # Try to force unmount disk.
+                # First attempt to secure erase disk.
+                cmd = ['diskutil', 'secureErase', '0', disk]
                 try:
-                    logger.info("Attemping to force unmount " + disk)
-                    cmd = ['diskutil', 'unmountDisk', 'force', disk]
-                    unmount_output = sp.check_output(cmd, stderr=sp.STDOUT)
-                    logger.info(unmount_output)
-                    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                    # Second attempt to secure erase.
-                    logger.warn("SECOND ATTEMPT AT SECURE ERASING " + disk)
                     logger.warn("SECURE ERASING " + disk)
-
-                    cmd = ['diskutil', 'secureErase', '0', disk]
                     sp.Popen(cmd, stderr=sp.STDOUT).wait()
-
                     logger.warn('{0} successfully erased.'.format(disk))
                     erased_status.append(True)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 # Handle error. Try again.
-                except sp.CalledProcessError as e:
-                    logger.info(e)
+                except sp.CalledProcessError as exc:
+                    logger.warn("{1}: Failure in erasing {0}.".format(disk, exc.output))
                     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                    # Try to repair disk.
+                    # Try to force unmount disk.
                     try:
-                        logger.debug("Attempting to repair {0}".format(disk))
-                        output = repair_volume(disk)
-                        logger.debug(output)
-                        logger.debug("Repair of {0} was successful.".format(disk))
+                        logger.info("Attemping to force unmount " + disk)
+                        cmd = ['diskutil', 'unmountDisk', 'force', disk]
+                        unmount_output = sp.check_output(cmd, stderr=sp.STDOUT)
+                        logger.info(unmount_output)
                         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                        # Third and last attempt to secure erase disk.
-                        logger.debug("Last attempt to secure erase {0}.".format(disk))
-                        was_erased = secure_erase(disk)
-                        erased_status.append(was_erased)
+                        # Second attempt to secure erase.
+                        logger.warn("SECOND ATTEMPT AT SECURE ERASING " + disk)
+                        logger.warn("SECURE ERASING " + disk)
+
+                        cmd = ['diskutil', 'secureErase', '0', disk]
+                        sp.Popen(cmd, stderr=sp.STDOUT).wait()
+
+                        logger.warn('{0} successfully erased.'.format(disk))
+                        erased_status.append(True)
                     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                    # Handle error. Append False to erased_status.
+                    # Handle error. Try again.
                     except sp.CalledProcessError as e:
-                        logger.info(e.output)
-                        erased_status.append(False)
+                        logger.info(e)
+                        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                        # Try to repair disk.
+                        try:
+                            logger.debug("Attempting to repair {0}".format(disk))
+                            output = repair_volume(disk)
+                            logger.debug(output)
+                            logger.debug("Repair of {0} was successful.".format(disk))
+                            # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                            # Third and last attempt to secure erase disk.
+                            logger.debug("Last attempt to secure erase {0}.".format(disk))
+                            was_erased = secure_erase(disk)
+                            erased_status.append(was_erased)
+                        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                        # Handle error. Append False to erased_status.
+                        except sp.CalledProcessError as e:
+                            logger.info(e.output)
+                            erased_status.append(False)
+    else: # User aborted
+        logger.info('Operation aborted. Secure erase not performed.')
+        erased_status.append(False)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # If the erased status only contains True, then the disk was secure erased.
     if all(erased_status) is True:
@@ -694,6 +699,7 @@ if __name__ == "__main__":
     # Set up logger.
     logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
     logger = logging.getLogger(script_name)
+    logging.getLogger(script_name).addHandler(logging.StreamHandler(sys.stdout))
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get path to Python script.
     blade_runner_dir = os.path.abspath(__file__)
