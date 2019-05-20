@@ -230,7 +230,7 @@ class MainController(Controller):
         # Get all XML files in the directory.
         offboard_configs = []
         for file in files:
-            if file.endswith(".xml"):
+            if file.endswith(".xml") and file[0] != "." and file[0] != "~":
                 offboard_configs.append(file)
         return offboard_configs
 
@@ -319,7 +319,9 @@ class MainController(Controller):
                     msg = "Enrolling to change managed status to true to enable modification of the JAMF Pro record."
                     self.logger.debug(msg)
                     # Open a stall window, enroll the computer, and close the stall window.
-                    StallWindow(self._main_view, self._jss_server.enroll_computer, msg, process=True)
+                    enroll_window = StallWindow(self._main_view, self._jss_server.enroll_computer, msg, process=True)
+                    if not enroll_window.proceed:
+                        return
             else:
                 return
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -332,8 +334,9 @@ class MainController(Controller):
                 msg = "Enrolling because no JAMF Pro ID exists for this computer."
                 self.logger.debug(msg)
                 # Open a stall window, enroll the computer, and close the stall window.
-                StallWindow(self._main_view, self._jss_server.enroll_computer, msg)
-
+                enroll_window = StallWindow(self._main_view, self._jss_server.enroll_computer, msg)
+                if not enroll_window.proceed:
+                    return
                 # Since JSS ID has now been created, retrieve it.
                 self._computer.jss_id = self._jss_server.match(self._computer.serial_number)
                 self.logger.debug("JAMF Pro ID after enrolling: {}".format(self._computer.jss_id))
