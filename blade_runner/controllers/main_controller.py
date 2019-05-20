@@ -334,7 +334,7 @@ class MainController(Controller):
                 msg = "Enrolling because no JAMF Pro ID exists for this computer."
                 self.logger.debug(msg)
                 # Open a stall window, enroll the computer, and close the stall window.
-                enroll_window = StallWindow(self._main_view, self._jss_server.enroll_computer, msg)
+                enroll_window = StallWindow(self._main_view, self._jss_server.enroll_computer, msg, process=True)
                 if not enroll_window.proceed:
                     return
                 # Since JSS ID has now been created, retrieve it.
