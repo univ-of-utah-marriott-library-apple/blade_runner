@@ -56,7 +56,7 @@ class StallWindow(tk.Toplevel):
         tk.Toplevel.__init__(self, master)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the action for when the window is closed using the close button
-        self.protocol('WM_DELETE_WINDOW', self._dummy_btn)
+        self.protocol('WM_DELETE_WINDOW', self.destroy)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Make it so only the view window can be interacted with.
         self.transient(master)
@@ -103,7 +103,7 @@ class StallWindow(tk.Toplevel):
         callback()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Destroy the StallWindow.
-        self._destroy()
+        self.destroy()
 
     def _run_process(self, callback):
         """Runs the process and updates the window's text with the output of the process.
@@ -123,24 +123,6 @@ class StallWindow(tk.Toplevel):
             self.update()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Destroy the StallWindow.
-        self._destroy()
-
-    def _dummy_btn(self):
-        """Dummy button. Does nothting. Prevents the StallWindow from being closed.
-
-        Returns:
-            void
-        """
-        pass
-
-    def _destroy(self):
-        """Destroys the StallWindow.
-
-        Returns:
-            void
-        """
-        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Destroy the StallWindow
         self.destroy()
 
     def _set_to_middle(self, window):
@@ -163,11 +145,3 @@ class StallWindow(tk.Toplevel):
         # Sets window position
         window.geometry('+{}+{}'.format(screen_width / 2 - window.winfo_width()/2, screen_height / 4))
 
-
-# Start logging.
-# cf = inspect.currentframe()
-# abs_file_path = inspect.getframeinfo(cf).filename
-# basename = os.path.basename(abs_file_path)
-# lbasename = os.path.splitext(basename)[0]
-# logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
-# logger.debug("{} logger started.".format(lbasename))
