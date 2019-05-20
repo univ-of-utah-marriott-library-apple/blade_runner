@@ -30,7 +30,6 @@ import socket
 import logging
 import urllib2
 import plistlib
-from time import sleep
 import subprocess as sp
 
 blade_runner_dir = os.path.dirname(os.path.dirname(__file__))
