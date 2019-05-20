@@ -56,7 +56,7 @@ class StallWindow(tk.Toplevel):
         tk.Toplevel.__init__(self, master)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the action for when the window is closed using the close button
-        self.protocol('WM_DELETE_WINDOW', self.destroy)
+        self.protocol('WM_DELETE_WINDOW', self._close_btn_clicked)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Make it so only the view window can be interacted with.
         self.transient(master)
@@ -86,6 +86,7 @@ class StallWindow(tk.Toplevel):
         # Prevent the window from resizing when a widget inside of it changes size.
         self.grid_propagate(False)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self.proceed = False
         # Wait for the window to be closed.
         self.wait_window()
 
@@ -103,6 +104,7 @@ class StallWindow(tk.Toplevel):
         callback()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Destroy the StallWindow.
+        self.proceed = True
         self.destroy()
 
     def _run_process(self, callback):
@@ -123,6 +125,11 @@ class StallWindow(tk.Toplevel):
             self.update()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Destroy the StallWindow.
+        self.proceed = True
+        self.destroy()
+
+    def _close_btn_clicked(self):
+        self.proceed = False
         self.destroy()
 
     def _set_to_middle(self, window):
