@@ -12,6 +12,7 @@ For a list of features, see [Features & How They Work](#features-and-how-they-wo
 
 # Contents
 
+* [Important Items Before You Start](#important-items-before-you-start)
 * [Download](#download)
 * [System Requirements](#system-requirements)
 * [Configuration](#configuration)
