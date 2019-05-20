@@ -75,15 +75,24 @@ def run_daemon():
 
 
 if __name__ == "__main__":
+    # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    # Set up logging vars.
     fmt = '%(asctime)s %(process)d: %(levelname)8s: %(name)s.%(funcName)s: %(message)s'
     script_name = os.path.splitext(os.path.basename(__file__))[0]
     log_dir = os.path.join(os.path.expanduser("~"), "Library/Logs/Blade Runner")
     filepath = os.path.join(log_dir, script_name + ".log")
+
+    # Make log directory
     try:
         os.mkdir(log_dir)
     except OSError as e:
         if e.errno != 17:
             raise e
+
+    # Ensure that the owner is the logged in user.
+    subprocess.check_output(['chown', '-R', os.getlogin(), log_dir])
+
+    # Set up logger.
     logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
     logger = logging.getLogger(script_name)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
