@@ -161,10 +161,11 @@ if __name__ == "__main__":
     try:
         os.mkdir(log_dir)
     except OSError as e:
-        if e.errno == 17:
-            pass
-        else:
-            raise e
+        if e.errno != 17:
+            raise
+
+    # Ensure that the owner is the logged in user.
+    subprocess.check_output(['chown', '-R', os.getlogin(), log_dir])
 
     # Set up logger.
     logging.basicConfig(level=logging.DEBUG, format=fmt, filemode='a', filename=filepath)
