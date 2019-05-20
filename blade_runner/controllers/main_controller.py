@@ -44,7 +44,6 @@ from blade_runner.jamf_pro.jss_server import JssServer
 from blade_runner.windows.stall_window import StallWindow
 from blade_runner.controllers.controller import Controller
 from blade_runner.jamf_pro.params import SearchParams, VerifyParams
-from blade_runner.windows.secure_erase_window import SecureEraseWindow
 from blade_runner.controllers.search_controller import SearchController
 from blade_runner.controllers.dual_verify_controller import DualVerifyController
 from blade_runner.controllers.verification_controller import VerificationController
