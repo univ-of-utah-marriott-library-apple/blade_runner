@@ -52,7 +52,7 @@ class VerifyView(tk.Toplevel):
         self.controller = controller
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the view's title.
-        self.title("Create New JSS Record")
+        self.title("Create New JAMF Pro Record")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create the frames.
         header_frame = tk.Frame(self)
@@ -64,9 +64,9 @@ class VerifyView(tk.Toplevel):
         # Creating and adding components to subframes
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Text header component
-        self.text_lbl = tk.Label(header_frame, text="No JSS record exists for this computer.\n"
-                                                    "Create the new record by filling in the\n"
-                                                    "following fields:\n")
+        self.text_lbl = tk.Label(header_frame, justify='left', wraplength=master.winfo_width()/2,
+                                text="No JAMF Pro record exists for this computer. Create the new record by filling "
+                                     "in the following fields:")
         self.text_lbl.grid(row=0)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # User header
@@ -93,11 +93,11 @@ class VerifyView(tk.Toplevel):
         self.serial_entry = tk.Entry(content_frame)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Submit button
-        self._user_submit_btn = tk.Button(content_frame, text='Submit from User', command=self._submit_btn_clicked)
-        self._user_submit_btn.grid(row=6, column=1)
+        self._submit_btn = tk.Button(content_frame, text='Submit', command=self._submit_btn_clicked)
+        self._submit_btn.grid(row=6, column=1)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        header_frame.grid(row=0)
-        content_frame.grid(row=1)
+        header_frame.grid(row=0, padx=10, pady=(10,0))
+        content_frame.grid(row=1, padx=10, pady=(0,10))
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>^
         self.resizable(False, False)
 
@@ -112,7 +112,7 @@ class VerifyView(tk.Toplevel):
         self.controller.cancel_operation()
 
     def _submit_btn_clicked(self):
-        """Proceeds with operation when the user "submit" button is pressed.
+        """Proceeds with operation when the submit button is pressed.
 
         Returns:
             void
