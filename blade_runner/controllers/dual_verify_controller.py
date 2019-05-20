@@ -159,7 +159,7 @@ class DualVerifyController(EntryController):
 
     def _fill_user_entries(self, computer, verify_params):
         """Populates the user entries with user entered data contained in the Computer object. It knows which fields to
-        populated from the verification parameters.
+        populate from the verification parameters.
 
         Args:
             computer (Computer): Stores information about the computer.
@@ -175,7 +175,7 @@ class DualVerifyController(EntryController):
 
     def _fill_jss_entries(self, computer, verify_params):
         """Populates the user entries with JSS data contained in the Computer object. It knows which fields to
-        populated from the verification parameters.
+        populate from the verification parameters.
 
         Args:
             computer (Computer): Stores information about the computer.
