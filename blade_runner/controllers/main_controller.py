@@ -118,6 +118,7 @@ class MainController(Controller):
         self._blade_runner_dir = os.path.join(self.app_root_dir, "blade_runner")
         self._slack_dir = os.path.join(self._blade_runner_dir, "slack")
         self._offboard_configs_dir = os.path.join(self._private_dir, "offboard_configs")
+        self._secure_erase_dir = os.path.join(self._blade_runner_dir, "secure_erase")
 
     def _exception_messagebox(self, exc, value, traceback):
         """Displays a message box with the accompanying exception message whenver an exception occurs.
@@ -162,19 +163,12 @@ class MainController(Controller):
         self._main_view.mainloop()
 
     def secure_erase(self):
-        package = "blade_runner.secure_erase.secure_erase_internals"
-        cmd = ['-c', '/usr/bin/sudo python -m ' + package + '; echo "Return code: $?"']
+        """Runs secure_erase.sh, which runs secure_erase_internals, in a new terminal window.
 
-        window = SecureEraseWindow(cmd, self._main_view, cwd=self.app_root_dir)
-        self._main_view.wait_window(window)
-        results = window.result
-
-        if not results:
-            tkMessageBox.showinfo("Secure Erase", "Secure erase command failed. \n")
-        elif not results.success:
-            tkMessageBox.showinfo("Secure Erase", "Secure erase command failed. \n{}".format(results.msg))
-        else:
-            tkMessageBox.showinfo("Secure Erase", "Secure erase successful. \n{}".format(results.msg))
+        Returns:
+            void
+        """
+        subprocess.check_output(["open", "-n", "-a", "Terminal", os.path.join(self._secure_erase_dir, "secure_erase.sh")])
 
     def terminate(self):
         """Terminates Blade-Runner.
