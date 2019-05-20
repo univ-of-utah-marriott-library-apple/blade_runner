@@ -39,6 +39,12 @@ For a list of features, see [Features & How They Work](#features-and-how-they-wo
 * [Contact](#contact)
 * [Update History](#update-history)
 
+# Important Items Before You Start
+
+1. Test Blade Runner on a non-production JAMF Pro until you feel comfortable with it. The easiest way to do this is to set up JAMF Pro on a virtual machine.
+2. Create a limited API user that Blade Runner will use to interface with JAMF Pro. The user name and credentials that Blade Runner uses are stored in an unencrypted configuration file.
+3. Blade Runner needs Python 2 with a version greater than or equal to 2.7.9. If the OS that is running Blade Runner has a Python version less than 2.7.9, a quick fix is to install [Anaconda Python 2.7 version](https://www.anaconda.com/distribution/) on the OS and point *Blade Runner*'s `python_bin.plist` file to Anaconda's Python 2 binary. 
+
 # Download
 
 The latest release is available for download [here](../../releases). 
@@ -47,12 +53,6 @@ Uninstallation instructions are provided [below](#uninstallation).
 # System Requirements
 
 *Blade Runner* requires Python 2.7.9 or greater, excluding Python 3. It is compatible on macOS 10.9 (Mavericks) through 10.12 (Sierra). It has not been tested on OSes outside that range.
-
-# Best Practices
-
-Running Python 2.7.9 or greater
-
-
 
 # Configuration
 
