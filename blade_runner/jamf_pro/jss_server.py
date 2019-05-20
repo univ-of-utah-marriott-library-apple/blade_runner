@@ -59,13 +59,6 @@ class JssServer(object):
         self._jamf_binary_1 = kwargs.get('jamf_binary_1', None)
         self._jamf_binary_2 = kwargs.get('jamf_binary_2', None)
 
-        if self._username is None:
-            raise SystemExit("Username for the JSS server was not specified.")
-        if self._password is None:
-            raise SystemExit("Password for the JSS server was not specified.")
-        if self._jss_url is None:
-            raise SystemExit("JSS url for the JSS server was not specified.")
-
     def match(self, search_param):
         """Returns the JSS ID of a computer matching the search parameter. Fulfills JAMF's match API.
 
@@ -922,14 +915,5 @@ class JssServer(object):
         self.logger.info("   HTML PUT response code: {}".format(response.code))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         self.logger.debug("_push_xml_str_handler: finished")
-
-
-# Setup logging
-# cf = inspect.currentframe()
-# abs_file_path = inspect.getframeinfo(cf).filename
-# basename = os.path.basename(abs_file_path)
-# lbasename = os.path.splitext(basename)[0]
-# logger = loggers.FileLogger(name=lbasename, level=loggers.DEBUG)
-# logger.debug("{} logger started.".format(lbasename))
 
 
