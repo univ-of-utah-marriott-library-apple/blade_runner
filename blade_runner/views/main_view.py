@@ -99,6 +99,7 @@ class MainView(tk.Toplevel):
         self._directory_config_btn = tk.Button(self.frame, text="Configuration Directory", font=self.text_font, width=25, command=lambda: self._directory_config_btn_clicked())
         self._print_config_btn = tk.Button(self.frame, text="Print Configuration", font=self.text_font, width=25, command=lambda: self._print_config_btn_clicked())
         self._python_bin_config_btn = tk.Button(self.frame, text="Python Binary Configuration", font=self.text_font, width=25, command=lambda: self._python_bin_config_btn_clicked())
+        self._jamf_pro_config_btn = tk.Button(self.frame, text="JAMF Pro Configuration", font=self.text_font, width=25, command=lambda: self._jamf_pro_config_btn_clicked())
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Github scene widgets
         self._github_url = "<INSERT GITHUB REPO>"
@@ -531,6 +532,15 @@ class MainView(tk.Toplevel):
         # Open Python binary configuration in default application.
         self._controller.open_config("python_bin")
 
+    def _jamf_pro_config_btn_clicked(self):
+        """JAMF Pro configuration button handler.
+
+        Returns:
+            void
+        """
+        # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self._controller.open_config("jamf_pro")
+
     def _how_to_btn_clicked(self):
         """How To button handler.
 
@@ -586,13 +596,14 @@ class MainView(tk.Toplevel):
         self._grid_forget_scenes()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Grid settings scene widgets.
-        self._slack_config_btn.grid(row=0)
-        self._verify_config_btn.grid(row=1)
-        self._search_config_btn.grid(row=2)
-        self._offboard_config_btn.grid(row=3)
-        self._print_config_btn.grid(row=4)
-        self._python_bin_config_btn.grid(row=5)
-        self._directory_config_btn.grid(row=6)
+        self._jamf_pro_config_btn.grid(row=0)
+        self._slack_config_btn.grid(row=1)
+        self._verify_config_btn.grid(row=2)
+        self._search_config_btn.grid(row=3)
+        self._offboard_config_btn.grid(row=4)
+        self._print_config_btn.grid(row=5)
+        self._python_bin_config_btn.grid(row=6)
+        self._directory_config_btn.grid(row=7)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Unbind and bind to None.
         self.unbind('<Return>', self.return_id)
