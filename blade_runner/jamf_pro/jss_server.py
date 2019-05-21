@@ -48,8 +48,8 @@ class JssServer(object):
             _password (str): JSS password.
             _jss_url (str): JSS url.
             _invite (str): JSS invite for enrolling.
-            _jamf_binary_1: Location of JAMF binary on computer.
-            _jamf_binary_2: Location of JAMF binary on external drive.
+            _jamf_binary_1: Location of Jamf binary on computer.
+            _jamf_binary_2: Location of Jamf binary on external drive.
 
         """
         self.logger = logging.getLogger(__name__)
@@ -61,7 +61,7 @@ class JssServer(object):
         self._jamf_binary_2 = kwargs.get('jamf_binary_2', None)
 
     def match(self, search_param):
-        """Returns the JSS ID of a computer matching the search parameter. Fulfills JAMF's match API.
+        """Returns the JSS ID of a computer matching the search parameter. Fulfills Jamf's match API.
 
         Examples:
             This is an example of the API call made when search_param = "123456"
@@ -656,7 +656,7 @@ class JssServer(object):
         return capacity
 
     def enroll_computer(self):
-        """Enrolls the computer into the JSS. If the enroll fails, another attempt is made with the second JAMF binary.
+        """Enrolls the computer into the JSS. If the enroll fails, another attempt is made with the second Jamf binary.
 
         Notes:
             The sole purpose of this is to enable modification of the JSS record. It's not for long term enrollment.
@@ -709,7 +709,7 @@ class JssServer(object):
                 raise
             except Exception as e:
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-                msg = "Enrolling failed. Either the path to {} is incorrect or JAMF has not been " \
+                msg = "Enrolling failed. Either the path to {} is incorrect or Jamf has not been " \
                       "installed on this computer.".format(self._jamf_binary_2)
                 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 # Add another argument to the exception to store the message.
@@ -726,8 +726,8 @@ class JssServer(object):
         """Enroll the computer.
 
         Args:
-            binary (str): Path to JAMF binary.
-            invite (str): Invitation code to enroll in JAMF server.
+            binary (str): Path to Jamf binary.
+            invite (str): Invitation code to enroll in Jamf server.
 
         Returns:
             void
@@ -744,7 +744,7 @@ class JssServer(object):
         """Create jamf.conf configuration to bypass verifiying SSL cert when enrolling.
 
         Args:
-            jamf_binary (str): Path to the JAMF binary.
+            jamf_binary (str): Path to the Jamf binary.
             jss_url (str): URL of the JSS server.
 
         Returns:

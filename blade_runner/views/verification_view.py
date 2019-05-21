@@ -52,7 +52,7 @@ class VerifyView(tk.Toplevel):
         self.controller = controller
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the view's title.
-        self.title("Create New JAMF Pro Record")
+        self.title("Create New Jamf Pro Record")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create the frames.
         header_frame = tk.Frame(self)
@@ -65,7 +65,7 @@ class VerifyView(tk.Toplevel):
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Text header component
         self.text_lbl = tk.Label(header_frame, justify='left', wraplength=master.winfo_width()/2,
-                                text="No JAMF Pro record exists for this computer. Create the new record by filling "
+                                text="No Jamf Pro record exists for this computer. Create the new record by filling "
                                      "in the following fields:")
         self.text_lbl.grid(row=0)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>

@@ -125,7 +125,7 @@ class JssDoc(object):
         # Build review HTML string.
         review = False
         # Review content string will be built and used only if one of the "incorrect" fields is not None.
-        review_content = """<b>Review these to fix any JAMF Pro inconsistencies.</b>"""
+        review_content = """<b>Review these to fix any Jamf Pro inconsistencies.</b>"""
         # Check if any field needs to be reviewed.
         if self.computer.incorrect_barcode_1:
             review = True
@@ -172,7 +172,7 @@ class JssDoc(object):
                 ("Barcode 1", barcode_1),
                 ("Barcode 2", barcode_2),
                 ("Asset Tag", asset_tag),
-                ("JAMF ID", self.computer.jss_id, "Managed", managed),
+                ("Jamf ID", self.computer.jss_id, "Managed", managed),
                 ("Serial Number", serial_number),
                 ("Model", computer_model),
                 ("SSD", has_ssd, "RAM", ram_total),
