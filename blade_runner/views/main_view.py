@@ -771,6 +771,7 @@ class MainView(tk.Toplevel):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+        self._jamf_pro_config_btn.grid_forget()
         self._offboard_config_btn.grid_forget()
         self._slack_config_btn.grid_forget()
         self._verify_config_btn.grid_forget()
