@@ -81,7 +81,7 @@ class DualVerifyView(tk.Toplevel):
         self._controller = controller
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Set the window's title.
-        self.title("Verify JAMF Pro Record")
+        self.title("Verify Jamf Pro Record")
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Create two frames inside the window.
         header_frame = tk.Frame(self)
@@ -91,7 +91,7 @@ class DualVerifyView(tk.Toplevel):
         # Creating and adding widgets to subframes
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>v
         # Text header component
-        self.text_lbl = tk.Label(header_frame, text="A JAMF Pro record exists for this computer. "
+        self.text_lbl = tk.Label(header_frame, text="A Jamf Pro record exists for this computer. "
                                                     "Update the record by filling in the \n"
                                                     "following fields. Any fields left blank will not be updated.\n",
                                  justify="left")

@@ -60,7 +60,7 @@ class TestBladeRunnerManual(unittest.TestCase):
         abs_file_path = os.path.abspath(__file__)
         self.blade_runner_dir = os.path.dirname(abs_file_path)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get JAMF Pro settings.
+        # Get Jamf Pro settings.
         jss_server_plist = os.path.join(self.blade_runner_dir, "private/jamf_pro_configs/jamf_pro.plist")
         jss_server_data = plistlib.readPlist(jss_server_plist)
         jss_server = JssServer(**jss_server_data)

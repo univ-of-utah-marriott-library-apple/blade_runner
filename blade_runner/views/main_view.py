@@ -99,7 +99,7 @@ class MainView(tk.Toplevel):
         self._directory_config_btn = tk.Button(self.frame, text="Configuration Directory", font=self.text_font, width=25, command=lambda: self._directory_config_btn_clicked())
         self._print_config_btn = tk.Button(self.frame, text="Print Configuration", font=self.text_font, width=25, command=lambda: self._print_config_btn_clicked())
         self._python_bin_config_btn = tk.Button(self.frame, text="Python Binary Configuration", font=self.text_font, width=25, command=lambda: self._python_bin_config_btn_clicked())
-        self._jamf_pro_config_btn = tk.Button(self.frame, text="JAMF Pro Configuration", font=self.text_font, width=25, command=lambda: self._jamf_pro_config_btn_clicked())
+        self._jamf_pro_config_btn = tk.Button(self.frame, text="Jamf Pro Configuration", font=self.text_font, width=25, command=lambda: self._jamf_pro_config_btn_clicked())
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Github scene widgets
         self._github_url = "<INSERT GITHUB REPO>"
@@ -533,7 +533,7 @@ class MainView(tk.Toplevel):
         self._controller.open_config("python_bin")
 
     def _jamf_pro_config_btn_clicked(self):
-        """JAMF Pro configuration button handler.
+        """Jamf Pro configuration button handler.
 
         Returns:
             void
@@ -669,13 +669,13 @@ class MainView(tk.Toplevel):
         self._grid_forget_help_scene()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Grid About scene widgets.
-        text = "Blade Runner is a JAMF Pro based Python application that manages deprecated Mac computer systems. " \
-               "It does so through offboarding, enrolling, and updating JAMF records, as well as secure erasing the " \
-               "computer's internal disks, generating and printing documents with data retreived from JAMF Pro, " \
-               "displaying inconsistencies in JAMF records against user entered data, and sending progress updates " \
+        text = "Blade Runner is a Jamf Pro based Python application that manages deprecated Mac computer systems. " \
+               "It does so through offboarding, enrolling, and updating Jamf records, as well as secure erasing the " \
+               "computer's internal disks, generating and printing documents with data retreived from Jamf Pro, " \
+               "displaying inconsistencies in Jamf records against user entered data, and sending progress updates " \
                "through Slack. \nIt is configured through plists and XML files, allowing for multiple offboarding " \
                "configurations, a dynamically updating GUI, Slack integration, and specification of which search terms " \
-               "can be used to locate/update a JAMF Pro record."
+               "can be used to locate/update a Jamf Pro record."
         self._about_lbl.config(text=text, wraplength=self.frame.winfo_width())
         self._about_lbl.grid(row=0, padx=10)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -744,7 +744,7 @@ class MainView(tk.Toplevel):
         self.selection_lbl.grid(row=0, column=0)
         self.selection_lbl.config(text="Select an offboard configuration:", font=self.text_font)
         self.choose_lbl.grid(row=2, pady=(10, 0))
-        self.choose_lbl.config(text="Search for computer's JAMF record by:")
+        self.choose_lbl.config(text="Search for computer's Jamf record by:")
         self.combobox.grid(row=1, column=0)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Grid Offboard scene buttons according to search params configuration.

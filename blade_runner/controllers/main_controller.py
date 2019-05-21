@@ -316,7 +316,7 @@ class MainController(Controller):
                 # If managed status is false, re-enroll computer to set managed status to true. This enables the
                 # JSS record to be modified
                 if managed == 'false':
-                    msg = "Enrolling to change managed status to true to enable modification of the JAMF Pro record."
+                    msg = "Enrolling to change managed status to true to enable modification of the Jamf Pro record."
                     self.logger.debug(msg)
                     # Open a stall window, enroll the computer, and close the stall window.
                     enroll_window = StallWindow(self._main_view, self._jss_server.enroll_computer, msg, process=True)
@@ -331,7 +331,7 @@ class MainController(Controller):
             self._open_verify_view()
             # If user didn't cancel operation...
             if self._proceed:
-                msg = "Enrolling because no JAMF Pro ID exists for this computer."
+                msg = "Enrolling because no Jamf Pro ID exists for this computer."
                 self.logger.debug(msg)
                 # Open a stall window, enroll the computer, and close the stall window.
                 enroll_window = StallWindow(self._main_view, self._jss_server.enroll_computer, msg, process=True)
@@ -339,7 +339,7 @@ class MainController(Controller):
                     return
                 # Since JSS ID has now been created, retrieve it.
                 self._computer.jss_id = self._jss_server.match(self._computer.serial_number)
-                self.logger.debug("JAMF Pro ID after enrolling: {}".format(self._computer.jss_id))
+                self.logger.debug("Jamf Pro ID after enrolling: {}".format(self._computer.jss_id))
             else:
                 return
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -656,7 +656,7 @@ def main():
     for i in range(3):
         blade_runner_dir = os.path.dirname(blade_runner_dir)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Read from jss config plist and set up the JAMF Pro server
+    # Read from jss config plist and set up the Jamf Pro server
     jss_server_plist = os.path.join(blade_runner_dir, "private/jamf_pro_configs/jamf_pro.plist")
     jss_server_data = plistlib.readPlist(jss_server_plist)
     jss_server = JssServer(**jss_server_data)
