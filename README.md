@@ -371,7 +371,7 @@ def update_slack_message(self, message):
 
 Testing should be done on a non-production JAMF Pro. It's recommended that the non-production JAMF Pro be set up on a virtual machine (VM). You can follow this [tutorial](https://apple.lib.utah.edu/jamf-pro-in-a-virtual-box/) for setting up JAMF Pro on a MacOS VM.
 
-To manually test *Blade Runner*, configure the files in `Blade\ Runner.app/Contents/Resources/Blade\ Runner/test/private` and run `test_blade_runner_manual.py`. To run `test_blade_runner_manual.py`, change the working directory to `Blade\ Runner.app/Contents/Resources/Blade\ Runner/` and do:
+To manually test *Blade Runner*, configure the files in `Blade\ Runner.app/Contents/Resources/Blade\ Runner/test/private` and run `test_blade_runner_manual.py`. Don't use *Blade Runner*'s settings button to open these files, as the settings button opens the non-test configuration files. To run `test_blade_runner_manual.py`, change the working directory to `Blade\ Runner.app/Contents/Resources/Blade\ Runner/` and do:
 
 ```bash
 sudo python test/test_blade_runner_manual.py
@@ -379,7 +379,7 @@ sudo python test/test_blade_runner_manual.py
 
 This will run *Blade Runner* using your test configuration files.
 
-NOTE: To prevent the `jamf` command from hanging when running `softwareupdate` (this sometimes happens during an enroll), go to `Settings>Computer Management>Inventory Collection>General` in JAMF Pro and uncheck `Include home directory sizes`. You can also uncheck `Collect available software updates` for the purpose of testing.
+NOTE: If the `jamf` command hangs on `softwareupdate` when enrolling, go to `Settings>Computer Management>Inventory Collection>General` in JAMF Pro and uncheck `Include home directory sizes`. You can also uncheck `Collect available software updates` for the purpose of testing.
 
 # Features and How They Work
 
