@@ -2,8 +2,7 @@ Blade Runner
 ===========
 
 
-*Blade Runner* is a Jamf Pro based Python application that automates and implements a framework to offboard, secure erase and document deprecated Mac systems.
-
+*Blade Runner* is a Jamf Pro based Python application that automates and implements a framework to off-board, secure erase and document deprecated Mac systems. It does so through off-boarding, enrolling, and updating JAMF Pro records, as well as secure erasing the computer's internal disks, generating and printing documents with data retrieved from Jamf Pro, displaying inconsistencies in JAMF Pro records against user entered data, and sending progress updates through Slack.
 ![](rsrc/images/selection_scene_wbg.png)
 
 It is configured through property list (plist) files and Extensible Markup Language (XML) files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a Jamf Pro record.
