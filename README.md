@@ -2,11 +2,11 @@ Blade Runner
 ===========
 
 
-*Blade Runner* is a JAMF Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating JAMF Pro records, as well as secure erasing the computer's internal disks, generating and printing documents with data retreived from JAMF Pro, displaying inconsistencies in JAMF Pro records against user entered data, and sending progress updates through Slack.
+*Blade Runner* is a Jamf Pro based Python application that automates and implements a framework to offboard, secure erase and document deprecated Mac systems.
 
 ![](rsrc/images/selection_scene_wbg.png)
 
-It is configured through property list (plist) files and Extensible Markup Language (XML) files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a JAMF Pro record.
+It is configured through property list (plist) files and Extensible Markup Language (XML) files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a Jamf Pro record.
 
 For a list of features, see [Features & How They Work](#features-and-how-they-work).
 
@@ -16,7 +16,7 @@ For a list of features, see [Features & How They Work](#features-and-how-they-wo
 * [Download](#download)
 * [System Requirements](#system-requirements)
 * [Configuration](#configuration)
-    * [JAMF Pro Configuration](#jamf-pro-configuration)
+    * [Jamf Pro Configuration](#jamf-pro-configuration)
     * [Offboard Configuration](#offboard-configuration)
     * [Search Parameters Configuration](#search-parameters-configuration)
     * [Verification Parameters Configuration](#verification-parameters-configuration)
@@ -36,15 +36,15 @@ For a list of features, see [Features & How They Work](#features-and-how-they-wo
     * [Slack Notifications](#slack-notifications)
         * [Slack Reminder Daemon](#slack-notifications)   
     * [Auto Document Generation and Printing](#auto-document-generation-and-printing)
-        * [Displays Inconsistencies in JAMF Pro Record](#jamf-pro-record-inconsistencies) 
+        * [Displays Inconsistencies in Jamf Pro Record](#jamf-pro-record-inconsistencies) 
 * [Uninstallation](#uninstallation)
 * [Contact](#contact)
 * [Update History](#update-history)
 
 # Important Items Before You Start
 
-1. Test Blade Runner on a non-production JAMF Pro until you feel comfortable with it. The easiest way to do this is to set up JAMF Pro on a virtual machine.
-2. Create a limited API user that Blade Runner will use to interface with JAMF Pro. The user name and credentials that Blade Runner uses are stored in an unencrypted configuration file.
+1. Test Blade Runner on a non-production Jamf Pro until you feel comfortable with it. The easiest way to do this is to set up Jamf Pro on a virtual machine.
+2. Create a limited API user that Blade Runner will use to interface with Jamf Pro. The user name and credentials that Blade Runner uses are stored in an unencrypted configuration file.
 3. Blade Runner needs Python 2 with a version greater than or equal to 2.7.9. If the OS that is running Blade Runner has a Python version less than 2.7.9, a quick fix is to install [Anaconda Python 2.7 version](https://www.anaconda.com/distribution/) on the OS and point *Blade Runner*'s `python_bin.plist` file to Anaconda's Python 2 binary. 
 
 # Download
@@ -58,11 +58,11 @@ Uninstallation instructions are provided [below](#uninstallation).
 
 # Configuration
 
-*Blade Runner* is configured through plist and XML files. These configuration files are used for JAMF Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu, and all must be configured before running *Blade Runner*.
+*Blade Runner* is configured through plist and XML files. These configuration files are used for Jamf Pro access, Slack notifications, and *Blade Runner* itself. The configuration files can be accessed through *Blade Runner*'s `Settings` menu, and all must be configured before running *Blade Runner*.
 
 ![](rsrc/images/settings_scene_wbg.png)
 
-* [JAMF Pro Configuration](#jamf-pro-configuration)
+* [Jamf Pro Configuration](#jamf-pro-configuration)
 * [Offboard Configuration](#offboard-configuration)
 * [Search Parameters Configuration](#search-parameters-configuration)
 * [Verification Parameters Configuration](#verification-parameters-configuration)
@@ -70,18 +70,18 @@ Uninstallation instructions are provided [below](#uninstallation).
 * [Python Binary Configuration](#python-binary-configuration)
 * [User Defined Actions](#user-defined-actions)
 
-## JAMF Pro Configuration
+## Jamf Pro Configuration
 
-The `jamf_pro.plist` file contains the information needed for *Blade Runner* to perform JAMF Pro related tasks. The config contains the following keys:
+The `jamf_pro.plist` file contains the information needed for *Blade Runner* to perform Jamf Pro related tasks. The config contains the following keys:
 
 * **username**
-  * JAMF Pro login username that will be used to make API requests to JAMF Pro. 
+  * Jamf Pro login username that will be used to make API requests to Jamf Pro. 
 * **password**
-  * JAMF Pro login password that will be used to make API requests to JAMF Pro.
+  * Jamf Pro login password that will be used to make API requests to Jamf Pro.
 * **jss_url**
-  * JAMF Pro url.
+  * Jamf Pro url.
 * **invite**
-  * Invitation code used to enroll a computer into JAMF Pro. 
+  * Invitation code used to enroll a computer into Jamf Pro. 
 * **jamf_binary_1**
   * Location of `jamf` binary on computer. This is the primary `jamf` binary that will be used to enroll computers.
 * **jamf_binary_2**
@@ -112,12 +112,12 @@ The `jamf_pro.plist` file contains the information needed for *Blade Runner* to 
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be listed in the XML configuration files. These configurations will contain the information to be sent to JAMF Pro during the offboarding process. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can also be accessed through `Settings`.
+Offboard configurations can have any name but must be listed in the XML configuration files. These configurations will contain the information to be sent to Jamf Pro during the offboarding process. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can also be accessed through `Settings`.
 
 ![](rsrc/images/offboard_scene_drop_down_marked_wbg.png)
 
 
-**NOTE: The XML file must represent a valid string for JAMF Pro's XML API calls.** The best way to check this is to go to `https://my.jamf.server.domain:portnumber/api`, click on `computers>computers/id>Try it out!`, and look at the available data in `XML Response Body`. Your configuration file's tags and structure should only contain tags that exist in `XML Response Body`.
+**NOTE: The XML file must represent a valid string for Jamf Pro's XML API calls.** The best way to check this is to go to `https://my.jamf.server.domain:portnumber/api`, click on `computers>computers/id>Try it out!`, and look at the available data in `XML Response Body`. Your configuration file's tags and structure should only contain tags that exist in `XML Response Body`.
 
 ### Example Configurations
 
@@ -155,7 +155,7 @@ Offboard configurations can have any name but must be listed in the XML configur
 </computer>
 ```
 
-* Offboard configuration that sets management status to false and updates an extension attribute (extension attributes differ between JAMF Pro servers):
+* Offboard configuration that sets management status to false and updates an extension attribute (extension attributes differ between Jamf Pro servers):
 ```xml
 <computer>
   <general>
@@ -176,7 +176,7 @@ Offboard configurations can have any name but must be listed in the XML configur
 
 ## Search Parameters Configuration
 
-The `search_params.plist` file determines the search parameters that can be used to find a computer record in JAMF Pro. The Blade Runner GUI will dynamically update search parameters by only showing buttons that correspond to the enabled parameters.
+The `search_params.plist` file determines the search parameters that can be used to find a computer record in Jamf Pro. The Blade Runner GUI will dynamically update search parameters by only showing buttons that correspond to the enabled parameters.
 
 The available search parameters are `serial number`, `barcode 1`, `barcode 2`, and `asset tag`.
 
@@ -184,7 +184,7 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
 
 ### Example Configuration
 
-* The example configuration below updates the Blade Runner GUI to show barcode 1, asset tag, and serial number buttons and allows the user to search JAMF Pro using the included search parameters:
+* The example configuration below updates the Blade Runner GUI to show barcode 1, asset tag, and serial number buttons and allows the user to search Jamf Pro using the included search parameters:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -206,7 +206,7 @@ The available search parameters are `serial number`, `barcode 1`, `barcode 2`, a
 
 ## Verification Parameters Configuration
 
-The `verify_params.plist` file determines which search parameters need to be verified when a match in JAMF Pro is found. It is generally the case that any keys enabled in [search_params.plist](#search-parameters-configuration) should also be enabled in `verify_config.plist`.
+The `verify_params.plist` file determines which search parameters need to be verified when a match in Jamf Pro is found. It is generally the case that any keys enabled in [search_params.plist](#search-parameters-configuration) should also be enabled in `verify_config.plist`.
 
 Here's a short example scenario of how *Blade Runner* handles user entered data when a match is found:
 
@@ -214,7 +214,7 @@ Here's a short example scenario of how *Blade Runner* handles user entered data 
   * No match found.
     * User then searches for a computer using `asset tag`:
       * Match found.
-        * If `barcode 1` and `asset_tag` are enabled in `verify_params.plist`, *Blade Runner* will ask the user to verify/correct the information entered for `barcode 1` and `asset_tag` against JAMF Pro's record.
+        * If `barcode 1` and `asset_tag` are enabled in `verify_params.plist`, *Blade Runner* will ask the user to verify/correct the information entered for `barcode 1` and `asset_tag` against Jamf Pro's record.
 
 <img src="rsrc/images/verify_all_wbg.png"  width="800" height="480">
 
@@ -262,7 +262,7 @@ To facilitate "knowing" where to put this code, `user_actions.py` is provided. I
 
 ### modify_items
 
-`user_actions.py` contains an unimplemented function named `modify_items()`. This function is called in [jss_doc.py](#auto-document-generation-and-printing). It appears right before the body of the document is generated. Its purpose is to allow the user to modify the data that appears in the document. `modify_items()` takes the `JssDoc`'s `self` as the first parameter and a list of tuples as the second parameter. `self` provides access to JAMF Pro. Each tuple in the list
+`user_actions.py` contains an unimplemented function named `modify_items()`. This function is called in [jss_doc.py](#auto-document-generation-and-printing). It appears right before the body of the document is generated. Its purpose is to allow the user to modify the data that appears in the document. `modify_items()` takes the `JssDoc`'s `self` as the first parameter and a list of tuples as the second parameter. `self` provides access to Jamf Pro. Each tuple in the list
 contains the name and value of the data to be added to the document.
 
 The first parameters of the standard data tuples are the following:
@@ -271,7 +271,7 @@ The first parameters of the standard data tuples are the following:
     * Barcode 1
     * Barcode 2
     * Asset Tag
-    * JAMF ID
+    * Jamf ID
     * Serial Number
     * Model
     * SSD
@@ -320,7 +320,7 @@ and would result in a document like to this:
 
 ### update_offboard_config
 
-`user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before *Blade Runner* sends the offboard config to JAMF Pro. Its purpose is to make custom changes to the offboard data before it is sent.
+`user_actions.py` contains an uimplemented function `update_offboard_config()` that is called before *Blade Runner* sends the offboard config to Jamf Pro. Its purpose is to make custom changes to the offboard data before it is sent.
 
 #### Example
 
@@ -369,7 +369,7 @@ def update_slack_message(self, message):
 
 # Testing
 
-Testing should be done on a non-production JAMF Pro. It's recommended that the non-production JAMF Pro be set up on a virtual machine (VM). You can follow this [tutorial](https://apple.lib.utah.edu/jamf-pro-in-a-virtual-box/) for setting up JAMF Pro on a MacOS VM.
+Testing should be done on a non-production Jamf Pro. It's recommended that the non-production Jamf Pro be set up on a virtual machine (VM). You can follow this [tutorial](https://apple.lib.utah.edu/jamf-pro-in-a-virtual-box/) for setting up Jamf Pro on a MacOS VM.
 
 To manually test *Blade Runner*, configure the files in `Blade\ Runner.app/Contents/Resources/Blade\ Runner/test/private` and run `test_blade_runner_manual.py`. Don't use *Blade Runner*'s settings button to open these files, as the settings button opens the non-test configuration files. To run `test_blade_runner_manual.py`, change the working directory to `Blade\ Runner.app/Contents/Resources/Blade\ Runner/` and do:
 
@@ -379,7 +379,7 @@ sudo python test/test_blade_runner_manual.py
 
 This will run *Blade Runner* using your test configuration files.
 
-NOTE: If the `jamf` command hangs on `softwareupdate` when enrolling, go to `Settings>Computer Management>Inventory Collection>General` in JAMF Pro and uncheck `Include home directory sizes`. You can also uncheck `Collect available software updates` for the purpose of testing.
+NOTE: If the `jamf` command hangs on `softwareupdate` when enrolling, go to `Settings>Computer Management>Inventory Collection>General` in Jamf Pro and uncheck `Include home directory sizes`. You can also uncheck `Collect available software updates` for the purpose of testing.
 
 # Features and How They Work
 
@@ -399,20 +399,20 @@ NOTE: If the `jamf` command hangs on `softwareupdate` when enrolling, go to `Set
     
 ## Offboard
 
-Offboarding is done through API calls made by *Blade Runner* to JAMF Pro. The user selects an [offboarding configuration file](#offboard-configuration) and that file is sent as an XML string to JAMF Pro.
+Offboarding is done through API calls made by *Blade Runner* to Jamf Pro. The user selects an [offboarding configuration file](#offboard-configuration) and that file is sent as an XML string to Jamf Pro.
 
 ## Enroll
 
 The purpose of enrolling before offboarding is to:
 
-1. create a record for a computer if it doesn't already exist in JAMF Pro.
+1. create a record for a computer if it doesn't already exist in Jamf Pro.
 2. change the managed status of an existing computer from false to true. This enables modification of the computer record.
 
 Enrolling is done through the `jamf` binary with an invitation code: 
 
     jamf enroll -invitation 1234567891234567891234567891234567890 -noPolicy -noManage -verbose
 
-The invitation code is set in the [JAMF Pro configuration](#jamf-pro-configuration).
+The invitation code is set in the [Jamf Pro configuration](#jamf-pro-configuration).
 
 ## Secure Erase
 
@@ -470,13 +470,13 @@ To help busy or forgetful Mac admins, a Slack reminder daemon has been implement
 
 ## Auto Document Generation and Printing
 
-Auto document generation is done in `jss_doc.py` by the `JssDoc` class. This class generates a document by querying JAMF Pro for the following data:
+Auto document generation is done in `jss_doc.py` by the `JssDoc` class. This class generates a document by querying Jamf Pro for the following data:
 
     * Name
     * Barcode 1
     * Barcode 2
     * Asset Tag
-    * JAMF ID
+    * Jamf ID
     * Serial Number
     * Model
     * SSD
@@ -491,7 +491,7 @@ On the code side of things, these fields are represented by tuples, in which the
 
 ### Jamf Pro Record Inconsistencies
 
-In the case that inconsistencies exist between user entered data and the JAMF Pro data, they will be added to the document for the user to review later if they so wish.
+In the case that inconsistencies exist between user entered data and the Jamf Pro data, they will be added to the document for the user to review later if they so wish.
 
 The reported inconsistencies are as follows:
 
@@ -500,7 +500,7 @@ The reported inconsistencies are as follows:
     * Previous asset tag
     * Previous serial
 
-For example, if the entered `barcode 1` differs from JAMF Pro's record, the previous `barcode 1` will be displayed:
+For example, if the entered `barcode 1` differs from Jamf Pro's record, the previous `barcode 1` will be displayed:
 
 <img src="rsrc/images/jssdoc_review.png"  width="400" height="517">
 
