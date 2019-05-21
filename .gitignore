@@ -2,8 +2,6 @@
 /config/offboard_configs/Salvage.xml
 /config/offboard_configs/Storage.xml
 /private
-/test/config
-/test/config
 *.pyc
 *~
 .idea
