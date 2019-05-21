@@ -2,7 +2,7 @@ Blade Runner
 ===========
 
 
-*Blade Runner* is a Jamf Pro based Python application that manages deprecated Mac computer systems. It does so through offboarding, enrolling, and updating Jamf Pro records, as well as secure erasing the computer's internal disks, generating and printing documents with data retreived from Jamf Pro, displaying inconsistencies in Jamf Pro records against user entered data, and sending progress updates through Slack.
+*Blade Runner* is a Jamf Pro based Python application that automates and implements a framework to offboard, secure erase and document deprecated Mac systems.
 
 ![](rsrc/images/selection_scene_wbg.png)
 
