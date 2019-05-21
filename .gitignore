@@ -1,6 +1,3 @@
-*xml_updater.py
-/config/offboard_configs/Salvage.xml
-/config/offboard_configs/Storage.xml
 /private
 *.pyc
 *~
