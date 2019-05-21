@@ -1,11 +1,9 @@
 config
 *xml_updater.py
-private/*/*.plist
-private/*/*.xml
-test/private/*/*.plist
-test/private/*/*.xml
-docs/*/*.html
-docs/*/*.pdf
+private
+private
+test/config
+test/config
 *.pyc
 *~
 .idea
