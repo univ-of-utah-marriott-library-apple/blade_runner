@@ -596,6 +596,8 @@ class MainController(Controller):
             path = "print_config/print.plist"
         elif config_id == "python_bin":
             path = "python_bin_config/python_bin.plist"
+        elif config_id == "jamf_pro":
+            path = "jamf_pro_configs/jamf_pro.plist"
         else:
             self.logger.warn("No configuration ID matches \"{}\"".format(config_id))
             raise SystemError("No configuration ID matches \"{}\"".format(config_id))
