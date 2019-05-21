@@ -21,6 +21,7 @@
 ################################################################################
 
 import re
+import os
 import sys
 import json
 import base64
@@ -675,6 +676,8 @@ class JssServer(object):
         try: # enrolling computer. If the process hangs, see Note section in docstring.
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             # Run enroll command
+            if not os.path.isfile("/Library/Preferences/com.jamfsoftware.jamf.plist"):
+                self._jamf_create_conf(self._jamf_binary_1, self._jss_url)
             return self._enroll(self._jamf_binary_1, self._invite)
             # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         except (OSError, subprocess.CalledProcessError) as e:
