@@ -509,8 +509,8 @@ class MainView(tk.Toplevel):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Opens private directory in Finder.
-        self._controller.open_config("private")
+        # Opens config directory in Finder.
+        self._controller.open_config("config")
 
     def _print_config_btn_clicked(self):
         """Print configuration button handler.

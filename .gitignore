@@ -1,3 +1,4 @@
+config
 *xml_updater.py
 private/*/*.plist
 private/*/*.xml

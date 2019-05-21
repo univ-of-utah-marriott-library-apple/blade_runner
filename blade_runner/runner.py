@@ -49,7 +49,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 def main():
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get Python binary location from the Python binary settings.
-    python_bin_config = os.path.join(blade_runner_dir, "private/python_bin_config/python_bin.plist")
+    python_bin_config = os.path.join(blade_runner_dir, "config/python_bin_config/python_bin.plist")
     python_bin_settings = plistlib.readPlist(python_bin_config)
     user_input_python_bin = python_bin_settings["python_binary"]
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>

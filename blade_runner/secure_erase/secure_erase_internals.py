@@ -719,7 +719,7 @@ if __name__ == "__main__":
             raise
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Get slack data from config.
-    slack_plist = os.path.join(blade_runner_dir, "private/slack_configs/slack.plist")
+    slack_plist = os.path.join(blade_runner_dir, "config/slack_configs/slack.plist")
     slack_data = plistlib.readPlist(slack_plist)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # If slack enabled, setup bot.
@@ -728,7 +728,7 @@ if __name__ == "__main__":
         bot = IWS(slack_data["slack_url"], bot_name=current_ip, channel=slack_data["slack_channel"])
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Read from print config to enable or disable printing.
-    print_config = os.path.join(blade_runner_dir, "private/print_config/print.plist")
+    print_config = os.path.join(blade_runner_dir, "config/print_config/print.plist")
     print_settings = plistlib.readPlist(print_config)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Run main.

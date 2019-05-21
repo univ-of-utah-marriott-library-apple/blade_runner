@@ -112,7 +112,7 @@ The `jamf_pro.plist` file contains the information needed for *Blade Runner* to 
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be listed in the XML configuration files. These configurations will contain the information to be sent to Jamf Pro during the offboarding process. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can also be accessed through `Settings`.
+Offboard configurations can have any name but must be listed in the XML configuration files. These configurations will contain the information to be sent to Jamf Pro during the offboarding process. As seen below, all offboard configurations will be available to the user. These configs are located in `config/offboard_configs` and can also be accessed through `Settings`.
 
 ![](rsrc/images/offboard_scene_drop_down_marked_wbg.png)
 
@@ -371,7 +371,7 @@ def update_slack_message(self, message):
 
 Testing should be done on a non-production Jamf Pro. It's recommended that the non-production Jamf Pro be set up on a virtual machine (VM). You can follow this [tutorial](https://apple.lib.utah.edu/jamf-pro-in-a-virtual-box/) for setting up Jamf Pro on a MacOS VM.
 
-To manually test *Blade Runner*, configure the files in `Blade\ Runner.app/Contents/Resources/Blade\ Runner/test/private` and run `test_blade_runner_manual.py`. Don't use *Blade Runner*'s settings button to open these files, as the settings button opens the non-test configuration files. To run `test_blade_runner_manual.py`, change the working directory to `Blade\ Runner.app/Contents/Resources/Blade\ Runner/` and do:
+To manually test *Blade Runner*, configure the files in `Blade\ Runner.app/Contents/Resources/Blade\ Runner/test/config` and run `test_blade_runner_manual.py`. Don't use *Blade Runner*'s settings button to open these files, as the settings button opens the non-test configuration files. To run `test_blade_runner_manual.py`, change the working directory to `Blade\ Runner.app/Contents/Resources/Blade\ Runner/` and do:
 
 ```bash
 sudo python test/test_blade_runner_manual.py
