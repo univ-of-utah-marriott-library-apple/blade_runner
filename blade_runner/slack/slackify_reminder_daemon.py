@@ -105,7 +105,7 @@ if __name__ == "__main__":
         blade_runner_dir = os.path.dirname(blade_runner_dir)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Set path to Slack config plist.
-    slack_plist = os.path.join(blade_runner_dir, "private/slack_configs/slack.plist")
+    slack_plist = os.path.join(blade_runner_dir, "config/slack_configs/slack.plist")
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Convert Slack config to a dictionary.
     slack_data = plistlib.readPlist(slack_plist)

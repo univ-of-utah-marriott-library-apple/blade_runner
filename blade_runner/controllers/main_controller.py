@@ -106,17 +106,17 @@ class MainController(Controller):
         self.verify_params_input = verify_params
         self.search_params_input = search_params
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Set path to private directory that contains the configuration files.
+        # Set path to config directory that contains the configuration files.
 
         app_root_dir = os.path.abspath(__file__)
         for i in range(3):
             app_root_dir = os.path.dirname(app_root_dir)
 
         self.app_root_dir = app_root_dir
-        self._private_dir = os.path.join(self.app_root_dir, "private")
+        self._config_dir = os.path.join(self.app_root_dir, "config")
         self._blade_runner_dir = os.path.join(self.app_root_dir, "blade_runner")
         self._slack_dir = os.path.join(self._blade_runner_dir, "slack")
-        self._offboard_configs_dir = os.path.join(self._private_dir, "offboard_configs")
+        self._offboard_configs_dir = os.path.join(self._config_dir, "offboard_configs")
         self._secure_erase_dir = os.path.join(self._blade_runner_dir, "secure_erase")
 
     def _exception_messagebox(self, exc, value, traceback):
@@ -205,7 +205,7 @@ class MainController(Controller):
             void
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get the XML config files from the private directory
+        # Get the XML config files from the config directory
         offboard_configs = self._get_offboard_configs(self._offboard_configs_dir)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Fill the main view's combobox with the XML files.
@@ -224,7 +224,7 @@ class MainController(Controller):
             list: XML configuration files.
         """
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get a list of the files in the private directory.
+        # Get a list of the files in the config directory.
         files = os.listdir(dir)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get all XML files in the directory.
@@ -590,7 +590,7 @@ class MainController(Controller):
             path = "verify_params_configs/verify_params.plist"
         elif config_id == "search":
             path = "search_params_configs/search_params.plist"
-        elif config_id == "private":
+        elif config_id == "config":
             path = ""
         elif config_id == "print":
             path = "print_config/print.plist"
@@ -603,7 +603,7 @@ class MainController(Controller):
             raise SystemError("No configuration ID matches \"{}\"".format(config_id))
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Open the file in its default application
-        subprocess.check_output(["open", os.path.join(self._private_dir, path)])
+        subprocess.check_output(["open", os.path.join(self._config_dir, path)])
 
     def cat_readme(self):
         """Outputs the text of README.md.
@@ -650,32 +650,32 @@ def main():
     root = tk.Tk()
     root.withdraw()
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    # Set up parent folder of private.
+    # Set up parent folder of config.
     abs_file_path = os.path.abspath(__file__)
     blade_runner_dir = abs_file_path
     for i in range(3):
         blade_runner_dir = os.path.dirname(blade_runner_dir)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Read from jss config plist and set up the Jamf Pro server
-    jss_server_plist = os.path.join(blade_runner_dir, "private/jamf_pro_configs/jamf_pro.plist")
+    jss_server_plist = os.path.join(blade_runner_dir, "config/jamf_pro_configs/jamf_pro.plist")
     jss_server_data = plistlib.readPlist(jss_server_plist)
     jss_server = JssServer(**jss_server_data)
     logger.debug(jss_server._jss_url)
 
     # Read from Slack config plist to set up Slack notifications
-    slack_plist = os.path.join(blade_runner_dir, "private/slack_configs/slack.plist")
+    slack_plist = os.path.join(blade_runner_dir, "config/slack_configs/slack.plist")
     slack_data = plistlib.readPlist(slack_plist)
 
     # Read from verify params plist to set up verification parameters
-    verify_config = os.path.join(blade_runner_dir, "private/verify_params_configs/verify_params.plist")
+    verify_config = os.path.join(blade_runner_dir, "config/verify_params_configs/verify_params.plist")
     verify_params = plistlib.readPlist(verify_config)
 
     # Read from search params plist to set up search parameters.
-    search_params_config = os.path.join(blade_runner_dir, "private/search_params_configs/search_params.plist")
+    search_params_config = os.path.join(blade_runner_dir, "config/search_params_configs/search_params.plist")
     search_params = plistlib.readPlist(search_params_config)
 
     # Read from print config to enable or disable printing.
-    print_config = os.path.join(blade_runner_dir, "private/print_config/print.plist")
+    print_config = os.path.join(blade_runner_dir, "config/print_config/print.plist")
     print_settings = plistlib.readPlist(print_config)
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     # Run the application

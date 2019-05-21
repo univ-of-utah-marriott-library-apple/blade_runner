@@ -2,11 +2,10 @@ Blade Runner
 ===========
 
 
-*Blade Runner* is a Jamf Pro based Python application that automates and implements a framework to offboard, secure erase and document deprecated Mac systems.
-
+*Blade Runner* is a Jamf Pro based Python application that automates and implements a framework to off-board, secure erase and document deprecated Mac systems. It does so through off-boarding, enrolling, and updating JAMF Pro records, as well as secure erasing the computer's internal disks, generating and printing documents with data retrieved from Jamf Pro, displaying inconsistencies in JAMF Pro records against user entered data, and sending progress updates through Slack.
 ![](rsrc/images/selection_scene_wbg.png)
 
-It is configured through property list (plist) files and Extensible Markup Language (XML) files, allowing for multiple offboarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a Jamf Pro record.
+It is configured through property list (plist) files and Extensible Markup Language (XML) files, allowing for multiple off-boarding configurations, a dynamically updating GUI, Slack integration, and specification of which search terms can be used to locate/update a Jamf Pro record.
 
 For a list of features, see [Features & How They Work](#features-and-how-they-work).
 
@@ -112,7 +111,7 @@ The `jamf_pro.plist` file contains the information needed for *Blade Runner* to 
 
 ## Offboard Configuration
 
-Offboard configurations can have any name but must be listed in the XML configuration files. These configurations will contain the information to be sent to Jamf Pro during the offboarding process. As seen below, all offboard configurations will be available to the user. These configs are located in `private/offboard_configs` and can also be accessed through `Settings`.
+Offboard configurations can have any name but must be listed in the XML configuration files. These configurations will contain the information to be sent to Jamf Pro during the offboarding process. As seen below, all offboard configurations will be available to the user. These configs are located in `config/offboard_configs` and can also be accessed through `Settings`.
 
 ![](rsrc/images/offboard_scene_drop_down_marked_wbg.png)
 
@@ -371,7 +370,7 @@ def update_slack_message(self, message):
 
 Testing should be done on a non-production Jamf Pro. It's recommended that the non-production Jamf Pro be set up on a virtual machine (VM). You can follow this [tutorial](https://apple.lib.utah.edu/jamf-pro-in-a-virtual-box/) for setting up Jamf Pro on a MacOS VM.
 
-To manually test *Blade Runner*, configure the files in `Blade\ Runner.app/Contents/Resources/Blade\ Runner/test/private` and run `test_blade_runner_manual.py`. Don't use *Blade Runner*'s settings button to open these files, as the settings button opens the non-test configuration files. To run `test_blade_runner_manual.py`, change the working directory to `Blade\ Runner.app/Contents/Resources/Blade\ Runner/` and do:
+To manually test *Blade Runner*, configure the files in `Blade\ Runner.app/Contents/Resources/Blade\ Runner/test/config` and run `test_blade_runner_manual.py`. Don't use *Blade Runner*'s settings button to open these files, as the settings button opens the non-test configuration files. To run `test_blade_runner_manual.py`, change the working directory to `Blade\ Runner.app/Contents/Resources/Blade\ Runner/` and do:
 
 ```bash
 sudo python test/test_blade_runner_manual.py

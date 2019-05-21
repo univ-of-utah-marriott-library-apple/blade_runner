@@ -1,10 +1,7 @@
 *xml_updater.py
-private/*/*.plist
-private/*/*.xml
-test/private/*/*.plist
-test/private/*/*.xml
-docs/*/*.html
-docs/*/*.pdf
+/config/offboard_configs/Salvage.xml
+/config/offboard_configs/Storage.xml
+/private
 *.pyc
 *~
 .idea

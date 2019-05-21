@@ -56,29 +56,29 @@ class TestBladeRunnerManual(unittest.TestCase):
         root = tk.Tk()
         root.withdraw()
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
-        # Get path to private folder
+        # Get path to config folder
         abs_file_path = os.path.abspath(__file__)
         self.blade_runner_dir = os.path.dirname(abs_file_path)
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         # Get Jamf Pro settings.
-        jss_server_plist = os.path.join(self.blade_runner_dir, "private/jamf_pro_configs/jamf_pro.plist")
+        jss_server_plist = os.path.join(self.blade_runner_dir, "config/jamf_pro_configs/jamf_pro.plist")
         jss_server_data = plistlib.readPlist(jss_server_plist)
         jss_server = JssServer(**jss_server_data)
 
         # Get Slack settings.
-        self.slack_plist = os.path.join(self.blade_runner_dir, "private/slack_configs/slack.plist")
+        self.slack_plist = os.path.join(self.blade_runner_dir, "config/slack_configs/slack.plist")
         self.slack_data = plistlib.readPlist(self.slack_plist)
 
         # Get verification parameter settings
-        self.verify_config = os.path.join(self.blade_runner_dir, "private/verify_params_configs/verify_params.plist")
+        self.verify_config = os.path.join(self.blade_runner_dir, "config/verify_params_configs/verify_params.plist")
         self.verify_data = plistlib.readPlist(self.verify_config)
 
         # Get search parameter settings.
-        self.search_params_config = os.path.join(self.blade_runner_dir, "private/search_params_configs/search_params.plist")
+        self.search_params_config = os.path.join(self.blade_runner_dir, "config/search_params_configs/search_params.plist")
         self.search_params = plistlib.readPlist(self.search_params_config)
 
         # Get document settings.
-        self.print_config = os.path.join(self.blade_runner_dir, "private/print_config/print.plist")
+        self.print_config = os.path.join(self.blade_runner_dir, "config/print_config/print.plist")
         self.print_settings = plistlib.readPlist(self.print_config)
 
         # Set up main controller.
