@@ -1,9 +1,8 @@
 config
 *xml_updater.py
-private
-private
-test/config
-test/config
+/private
+/test/config
+/test/config
 *.pyc
 *~
 .idea
