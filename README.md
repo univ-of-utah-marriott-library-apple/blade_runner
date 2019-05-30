@@ -520,8 +520,8 @@ Thanks!
 
 | Date       | Version | Description
 |------------|:-------:|------------------------------------------------------|
-| TBA        | 1.0.0   | Initial Release                                      
-
+| 2019.05.21 | 1.0.0   | Initial Release                                      
+| 2019.05.30 | 1.0.1   | Added Unit tests for DualVerificationController.
 
 
 
